@@ -1,0 +1,441 @@
+@* This is a partial view and should not have a layout *@
+
+<style>
+    /* Notification Styles - Modern Redesign */
+    .notification-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Notification Button */
+    .notification-btn {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        color: white;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        padding: 8px;
+        border-radius: 50%;
+    }
+    
+    .notification-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: scale(1.05);
+    }
+    
+    .notification-btn:active {
+        transform: scale(0.95);
+    }
+    
+    /* Bell animation */
+    @@keyframes bellRing {
+        0% { transform: rotate(0); }
+        20% { transform: rotate(8deg); }
+        40% { transform: rotate(-8deg); }
+        60% { transform: rotate(4deg); }
+        80% { transform: rotate(-4deg); }
+        100% { transform: rotate(0); }
+    }
+    
+    .notification-btn .fa-bell {
+        transform-origin: top center;
+    }
+    
+    .notification-btn:hover .fa-bell {
+        animation: bellRing 0.7s ease;
+    }
+
+    /* Notification Badge */
+    .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: #ff4d4d; /* Bright red for better visibility */
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        border: 2px solid #290909; /* Match with header background */
+        animation: badgePulse 2s infinite;
+    }
+    
+    @@keyframes badgePulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    /* Notification Box */
+    .notification-box {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 350px;
+        background-color: #d4a373; /* Brown background */
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        max-height: 0;
+        overflow: hidden;
+        visibility: hidden;
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        transform: translateY(10px);
+        border: 1px solid rgba(41, 9, 9, 0.1);
+    }
+
+    .notification-box.active {
+        max-height: 450px;
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Notification Header */
+    .notification-header {
+        padding: 15px;
+        border-bottom: 1px solid rgba(41, 9, 9, 0.2);
+        background-color: #d4a373; /* Brown header */
+        border-radius: 12px 12px 0 0;
+    }
+    
+    .notification-header h4 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #290909; /* Dark brown text for contrast against light brown */
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Mark All Read button moved to below header */
+    .mark-all-read-container {
+        padding: 8px 15px;
+        background-color: #d4a373; /* Brown background */
+        border-bottom: 1px solid rgba(41, 9, 9, 0.2);
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .mark-all-read {
+        background-color: white; /* White background like View All button */
+        border: none;
+        color: #290909; /* Dark brown text for contrast */
+        font-size: 0.8rem;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 4px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: 500;
+    }
+    
+    .mark-all-read:hover {
+        background-color: #f5f5f5; /* Same hover as View All button */
+        text-decoration: none;
+    }
+    
+    .mark-all-read i {
+        font-size: 0.9rem;
+        color: #290909;
+    }
+
+    /* Notification List */
+    .notification-box ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 280px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        background-color: #d4a373; /* Brown background */
+    }
+    
+    .notification-box ul::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .notification-box ul::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .notification-box ul::-webkit-scrollbar-thumb {
+        background: #290909;
+        border-radius: 10px;
+    }
+
+    /* Notification Items */
+    .notification-item {
+        display: flex;
+        padding: 15px;
+        border-bottom: 1px solid rgba(41, 9, 9, 0.1);
+        transition: all 0.2s;
+        cursor: pointer;
+        position: relative;
+        animation: fadeIn 0.5s ease-out;
+        background-color: #d4a373; /* Brown background */
+        color: #290909;
+        box-sizing: border-box;
+    }
+    
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .notification-item:hover {
+        background-color: #fcf9f5 !important; /* Extremely light cream color with !important */
+        box-shadow: inset 0 0 0 1px rgba(41, 9, 9, 0.1) !important;
+    }
+    
+    .notification-item.unread {
+        background-color: #e0b684; /* Lighter brown for unread */
+        position: relative;
+    }
+    
+    .notification-item.unread:hover {
+        background-color: #ffffff !important; /* Pure white with !important */
+        box-shadow: inset 0 0 0 1px rgba(41, 9, 9, 0.1) !important;
+    }
+    
+    .notification-item.unread:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background-color: #290909; /* Dark brown indicator */
+    }
+
+    .notification-item i {
+        margin-right: 15px;
+        color: #290909; /* Dark brown for icons */
+        font-size: 1.25rem;
+        min-width: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Icon pulse for unread notifications */
+    .notification-item.unread i {
+        animation: iconPulse 2s infinite;
+    }
+    
+    @@keyframes iconPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.15); }
+        100% { transform: scale(1); }
+    }
+
+    /* Notification Content */
+    .notification-content {
+        flex: 1;
+    }
+
+    .notification-content p {
+        margin: 0 0 5px 0;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        color: #290909; /* Dark brown text */
+    }
+
+    .notification-content small {
+        color: #5c3c17; /* Darker brown for small text */
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .notification-content small i {
+        font-size: 0.7rem;
+        color: #5c3c17; /* Darker brown for icon */
+        margin-right: 0;
+        animation: none; /* Override unread icon animation */
+    }
+
+    /* Empty Notification */
+    .empty-notification {
+        padding: 30px 20px;
+        text-align: center;
+        color: #290909; /* Dark brown text */
+        font-style: italic;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background-color: #d4a373; /* Brown background */
+    }
+    
+    .empty-notification i {
+        font-size: 2rem;
+        color: #290909;
+        opacity: 0.5;
+    }
+    
+    /* Notification Footer */
+    .notification-footer {
+        padding: 12px;
+        text-align: center;
+        border-top: 1px solid rgba(41, 9, 9, 0.2);
+        background-color: #d4a373; /* Brown background */
+        border-radius: 0 0 12px 12px;
+    }
+    
+    .view-all-link {
+        color: #290909;
+        font-size: 0.9rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 12px;
+        border-radius: 4px;
+        transition: all 0.2s;
+        font-weight: 500;
+        background-color: white; /* White background for better visibility */
+    }
+    
+    .view-all-link:hover {
+        background-color: #f5f5f5;
+        text-decoration: none;
+    }
+
+    /* Type Badges - REMOVED */
+    /* These badges were showing notification types like "Booking" or "Feedback" */
+    /* We're removing them as requested */
+
+    /* Make notification box responsive */
+    @@media (max-width: 480px) {
+        .notification-box {
+            width: 300px;
+            right: -70px;
+        }
+        
+        .notification-box:after {
+            right: 80px;
+        }
+        
+        .notification-item {
+            padding: 12px 10px;
+        }
+        
+        .notification-content p {
+            font-size: 0.85rem;
+        }
+        
+        .notification-header h4 {
+            font-size: 1rem;
+        }
+        
+        .mark-all-read {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+        }
+    }
+    
+    /* For very small screens */
+    @@media (max-width: 360px) {
+        .notification-box {
+            width: 280px;
+            right: -60px;
+        }
+        
+        .notification-item i {
+            font-size: 1.1rem;
+            margin-right: 10px;
+        }
+    }
+</style>
+
+<div class="notification-container" id="headerNotifications">
+    <button class="notification-btn" id="notificationToggle" aria-label="Notifications">
+        <i class="fas fa-bell"></i>
+        <span class="notification-badge" style="display: none;">0</span>
+    </button>
+    <div class="notification-box" id="notificationBox">
+        <div class="notification-header">
+            <h4><i class="fas fa-bell" style="margin-right: 8px;"></i>Notifications</h4>
+        </div>
+        <div class="mark-all-read-container">
+            <button class="mark-all-read">
+                <i class="fas fa-check"></i> Mark all read
+            </button>
+        </div>
+        <ul class="notification-list">
+            <!-- Notifications will be loaded here -->
+        </ul>
+        <div class="empty-notification">
+            <i class="fas fa-inbox"></i>
+            <p>No notifications yet</p>
+        </div>
+        <div class="notification-footer">
+            <a href="/Account/Notifications" class="view-all-link">
+                <i class="fas fa-external-link-alt"></i>View all notifications
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add specific styles for hover state directly in a script tag to ensure they apply
+    document.addEventListener('DOMContentLoaded', function() {
+        // Apply inline styles to ensure hover works
+        const style = document.createElement('style');
+        style.textContent = `
+            #notificationBox .notification-item:hover {
+                background-color: #fcf9f5 !important;
+                box-shadow: inset 0 0 0 1px rgba(41, 9, 9, 0.1) !important;
+            }
+            
+            #notificationBox .notification-item.unread:hover {
+                background-color: #ffffff !important;
+                box-shadow: inset 0 0 0 1px rgba(41, 9, 9, 0.1) !important;
+            }
+            
+            /* Fix alignment issues between read and unread notifications */
+            #notificationBox .notification-item {
+                box-sizing: border-box;
+                padding: 15px 15px 15px 15px !important;
+            }
+            
+            #notificationBox .notification-item.unread {
+                padding-left: 15px !important;
+                box-sizing: border-box;
+                border-left: 4px solid #290909;
+            }
+            
+            #notificationBox .notification-item:before {
+                display: none;
+            }
+            
+            /* Equal spacing for all notification items */
+            #notificationBox .notification-item i {
+                margin-left: 0;
+                min-width: 25px;
+                display: flex;
+                justify-content: center;
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+

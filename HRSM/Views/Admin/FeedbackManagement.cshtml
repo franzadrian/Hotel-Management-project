@@ -1,0 +1,1105 @@
+@model List<HRSM.Models.Feedback>
+@{
+    ViewData["Title"] = "Feedback Management";
+    Layout = null;
+    
+    // Filtering options
+    var roomTypes = ViewBag.RoomTypes as List<string> ?? new List<string> { "Standard", "Deluxe", "Suite" };
+    var selectedRoomType = ViewBag.SelectedRoomType as string ?? "All";
+    var minRating = ViewBag.MinRating != null ? (int)ViewBag.MinRating : 0;
+    var fromDate = ViewBag.FromDate as DateTime?;
+    var toDate = ViewBag.ToDate as DateTime?;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #290909;
+            --primary-light: #3a0d0d;
+            --primary-dark: #1a0505;
+            --accent: #d4a373;
+            --accent-light: #e8c9a8;
+            --text-light: #f8f8f8;
+            --text-muted: #aaaaaa;
+            --text-dark: #222222;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            color: var(--text-light);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            border-right: 1px solid var(--primary-dark);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand i {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--accent);
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            margin-top: 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: var(--accent);
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 2.5rem;
+            width: calc(100% - 280px);
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        /* RESPONSIVE */
+        @@media (max-width: 1200px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+
+        .logout-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-sm);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .logout-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .logout-btn i {
+            font-size: 1rem;
+        }
+        
+        /* FEEDBACK MANAGEMENT STYLES */
+        .content-container {
+            margin-bottom: 2rem;
+        }
+        
+        .filter-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-top: 4px solid var(--primary);
+        }
+        
+        .filter-heading {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            transition: border 0.2s ease;
+            background-color: #f9f9f9;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.15);
+            background-color: #fff;
+        }
+        
+        .custom-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23444' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+        
+        .custom-input {
+            cursor: pointer;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            align-items: center;
+        }
+        
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-sm);
+            border: none;
+        }
+        
+        .apply-btn {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .apply-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .reset-btn {
+            background: #f0f0f0;
+            color: var(--text-dark);
+            border: 1px solid #e0e0e0;
+            text-decoration: none;
+        }
+        
+        .reset-btn:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .feedback-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .feedback-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 4px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feedback-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        
+        .user-email {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .feedback-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+        
+        .feedback-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .room-type {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-weight: 500;
+        }
+        
+        .room-type.standard {
+            background-color: rgba(23, 162, 184, 0.1);
+            color: var(--info);
+        }
+        
+        .room-type.deluxe {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+        }
+        
+        .room-type.suite {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+        }
+        
+        .rating {
+            margin: 0.5rem 0;
+            color: #ffc107;
+            font-size: 1.25rem;
+        }
+        
+        .feedback-content {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-dark);
+            position: relative;
+        }
+        
+        .feedback-content::before {
+            content: '\f10d';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            color: var(--primary);
+            opacity: 0.15;
+            font-size: 1.5rem;
+        }
+        
+        .feedback-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            align-items: center;
+        }
+        
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .status-badge.new {
+            background-color: rgba(23, 162, 184, 0.1);
+            color: var(--info);
+        }
+        
+        .status-badge.reviewed {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+        
+        .status-badge.checkedin {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+        }
+        
+        .status-badge.checkedout {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: #6c757d;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.8rem;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .respond-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .respond-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .mark-reviewed-btn {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .mark-reviewed-btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .delete-btn {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .empty-state p {
+            color: var(--text-muted);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand">
+            <i class="fas fa-shield-alt"></i>
+            <h1>Admin Portal</h1>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item">
+                <a href="/Admin/AdminDashboard" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>&nbsp;Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/UserManagement" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>&nbsp;Guests</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/StaffManagement" class="nav-link">
+                    <i class="fas fa-user-tie"></i>
+                    <span>&nbsp;Staffs</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/FeedbackManagement" class="nav-link active">
+                    <i class="fas fa-comments"></i>
+                    <span>&nbsp;Feedbacks</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/EventManagement" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>&nbsp;Events</span>
+                </a>
+            </div>
+            <div class="nav-item active">
+                <a href="/Admin/AnnualReport" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>&nbsp;Annual Report</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="header">
+            <h1 class="page-title">Guest Feedback Management</h1>
+        </div>
+
+        <div class="content-container">
+            <!-- Filter Section -->
+            <div class="filter-card">
+                <h2 class="filter-heading"><i class="fas fa-filter"></i> Filter Feedbacks</h2>
+                
+                <form method="get" action="/Admin/FeedbackManagement" class="filter-form">
+                    <div class="form-group">
+                        <label for="roomType">Room Type</label>
+                        <select id="roomType" name="roomType" class="custom-select">
+                            <option value="">All Room Types</option>
+                            @foreach (var type in roomTypes)
+                            {
+                                if (type == selectedRoomType)
+                                {
+                                    <option value="@type" selected>@type</option>
+                                }
+                                else
+                                {
+                                    <option value="@type">@type</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rating">Minimum Rating</label>
+                        <select id="rating" name="rating" class="custom-select">
+                            <option value="0" @@(minRating == 0 ? "selected" : "")>Any Rating</option>
+                            <option value="5" @@(minRating == 5 ? "selected" : "")>★★★★★ (5)</option>
+                            <option value="4" @@(minRating == 4 ? "selected" : "")>★★★★☆ (4+)</option>
+                            <option value="3" @@(minRating == 3 ? "selected" : "")>★★★☆☆ (3+)</option>
+                            <option value="2" @@(minRating == 2 ? "selected" : "")>★★☆☆☆ (2+)</option>
+                            <option value="1" @@(minRating == 1 ? "selected" : "")>★☆☆☆☆ (1+)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fromDate">From Date</label>
+                        <input type="date" id="fromDate" name="fromDate" class="custom-input" value="@(fromDate?.ToString("yyyy-MM-dd"))">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="toDate">To Date</label>
+                        <input type="date" id="toDate" name="toDate" class="custom-input" value="@(toDate?.ToString("yyyy-MM-dd"))">
+                    </div>
+                    
+                    <div class="filter-buttons">
+                        <button type="submit" class="filter-btn apply-btn">
+                            <i class="fas fa-search"></i> Apply Filters
+                        </button>
+                        
+                        <a href="/Admin/FeedbackManagement" class="filter-btn reset-btn">
+                            <i class="fas fa-undo"></i> Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Feedback Cards -->
+            @if (Model != null && Model.Any())
+            {
+                <div class="feedback-grid">
+                    @foreach (var feedback in Model)
+                    {
+                        <div class="feedback-card">
+                            <div class="card-header">
+                                <div class="user-info">
+                                    @if (feedback.User != null)
+                                    {
+                                        <div class="user-avatar">
+                                            @(feedback.User.FirstName?.Substring(0, 1) ?? "")@(feedback.User.LastName?.Substring(0, 1) ?? "")
+                                        </div>
+                                        <div class="user-details">
+                                            <div class="user-name">@feedback.User.FirstName @feedback.User.LastName</div>
+                                            <div class="user-email">@feedback.User.Email</div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="user-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="user-details">
+                                            <div class="user-name">Anonymous</div>
+                                            <div class="user-email">Guest</div>
+                                        </div>
+                                    }
+                                </div>
+                                
+                                <div class="feedback-meta">
+                                    <div class="feedback-date">@feedback.SubmitDate.ToString("MMM d, yyyy")</div>
+                                    <div class="room-type @feedback.RoomType.ToLower()">@feedback.RoomType</div>
+                                </div>
+                            </div>
+                            
+                            <div class="rating">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="@(i <= feedback.Rating ? "fas" : "far") fa-star"></i>
+                                }
+                            </div>
+                            
+                            <div class="feedback-content">
+                                <p>@feedback.Comment</p>
+                            </div>
+                            
+                            <div class="feedback-actions">
+                                <div class="status">
+                                    <span class="status-badge @(feedback.StayType?.ToLower() ?? "")">
+                                        @if (feedback.StayType?.ToLower() == "checkedin")
+                                        {
+                                            <i class="fas fa-bed"></i>
+                                        }
+                                        else if (feedback.StayType?.ToLower() == "checkedout")
+                                        {
+                                            <i class="fas fa-sign-out-alt"></i>
+                                        }
+                                        @feedback.StayType
+                                    </span>
+                                </div>
+                                
+                                <div class="actions">
+                                    @if (string.IsNullOrEmpty(feedback.AdminResponse))
+                                    {
+                                        <button class="action-btn respond-btn" onclick="showResponseModal(@feedback.FeedbackId)">
+                                            <i class="fas fa-reply"></i> Respond
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="action-btn responded-btn" disabled>
+                                            <i class="fas fa-check-circle"></i> Sent
+                                        </button>
+                                        
+                                        <button class="action-btn edit-response-btn" onclick="showResponseModal(@feedback.FeedbackId, '@feedback.AdminResponse.Replace("'", "\\'").Replace("\n", "\\n")')">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                    }
+                                    
+                                    <button class="action-btn delete-btn" onclick="deleteFeedback(@feedback.FeedbackId)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                <!-- Pagination (if needed) -->
+                @if (ViewBag.TotalPages > 1)
+                {
+                    <div class="pagination-container">
+                        <!-- Pagination controls would go here -->
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-comments"></i>
+                    <h3>No Feedbacks Found</h3>
+                    <p>There are no feedbacks that match your criteria. Try adjusting your filters or check back later.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Response Modal (Hidden by default) -->
+    <div id="responseModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="responseModalTitle"><i class="fas fa-reply"></i> Respond to Feedback</h2>
+            <form id="responseForm">
+                <input type="hidden" id="feedbackId" name="feedbackId">
+                <input type="hidden" id="isEditMode" name="isEditMode" value="false">
+                <div class="form-group">
+                    <label for="responseMessage">Your Response</label>
+                    <textarea id="responseMessage" name="responseMessage" rows="5" required placeholder="Type your response here..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="filter-btn reset-btn close-modal-btn">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="filter-btn apply-btn" id="sendResponseBtn">
+                        <i class="fas fa-paper-plane"></i> Send Response
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        function showResponseModal(feedbackId, existingResponse = '') {
+            const modal = document.getElementById('responseModal');
+            const responseMessage = document.getElementById('responseMessage');
+            const isEditMode = document.getElementById('isEditMode');
+            const modalTitle = document.getElementById('responseModalTitle');
+            const sendResponseBtn = document.getElementById('sendResponseBtn');
+            
+            document.getElementById('feedbackId').value = feedbackId;
+            
+            if (existingResponse) {
+                // Edit mode
+                isEditMode.value = "true";
+                modalTitle.innerHTML = '<i class="fas fa-edit"></i> Edit Response';
+                sendResponseBtn.innerHTML = '<i class="fas fa-save"></i> Update Response';
+                responseMessage.value = existingResponse.replace(/\\n/g, '\n');
+            } else {
+                // New response mode
+                isEditMode.value = "false";
+                modalTitle.innerHTML = '<i class="fas fa-reply"></i> Respond to Feedback';
+                sendResponseBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Response';
+                responseMessage.value = '';
+            }
+            
+            modal.style.display = 'flex';
+            responseMessage.focus();
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('responseModal');
+            const closeBtn = document.querySelector('.close');
+            const closeModalBtn = document.querySelector('.close-modal-btn');
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                });
+            }
+            
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                });
+            }
+            
+            window.addEventListener('click', function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // Form submission
+            const responseForm = document.getElementById('responseForm');
+            if (responseForm) {
+                responseForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const feedbackId = document.getElementById('feedbackId').value;
+                    const responseMessage = document.getElementById('responseMessage').value;
+                    const isEditMode = document.getElementById('isEditMode').value === "true";
+                    
+                    // Call API to send response
+                    fetch('/api/Feedback/Respond', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            feedbackId: feedbackId,
+                            responseMessage: responseMessage
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(isEditMode ? 'Response updated successfully!' : 'Response sent successfully!');
+                            
+                            // Get feedback information for notification
+                            const feedbackCard = document.querySelector(`.feedback-card[data-id="${feedbackId}"]`) || 
+                                                document.querySelector(`.feedback-card:has(.actions button[onclick*="${feedbackId}"])`);
+                            
+                            let userName = "Guest";
+                            let roomType = "Standard";
+                            
+                            if (feedbackCard) {
+                                userName = feedbackCard.querySelector('.user-name')?.textContent.trim() || "Guest";
+                                roomType = feedbackCard.querySelector('.room-type')?.textContent.trim() || "Standard";
+                            }
+                            
+                            // Send notification to user about response
+                            sendFeedbackNotification(feedbackId, userName, roomType, responseMessage, isEditMode);
+                            
+                            modal.style.display = 'none';
+                            location.reload();
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        alert('An error occurred. Please try again.');
+                        console.error('Error:', error);
+                    });
+                });
+            }
+        });
+        
+        // Send notification about feedback response
+        function sendFeedbackNotification(feedbackId, userName, roomType, responseMessage, isEdited) {
+            const icon = 'fas fa-comments';
+            const responsePreview = responseMessage.length > 50 ? responseMessage.substring(0, 50) + '...' : responseMessage;
+            
+            const message = isEdited 
+                ? `Our administrator has updated their response to your feedback about your ${roomType} room.` 
+                : `Our administrator has responded to your feedback about your ${roomType} room.`;
+            
+            fetch('/api/Notification/Create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    type: 'Feedback',
+                    icon: icon,
+                    relatedUrl: `/Account/Feedback?id=${feedbackId}`,
+                    feedbackId: feedbackId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Feedback notification sent successfully');
+                } else {
+                    console.error('Failed to send feedback notification:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error sending feedback notification:', error);
+            });
+        }
+        
+        // Delete feedback
+        function deleteFeedback(feedbackId) {
+            if (confirm('Are you sure you want to delete this feedback? This action cannot be undone.')) {
+                fetch(`/api/Feedback/${feedbackId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Feedback deleted successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('An error occurred. Please try again.');
+                    console.error('Error:', error);
+                });
+            }
+        }
+    </script>
+    
+    <style>
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            border-top: 4px solid var(--primary);
+            margin: 5% auto;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @@keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: color 0.2s ease;
+        }
+        
+        .close:hover {
+            color: var(--primary);
+        }
+        
+        .modal-content h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .modal-content textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            resize: vertical;
+            transition: border 0.2s ease;
+            background-color: #f9f9f9;
+        }
+        
+        .modal-content textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.15);
+            background-color: #fff;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        /* Button styles */
+        .responded-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .responded-btn:hover {
+            background-color: #218838;
+            transform: none;
+            box-shadow: var(--shadow-sm);
+            cursor: default;
+        }
+        
+        .edit-response-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .edit-response-btn:hover {
+            background-color: #138496;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* Pagination styles */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+    </style>
+</body>
+</html>

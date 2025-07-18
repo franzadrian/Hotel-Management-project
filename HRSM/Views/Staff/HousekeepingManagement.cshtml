@@ -1,0 +1,839 @@
+@model IEnumerable<HRSM.Models.ServiceRequest>
+@{
+    ViewData["Title"] = "Housekeeping Management";
+    Layout = null;
+    var today = DateTime.Now;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #290909;
+            --primary-light: #3a0d0d;
+            --primary-dark: #1a0505;
+            --accent: #d4a373;
+            --accent-light: #e8c9a8;
+            --text-light: #f8f8f8;
+            --text-muted: #aaaaaa;
+            --text-dark: #222222;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            color: var(--text-light);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            border-right: 1px solid var(--primary-dark);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand i {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--accent);
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            margin-top: 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: var(--accent);
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 2.5rem;
+            width: calc(100% - 280px);
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        .today-date {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* PROFILE PICTURE STYLES */
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            margin-top: -50px;
+        }
+
+        .profile-picture {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--accent-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid var(--accent);
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .profile-picture:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-picture i {
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        /* SECTION STYLES */
+        .section-heading {
+            margin: 2rem 0 1.5rem;
+        }
+
+        .section-heading h2 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 0.5rem;
+        }
+
+        .section-heading h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        /* HOUSEKEEPING TASK CARDS */
+        .tasks-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .task-card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            transition: var(--transition);
+            border-left: 4px solid var(--accent);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .task-header {
+            padding: 1.25rem;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-id {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .task-date {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .task-body {
+            padding: 1.25rem;
+            flex-grow: 1;
+        }
+
+        .task-room {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .task-room i {
+            color: var(--primary);
+        }
+
+        .task-type {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            background-color: #f0f0f0;
+            color: var(--text-dark);
+        }
+
+        .task-type.cleaning {
+            background-color: #e3f2fd;
+            color: #0d6efd;
+        }
+
+        .task-type.turndown {
+            background-color: #fff3cd;
+            color: #ffc107;
+        }
+
+        .task-type.linen {
+            background-color: #d1e7dd;
+            color: #198754;
+        }
+
+        .task-type.amenities {
+            background-color: #cff4fc;
+            color: #0dcaf0;
+        }
+
+        .task-type.special {
+            background-color: #f8d7da;
+            color: #dc3545;
+        }
+
+        .task-description {
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .task-footer {
+            padding: 1.25rem;
+            background-color: #f9f9f9;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .task-status.pending {
+            background-color: #fff3cd;
+            color: #ffc107;
+        }
+
+        .task-status.inprogress {
+            background-color: #cff4fc;
+            color: #0dcaf0;
+        }
+
+        .task-status.completed {
+            background-color: #d1e7dd;
+            color: #198754;
+        }
+
+        .task-status.delayed {
+            background-color: #f8d7da;
+            color: #dc3545;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .action-btn.primary {
+            background: var(--primary);
+        }
+
+        .action-btn.success {
+            background: var(--success);
+        }
+
+        .action-btn.info {
+            background: var(--info);
+        }
+
+        .action-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        /* FILTER CONTROLS */
+        .filter-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            min-width: 150px;
+        }
+
+        /* SCHEDULE CONTROLS */
+        .schedule-controls {
+            margin-bottom: 2rem;
+            background-color: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .schedule-heading {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .schedule-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .schedule-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .schedule-indicator.available {
+            background-color: var(--success);
+        }
+
+        .schedule-indicator.busy {
+            background-color: var(--warning);
+        }
+
+        .schedule-indicator.unavailable {
+            background-color: var(--danger);
+        }
+
+        .schedule-text {
+            font-size: 0.9rem;
+        }
+
+        /* RESPONSIVE */
+        @@media (max-width: 1200px) {
+            .tasks-container {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .tasks-container {
+                grid-template-columns: 1fr;
+            }
+            .filter-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand">
+            <i class="fas fa-hotel"></i>
+            <h1>Staff Portal</h1>
+        </div>
+        <nav class="nav-menu">
+            @{
+                var department = User.FindFirst("Department")?.Value ?? "Receptionist";
+            }
+
+            <div class="nav-item">
+                <a href="/Staff/HousekeepingManagement" class="nav-link active">
+                    <i class="fas fa-broom"></i>
+                    <span>&nbsp;Housekeeping</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Staff/RoomManagement" class="nav-link">
+                    <i class="fas fa-bed"></i>
+                    <span>&nbsp;Rooms</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Account/Logout" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>&nbsp;Logout</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <h1 class="page-title">Housekeeping Management</h1>
+                <div class="today-date">@today.ToString("dddd, MMMM dd, yyyy")</div>
+            </div>
+            <a href="/Staff/StaffInfo" class="profile-container">
+                <div class="profile-picture">
+                    @if (User.FindFirst("ProfilePicture")?.Value != null)
+                    {
+                        <img src="@User.FindFirst("ProfilePicture")?.Value" alt="Profile" />
+                    }
+                    else
+                    {
+                        <i class="fas fa-user"></i>
+                    }
+                </div>
+            </a>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="filter-controls">
+            <div class="filter-group">
+                <span class="filter-label">Status:</span>
+                <select class="filter-select" id="statusFilter">
+                    <option value="all">All Tasks</option>
+                    <option value="pending">Pending</option>
+                    <option value="inprogress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="delayed">Delayed</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">Type:</span>
+                <select class="filter-select" id="typeFilter">
+                    <option value="all">All Types</option>
+                    <option value="cleaning">Room Cleaning</option>
+                    <option value="turndown">Turndown Service</option>
+                    <option value="linen">Linen Change</option>
+                    <option value="amenities">Amenities Restock</option>
+                    <option value="special">Special Request</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">Floor:</span>
+                <select class="filter-select" id="floorFilter">
+                    <option value="all">All Floors</option>
+                    <option value="1">1st Floor</option>
+                    <option value="2">2nd Floor</option>
+                    <option value="3">3rd Floor</option>
+                    <option value="4">4th Floor</option>
+                    <option value="5">5th Floor</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- HOUSEKEEPING TASKS SECTION -->
+        <div class="section-heading">
+            <h2>Housekeeping Tasks</h2>
+        </div>
+        
+        <div class="tasks-container" id="tasksContainer">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var task in Model)
+                {
+                    <div class="task-card">
+                        <div class="task-header">
+                            <span class="task-id">Task #HK-@task.RequestId</span>
+                            <span class="task-date">@task.RequestDate.ToString("MMM dd, yyyy h:mm tt")</span>
+                        </div>
+                        <div class="task-body">
+                            <div class="task-room">
+                                <i class="fas fa-door-closed"></i> Room @task.RoomNumber
+                            </div>
+                            @{
+                                // Map housekeeping needs to task type classes
+                                string taskType = "cleaning"; // default
+                                string taskTypeName = "Room Cleaning";
+                                
+                                if (!string.IsNullOrEmpty(task.HousekeepingNeeds))
+                                {
+                                    var needs = task.HousekeepingNeeds.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                                    if (needs.Any(n => n.Contains("Turndown", StringComparison.OrdinalIgnoreCase)))
+                                    {
+                                        taskType = "turndown";
+                                        taskTypeName = "Turndown Service";
+                                    }
+                                    else if (needs.Any(n => n.Contains("Linen", StringComparison.OrdinalIgnoreCase)))
+                                    {
+                                        taskType = "linen";
+                                        taskTypeName = "Linen Change";
+                                    }
+                                    else if (needs.Any(n => n.Contains("Amenities", StringComparison.OrdinalIgnoreCase)))
+                                    {
+                                        taskType = "amenities";
+                                        taskTypeName = "Amenities Restock";
+                                    }
+                                    else if (needs.Any(n => n.Contains("Special", StringComparison.OrdinalIgnoreCase)))
+                                    {
+                                        taskType = "special";
+                                        taskTypeName = "Special Request";
+                                    }
+                                }
+                            }
+                            <span class="task-type @taskType">@taskTypeName</span>
+                            <p class="task-description">@task.Description</p>
+                        </div>
+                        <div class="task-footer">
+                            <span class="task-status @task.Status.ToLower()">@task.Status</span>
+                            <div class="task-actions">
+                                @if (task.Status == "Pending")
+                                {
+                                    <button class="action-btn info" onclick="updateStatus(@task.RequestId, 'inprogress')">Start Task</button>
+                                }
+                                else if (task.Status == "In Progress")
+                                {
+                                    <button class="action-btn success" onclick="updateStatus(@task.RequestId, 'completed')">Mark Complete</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center p-5">
+                    <h3>No housekeeping tasks found.</h3>
+                    <p>There are currently no housekeeping tasks in the system.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Filter functionality
+            const statusFilter = document.getElementById('statusFilter');
+            const typeFilter = document.getElementById('typeFilter');
+            const floorFilter = document.getElementById('floorFilter');
+            const taskCards = document.querySelectorAll('.task-card');
+
+            // Apply filters
+            function applyFilters() {
+                const statusValue = statusFilter.value;
+                const typeValue = typeFilter.value;
+                const floorValue = floorFilter.value;
+
+                taskCards.forEach(card => {
+                    const cardStatus = card.querySelector('.task-status').classList[1];
+                    const cardType = card.querySelector('.task-type').classList[1];
+                    const roomNumber = card.querySelector('.task-room').textContent.trim();
+                    // Extract floor from room number (first digit)
+                    const floor = roomNumber.match(/Room (\d)/)?.[1] || '';
+                    
+                    const statusMatch = statusValue === 'all' || cardStatus === statusValue;
+                    const typeMatch = typeValue === 'all' || cardType === typeValue;
+                    const floorMatch = floorValue === 'all' || floor === floorValue;
+                    
+                    if (statusMatch && typeMatch && floorMatch) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+
+            // Add event listeners to filters
+            statusFilter.addEventListener('change', applyFilters);
+            typeFilter.addEventListener('change', applyFilters);
+            floorFilter.addEventListener('change', applyFilters);
+
+            // Update status function
+            window.updateStatus = function(taskId, newStatus) {
+                // Create a form element to handle the POST request
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/api/ServiceRequest/UpdateStatus?requestId=${taskId}&status=${newStatus}`;
+                
+                // Add CSRF token if available
+                const token = document.querySelector('input[name="__RequestVerificationToken"]');
+                if (token) {
+                    const tokenInput = document.createElement('input');
+                    tokenInput.type = 'hidden';
+                    tokenInput.name = '__RequestVerificationToken';
+                    tokenInput.value = token.value;
+                    form.appendChild(tokenInput);
+                }
+                
+                // Get task information for notification
+                const cardIndex = Array.from(taskCards).findIndex(card => card.querySelector('.task-id').textContent.includes(taskId));
+                const card = taskCards[cardIndex];
+                const roomNumber = card.querySelector('.task-room').textContent.trim().replace('Room ', '');
+                const taskType = card.querySelector('.task-type').textContent.trim();
+                
+                // Append form to body, submit it, and then remove it
+                document.body.appendChild(form);
+                
+                // Use fetch instead of form submission for better control
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const statusElement = document.querySelector(`.task-card:nth-child(${cardIndex + 1}) .task-status`);
+                        if (statusElement) {
+                            // Remove all status classes
+                            statusElement.classList.remove('pending', 'inprogress', 'completed', 'delayed');
+                            // Add new status class
+                            statusElement.classList.add(newStatus);
+                            // Update text
+                            let displayStatus = newStatus === 'inprogress' ? 'In Progress' : newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                            statusElement.textContent = displayStatus;
+                            
+                            // Get the actions container in the same card
+                            const actionsContainer = statusElement.closest('.task-footer').querySelector('.task-actions');
+                            if (newStatus === 'pending') {
+                                actionsContainer.innerHTML = `
+                                    <button class="action-btn info" onclick="updateStatus(${taskId}, 'inprogress')">Start Task</button>
+                                `;
+                            } else if (newStatus === 'inprogress') {
+                                actionsContainer.innerHTML = `
+                                    <button class="action-btn success" onclick="updateStatus(${taskId}, 'completed')">Mark Complete</button>
+                                `;
+                                
+                                // Send notification for In Progress
+                                sendNotification(taskId, 'inprogress', roomNumber, taskType);
+                            } else if (newStatus === 'completed') {
+                                actionsContainer.innerHTML = ``;
+                                
+                                // Send notification for Completed
+                                sendNotification(taskId, 'completed', roomNumber, taskType);
+                            }
+                            
+                            // Show success message
+                            alert('Status updated successfully');
+                        }
+                    } else {
+                        alert('Error updating status: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error updating status. Please try again.');
+                });
+                
+                document.body.removeChild(form);
+            };
+            
+            // Function to send notification to user
+            function sendNotification(taskId, status, roomNumber, taskType) {
+                let message = '';
+                let icon = 'fas fa-broom';
+                
+                if (status === 'inprogress') {
+                    message = `Your housekeeping request for Room ${roomNumber} (${taskType}) has been started. Our housekeeping staff will attend to your room shortly.`;
+                } else if (status === 'completed') {
+                    message = `Your housekeeping request for Room ${roomNumber} (${taskType}) has been completed. We hope everything is to your satisfaction.`;
+                }
+                
+                if (message) {
+                    fetch('/api/Notification/Create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            type: 'Housekeeping',
+                            icon: icon,
+                            serviceRequestId: taskId,
+                            relatedUrl: `/Service/RequestStatus?id=${taskId}`
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Notification sent successfully', data);
+                        } else {
+                            console.error('Failed to send notification:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error sending notification:', error);
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

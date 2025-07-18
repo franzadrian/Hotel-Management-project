@@ -1,0 +1,36 @@
+/* Custom Header Styles */
+.custom-header {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    background-image: url('/images/headerrrv2.png'); /* Background image */
+    background-size: cover;
+    background-position: center;
+}
+
+/* Dark overlay to darken the background image */
+.custom-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Adjust darkness (0.5 = 50% dark) */
+}
+
+/* Header content container */
+.header-content {
+    position: relative; /* Ensure logo is above the overlay */
+    padding: 20px;
+}
+
+/* Logo Styling */
+.header-logo {
+    width: 200px; /* Increased logo size */
+    height: auto; /* Maintain aspect ratio */
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1; /* Ensure the logo is above the overlay */
+}

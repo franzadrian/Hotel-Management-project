@@ -1,0 +1,60 @@
+@model List<HRSM.Models.Event>
+@{
+    // Get events from either Model or ViewBag
+    var events = Model ?? ViewBag.Events as List<HRSM.Models.Event> ?? new List<HRSM.Models.Event>();
+}
+
+<section class="events-section">
+    <div class="container text-center">
+        <!-- Events Title with Diamond Separators -->
+        <div class="events-title">
+            <img src="/images/left-diamond-line.png" class="separator" alt="Left Line">
+            <h2 class="event-heading">@(ViewBag.EventPageTitle ?? "Events")</h2>
+            <img src="/images/right-diamond-line.png" class="separator" alt="Right Line">
+        </div>
+
+        <!-- Events Grid -->
+        <div class="row justify-content-center">
+            @if (events != null && events.Any())
+            {
+                foreach (var eventItem in events)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="event-card">
+                            <img src="@eventItem.ImagePath" class="event-img" alt="@eventItem.Title">
+                            <div class="event-info d-flex align-items-center">
+                                @{
+                                    // Try to parse the date string
+                                    var dateString = eventItem.EventDate?.Trim();
+                                    DateTime eventDate;
+                                    
+                                    if (DateTime.TryParse(dateString, out eventDate))
+                                    {
+                                        // Successfully parsed the date
+                                    }
+                                    else
+                                    {
+                                        // Default to 7 days from now if parsing fails
+                                        eventDate = DateTime.Today.AddDays(7);
+                                    }
+                                    
+                                    <div class="event-date-box">
+                                        <span class="event-day">@eventDate.Day</span>
+                                        <span class="event-month">@eventDate.ToString("MMM").ToUpper()</span>
+                                    </div>
+                                }
+                                <p class="event-description">@eventItem.Description</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12">
+                    <p class="text-muted">No upcoming events at this time. Please check back later.</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>

@@ -1,0 +1,241 @@
+/* Main Container */
+.v6-service-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Header */
+.v6-service-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.v6-service-header h1 {
+    font-family: 'Yinmar', sans-serif;
+    color: #290909;
+    font-size: 2.2rem;
+    margin-bottom: 5px;
+}
+.v6-service-header p {
+    color: #666;
+    font-size: 1rem;
+}
+
+/* Layout */
+.v6-service-layout {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 30px;
+}
+
+/* Form Styles */
+.v6-request-form {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+}
+
+.v6-form-section {
+    margin-bottom: 25px;
+}
+.v6-form-section h3 {
+    color: #290909;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.v6-form-section h4 {
+    color: #444;
+    font-size: 1rem;
+    margin-bottom: 12px;
+}
+
+/* Input Elements */
+.v6-select, 
+.v6-request-form input[type="text"],
+.v6-request-form input[type="tel"],
+.v6-request-form textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    transition: all 0.2s;
+}
+.v6-select:focus,
+.v6-request-form input:focus,
+.v6-request-form textarea:focus {
+    border-color: #290909;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(41,9,9,0.1);
+}
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Service Type Options */
+.v6-option-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 15px;
+}
+.v6-option-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.v6-option-card input {
+    display: none;
+}
+.v6-option-card input:checked + .v6-option-content {
+    border-color: #290909;
+    background: rgba(41,9,9,0.03);
+}
+.v6-option-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+.v6-option-content i {
+    font-size: 1.5rem;
+    color: #290909;
+}
+.v6-option-content span {
+    font-weight: 500;
+    color: #333;
+}
+
+/* Checkbox Styles */
+.v6-checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.v6-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+.v6-checkbox input {
+    width: 16px;
+    height: 16px;
+    accent-color: #290909;
+}
+
+/* Submit Button */
+.v6-submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: #290909;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.v6-submit-btn:hover {
+    background: #1a0606;
+    transform: translateY(-2px);
+}
+
+/* Request Status Panel */
+.v6-request-status {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    align-self: start;
+}
+.v6-request-status h3 {
+    color: #290909;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Request Items */
+.v6-request-item {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+.v6-request-item:last-child {
+    border-bottom: none;
+}
+.v6-request-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.v6-badge {
+    font-size: 0.8rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+.v6-badge.maintenance {
+    background: #FFF3E0;
+    color: #E65100;
+}
+.v6-badge.housekeeping {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+.v6-date {
+    font-size: 0.8rem;
+    color: #666;
+}
+.v6-request-item p {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+.v6-status {
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+.v6-status.pending {
+    background: #E3F2FD;
+    color: #1565C0;
+}
+.v6-status.completed {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .v6-service-layout {
+        grid-template-columns: 1fr;
+    }
+    .v6-option-grid,
+    .v6-checkbox-group {
+        grid-template-columns: 1fr;
+    }
+}

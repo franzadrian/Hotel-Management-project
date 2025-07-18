@@ -1,0 +1,934 @@
+/* Reservation Container */
+.v7-reservation-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+}
+
+/* Header */
+.v7-reservation-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.v7-reservation-title {
+    font-family: 'Yinmar', sans-serif;
+    font-size: 2.5rem;
+    color: #290909;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.v7-reservation-subtitle {
+    font-size: 1rem;
+    color: #666;
+}
+
+/* Reservation Card */
+.v7-reservation-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(41, 9, 9, 0.1);
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+
+.v7-reservation-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background: linear-gradient(135deg, rgba(41, 9, 9, 0.05), rgba(41, 9, 9, 0.03));
+    border-bottom: 1px solid rgba(41, 9, 9, 0.1);
+}
+
+.v7-status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.v7-status-badge.confirmed {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.v7-status-badge.pending {
+    background-color: #FFA726;
+    color: white;
+}
+
+.v7-status-badge.cancelled {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.v7-status-badge.checkin {
+    background: linear-gradient(135deg, #2196F3, #03A9F4);
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.v7-status-badge.checkout {
+    background: linear-gradient(135deg, #9C27B0, #673AB7);
+    color: white;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4);
+    }
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(33, 150, 243, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(33, 150, 243, 0);
+    }
+}
+
+.v7-reservation-number {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.v7-reservation-content {
+    padding: 25px;
+}
+
+.v7-reservation-section {
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid rgba(41, 9, 9, 0.1);
+}
+
+.v7-reservation-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* Room Section */
+.v7-room-image-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.v7-room-image {
+    width: 60%;
+    height: 350px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.v7-room-thumbnails {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 20%;
+}
+
+.v7-room-thumbnails img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.v7-room-thumbnails img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.v7-reservation-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.v7-detail-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(41, 9, 9, 0.1);
+}
+
+.v7-detail-group:last-child {
+    border-bottom: none;
+}
+
+.v7-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.v7-detail-item i {
+    font-size: 1.5rem;
+    color: #290909;
+    width: 24px;
+    text-align: center;
+}
+
+.v7-detail-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.v7-detail-label {
+    font-size: 0.85rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.v7-detail-value {
+    font-size: 1.1rem;
+    color: #290909;
+    font-weight: 600;
+}
+
+.v7-detail-item.total-amount .v7-detail-value {
+    color: #290909;
+    font-size: 1.25rem;
+}
+
+.v7-room-type {
+    font-family: 'Yinmar', sans-serif;
+    font-size: 1.8rem;
+    color: #290909;
+    margin-bottom: 5px;
+}
+
+.v7-room-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.v7-stars {
+    color: #FFD700;
+}
+
+.v7-rating-text {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.v7-dates-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin: 25px 0;
+}
+
+.v7-date-box {
+    flex: 1;
+    text-align: center;
+    padding: 15px;
+    background: rgba(41, 9, 9, 0.03);
+    border-radius: 8px;
+}
+
+.v7-date-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.v7-date-value {
+    font-weight: bold;
+    color: #290909;
+    margin-bottom: 5px;
+}
+
+.v7-time {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.v7-nights-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.v7-nights-count {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #290909;
+    line-height: 1;
+}
+
+.v7-nights-label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.v7-room-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.v7-feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+}
+
+.v7-feature i {
+    color: #290909;
+    width: 20px;
+    text-align: center;
+}
+
+/* Guest & Payment Info */
+.v7-guest-info, .v7-payment-info {
+    flex: 1;
+    padding: 15px;
+}
+
+.v7-guest-info h3, .v7-payment-info h3 {
+    font-family: 'Yinmar', sans-serif;
+    color: #290909;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.v7-info-row {
+    display: flex;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed rgba(41, 9, 9, 0.1);
+}
+
+.v7-info-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.v7-info-label {
+    font-weight: 600;
+    color: #290909;
+    min-width: 150px;
+}
+
+.v7-info-value {
+    color: #555;
+    flex: 1;
+}
+
+.v7-info-row.total {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid #290909;
+}
+
+.v7-info-row.total .v7-info-value {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.v7-info-value.success {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.v7-info-value.cancelled {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/* Additional Services */
+.v7-services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.v7-service-card {
+    display: flex;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.v7-service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.v7-service-icon {
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(41, 9, 9, 0.05);
+    color: #290909;
+    font-size: 1.5rem;
+}
+
+.v7-service-info {
+    flex: 1;
+    padding: 12px;
+}
+
+.v7-service-info h4 {
+    margin: 0 0 5px 0;
+    color: #290909;
+}
+
+.v7-service-info p {
+    margin: 0 0 5px 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.v7-service-status {
+    font-size: 0.8rem;
+    color: #4CAF50;
+    font-weight: 500;
+}
+
+.v7-service-price {
+    width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #290909;
+    border-left: 1px dashed rgba(41, 9, 9, 0.2);
+}
+
+/* Action Buttons */
+.v7-reservation-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 20px;
+    background: rgba(41, 9, 9, 0.03);
+    border-top: 1px solid rgba(41, 9, 9, 0.1);
+}
+
+.v7-action-btn {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: none;
+}
+
+.v7-action-btn i {
+    font-size: 1.1rem;
+}
+
+.v7-action-btn.secondary {
+    background: white;
+    color: #290909;
+    border: 2px solid #290909;
+}
+
+.v7-action-btn.secondary:hover {
+    background: rgba(41, 9, 9, 0.05);
+}
+
+.v7-action-btn.warning {
+    background: white;
+    color: #e74c3c;
+    border: 2px solid #e74c3c;
+}
+
+.v7-action-btn.warning:hover {
+    background: rgba(231, 76, 60, 0.05);
+}
+
+.v7-action-btn {
+    background: #290909;
+    color: white;
+}
+
+.v7-action-btn:hover {
+    background: #1a0606;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(41, 9, 9, 0.2);
+}
+
+/* Hotel Information */
+.v7-hotel-info {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: -20px;
+}
+
+.v7-hotel-info h3 {
+    font-family: 'Yinmar', sans-serif;
+    color: #290909;
+    margin-top: 0;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.v7-hotel-details {
+    display: flex;
+    gap: 30px;
+    margin-top: -50px;
+}
+
+.v7-hotel-contact {
+    flex: 1;
+    padding-top: 50px;
+}
+
+.v7-hotel-contact p {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.v7-hotel-contact i {
+    width: 20px;
+    color: #290909;
+    text-align: center;
+}
+
+.v7-hotel-map {
+    flex: 1;
+    min-height: 300px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(41, 9, 9, 0.1);
+    position: relative;
+    top: -30px;
+}
+
+#hotelMap {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    border-radius: 8px;
+}
+
+/* Remove the placeholder styles since we're not using them anymore */
+.v7-map-placeholder {
+    display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .v7-room-image-container {
+        flex-direction: column;
+    }
+
+    .v7-room-image {
+        width: 100%;
+        height: 250px;
+    }
+
+    .v7-room-thumbnails {
+        width: 100%;
+        flex-direction: row;
+    }
+
+    .v7-room-thumbnails img {
+        height: 80px;
+    }
+
+    .v7-dates-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .v7-hotel-details {
+        flex-direction: column;
+    }
+
+    .v7-reservation-actions {
+        flex-direction: column;
+    }
+
+    .v7-action-btn {
+        width: 100%;
+    }
+
+    .v7-detail-group {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .v7-reservation-details {
+        padding: 1rem;
+    }
+
+    .v7-detail-item {
+        padding: 0.5rem 0;
+    }
+}
+
+.v7-no-booking {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(41, 9, 9, 0.1);
+    padding: 50px 20px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.v7-no-booking i {
+    font-size: 4rem;
+    color: #290909;
+    margin-bottom: 20px;
+    opacity: 0.7;
+}
+
+.v7-no-booking h2 {
+    font-family: 'Yinmar', sans-serif;
+    font-size: 2rem;
+    color: #290909;
+    margin-bottom: 15px;
+}
+
+.v7-no-booking p {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.v7-book-now-btn {
+    display: inline-block;
+    padding: 12px 35px;
+    background: #290909;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid #290909;
+}
+
+.v7-book-now-btn:hover {
+    background: white;
+    color: #290909;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(41, 9, 9, 0.2);
+}
+
+/* Receipt Styles */
+.v7-receipt {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px;
+    font-family: Arial, sans-serif;
+    color: #333;
+    background-color: #fff;
+}
+
+.v7-receipt-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.v7-receipt-logo {
+    margin-bottom: 20px;
+}
+
+.v7-receipt-logo img {
+    max-width: 200px;
+    height: auto;
+}
+
+.v7-receipt-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 10px 0;
+    color: #290909;
+}
+
+.v7-receipt-number,
+.v7-receipt-date {
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0;
+}
+
+.v7-receipt-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.v7-receipt-guest,
+.v7-receipt-booking {
+    flex: 1;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    margin: 0 10px;
+}
+
+.v7-receipt-guest h2,
+.v7-receipt-booking h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #290909;
+}
+
+.v7-receipt-guest p,
+.v7-receipt-booking p {
+    margin: 8px 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.v7-receipt-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 30px 0;
+}
+
+.v7-receipt-table th,
+.v7-receipt-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.v7-receipt-table th {
+    background-color: #290909;
+    color: #fff;
+    font-weight: normal;
+}
+
+.v7-receipt-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.v7-receipt-table tfoot td {
+    font-weight: bold;
+    background-color: #f5f5f5;
+}
+
+.v7-receipt-footer {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.v7-receipt-payment {
+    margin-bottom: 30px;
+}
+
+.v7-receipt-payment h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #290909;
+}
+
+.v7-receipt-payment p {
+    margin: 8px 0;
+    font-size: 14px;
+}
+
+.v7-receipt-thank-you {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    margin-top: 30px;
+}
+
+.v7-receipt-thank-you p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+@media print {
+    .v7-receipt {
+        padding: 0;
+    }
+    
+    .v7-receipt-table th {
+        background-color: #290909 !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+
+/* Past Reservations */
+.v7-past-reservations {
+    margin-top: 40px;
+    margin-bottom: 30px;
+}
+
+.v7-past-reservations-title {
+    font-family: 'Yinmar', sans-serif;
+    font-size: 2rem;
+    color: #290909;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.v7-past-reservations-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+}
+
+.v7-past-reservation-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(41, 9, 9, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.v7-past-reservation-card:hover {
+    transform: translateY(-5px);
+}
+
+.v7-past-reservation-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, rgba(41, 9, 9, 0.05), rgba(41, 9, 9, 0.03));
+    border-bottom: 1px solid rgba(41, 9, 9, 0.1);
+}
+
+.v7-past-reservation-content {
+    padding: 20px;
+}
+
+.v7-past-reservation-room {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.v7-past-room-image {
+    width: 150px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.v7-past-room-details {
+    flex: 1;
+}
+
+.v7-past-room-details h3 {
+    font-family: 'Yinmar', sans-serif;
+    color: #290909;
+    margin: 0 0 10px 0;
+    font-size: 1.3rem;
+}
+
+.v7-past-dates {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.v7-past-separator {
+    color: #290909;
+}
+
+.v7-past-guests {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.v7-past-guests i,
+.v7-past-dates i {
+    color: #290909;
+    width: 16px;
+    text-align: center;
+    margin-right: 5px;
+}
+
+.v7-past-reservation-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-top: 15px;
+    border-top: 1px dashed rgba(41, 9, 9, 0.1);
+}
+
+.v7-past-payment-info p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+}
+
+.v7-past-reservation-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.v7-past-reservation-actions .v7-action-btn {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    min-width: auto;
+}
+
+@media (max-width: 768px) {
+    .v7-past-reservations-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .v7-past-reservation-details {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .v7-past-reservation-actions {
+        justify-content: stretch;
+    }
+
+    .v7-past-reservation-actions .v7-action-btn {
+        flex: 1;
+    }
+}

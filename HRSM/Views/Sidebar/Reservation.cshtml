@@ -1,0 +1,920 @@
+@using HRSM.Models
+@model HRSM.Models.Booking
+
+@{
+    ViewData["Title"] = "My Reservations";
+    Layout = "_base";
+    var roomType = (Model?.RoomType ?? "Standard").ToLower();
+}
+
+@await Html.PartialAsync("_custom-header")
+@await Html.PartialAsync("_sidebar")
+
+@Html.AntiForgeryToken()
+
+<div class="header-right">
+    <button class="sidebar-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<div class="v7-reservation-container">
+    <div class="v7-reservation-header">
+        <h1 class="v7-reservation-title">My Reservation</h1>
+        <p class="v7-reservation-subtitle">View and manage your upcoming stay</p>
+    </div>
+
+    @if (Model == null || ViewBag.NoBooking == true)
+    {
+        <div class="v7-no-booking">
+            <i class="fas fa-calendar-times"></i>
+            <h2>No Active or Pending Reservations</h2>
+            <p>You don't have any active or pending reservations at the moment.</p>
+            <a href="/Sidebar/RoomBooking" class="v7-book-now-btn">Book Now</a>
+        </div>
+    }
+    else
+    {
+        <div class="v7-reservation-card">
+            <div class="v7-reservation-status">
+                <span class="v7-status-badge @(Model?.Status.ToLower() == "check in" ? "checkin" : Model?.Status.ToLower() == "check out" ? "checkout" : Model?.Status?.ToLower())">
+                    @(Model?.Status == "Check In" ? "Checked In" : Model?.Status == "Check Out" ? "Checked Out" : Model?.Status)
+                </span>
+                <span class="v7-reservation-number">Reservation ID: @Model?.ReservationNumber</span>
+            </div>
+
+            <div class="v7-reservation-content">
+                <!-- Room & Dates Section -->
+                <div class="v7-reservation-section">
+                    <div class="v7-room-image-container">
+                        <img src="~/images/bookingpic-@(roomType).png" alt="@Model?.RoomType Room" class="v7-room-image">
+                        <div class="v7-room-thumbnails">
+                            <img src="~/images/@(roomType)-room1.png" alt="Room View 1">
+                            <img src="~/images/@(roomType)-room2.png" alt="Room View 2">
+                            <img src="~/images/@(roomType)-room3.png" alt="Room View 3">
+                        </div>
+                    </div>
+
+                    <div class="v7-reservation-details">
+                        <div class="v7-detail-group">
+                            <div class="v7-detail-item check-in">
+                                <i class="fas fa-calendar-check"></i>
+                                <div class="v7-detail-content">
+                                    <span class="v7-detail-label">Check-in</span>
+                                    <span class="v7-detail-value">@Model?.CheckInDate.ToString("MMM dd, yyyy")</span>
+                                </div>
+                            </div>
+                            <div class="v7-detail-item check-out">
+                                <i class="fas fa-calendar-times"></i>
+                                <div class="v7-detail-content">
+                                    <span class="v7-detail-label">Check-out</span>
+                                    <span class="v7-detail-value">@Model?.CheckOutDate.ToString("MMM dd, yyyy")</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="v7-detail-group">
+                            <div class="v7-detail-item room-type">
+                                <i class="fas fa-bed"></i>
+                                <div class="v7-detail-content">
+                                    <span class="v7-detail-label">Room Type</span>
+                                    <span class="v7-detail-value">@Model?.RoomType Room</span>
+                                </div>
+                            </div>
+                            <div class="v7-detail-item room-size">
+                                <i class="fas fa-ruler-combined"></i>
+                                <div class="v7-detail-content">
+                                    <span class="v7-detail-label">Room Size</span>
+                                    <span class="v7-detail-value">@(Model?.RoomType == "Suite" ? "50" : Model?.RoomType == "Deluxe" ? "35" : "25") sqm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="v7-detail-group">
+                            <div class="v7-detail-item amenity">
+                                <i class="fas fa-wifi"></i>
+                                <div class="v7-detail-content">
+                                    <span class="v7-detail-label">Internet</span>
+                                    <span class="v7-detail-value">Free WiFi</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guest & Payment Section -->
+                <div class="v7-reservation-section">
+                    <div class="v7-guest-info">
+                        <h3><i class="fas fa-user-circle"></i> Guest Information</h3>
+                        <div class="v7-info-row">
+                            <span class="v7-info-label">Name:</span>
+                            <span class="v7-info-value">@(Model?.User?.FirstName ?? "N/A") @(Model?.User?.LastName ?? "")</span>
+                        </div>
+                        <div class="v7-info-row">
+                            <span class="v7-info-label">Email:</span>
+                            <span class="v7-info-value">@(Model?.User?.Email ?? "N/A")</span>
+                        </div>
+                        <div class="v7-info-row">
+                            <span class="v7-info-label">Phone:</span>
+                            <span class="v7-info-value">@(Model?.User?.Contact ?? "N/A")</span>
+                        </div>
+                        <div class="v7-info-row">
+                            <span class="v7-info-label">Special Requests:</span>
+                            <span class="v7-info-value">@(string.IsNullOrEmpty(Model?.SpecialRequests) ? "None" : Model?.SpecialRequests)</span>
+                        </div>
+                    </div>
+
+                    <div class="v7-payment-info">
+                        <h3><i class="fas fa-credit-card"></i> Payment Details</h3>
+                        <div class="v7-info-row">
+                            <span class="v7-info-label">Payment Method:</span>
+                            <span class="v7-info-value">@(Model?.PaymentMethod ?? "N/A")</span>
+                        </div>
+                        <div class="v7-info-row">
+                            <span class="v7-info-label">Room Rate:</span>
+                            <span class="v7-info-value">₱ @(Model?.RoomRate.ToString("N2") ?? "0.00") × @(ViewBag.Nights ?? 0) nights</span>
+                        </div>
+                        @if (Model?.ExtraBeds > 0)
+                        {
+                            <div class="v7-info-row">
+                                <span class="v7-info-label">Extra Beds:</span>
+                                <span class="v7-info-value">₱ 1,000 × @Model?.ExtraBeds beds × @(ViewBag.Nights ?? 0) nights</span>
+                            </div>
+                        }
+                        @if (Model?.ExtraRooms > 0)
+                        {
+                            <div class="v7-info-row">
+                                <span class="v7-info-label">Extra Rooms:</span>
+                                <span class="v7-info-value">₱ @(Model?.RoomRate.ToString("N2") ?? "0.00") × @Model?.ExtraRooms rooms × @(ViewBag.Nights ?? 0) nights</span>
+                            </div>
+                        }
+                        @if (Model?.SpaService == true)
+                        {
+                            <div class="v7-info-row">
+                                <span class="v7-info-label">Spa Service:</span>
+                                <span class="v7-info-value">₱ 1,000</span>
+                            </div>
+                        }
+                        @if (Model?.RoomService == true)
+                        {
+                            <div class="v7-info-row">
+                                <span class="v7-info-label">Room Service:</span>
+                                <span class="v7-info-value">₱ 800</span>
+                            </div>
+                        }
+                        @if (Model?.AirportTransfer == true)
+                        {
+                            <div class="v7-info-row">
+                                <span class="v7-info-label">Airport Transfer:</span>
+                                <span class="v7-info-value">₱ 1,200</span>
+                            </div>
+                        }
+                        <div class="v7-info-row total">
+                            <span class="v7-info-label">Total Amount:</span>
+                            <span class="v7-info-value">₱ @(Model?.TotalAmount.ToString("N2") ?? "0.00")</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Services -->
+                <div class="v7-reservation-section">
+                    <h3><i class="fas fa-concierge-bell"></i> Additional Services</h3>
+                    <div class="v7-services-grid">
+                        @if (Model?.SpaService == true)
+                        {
+                            <div class="v7-service-card">
+                                <div class="v7-service-icon">
+                                    <i class="fas fa-spa"></i>
+                                </div>
+                                <div class="v7-service-info">
+                                    <h4>Spa Package</h4>
+                                    <p>Full body massage (60 mins)</p>
+                                    <div class="v7-service-status">Scheduled</div>
+                                </div>
+                                <div class="v7-service-price">₱ 1,000</div>
+                            </div>
+                        }
+                        
+                        @if (Model?.AirportTransfer == true)
+                        {
+                            <div class="v7-service-card">
+                                <div class="v7-service-icon">
+                                    <i class="fas fa-shuttle-van"></i>
+                                </div>
+                                <div class="v7-service-info">
+                                    <h4>Airport Transfer</h4>
+                                    <p>Round trip (NAIA to Hotel)</p>
+                                    <div class="v7-service-status">Confirmed</div>
+                                </div>
+                                <div class="v7-service-price">₱ 1,200</div>
+                            </div>
+                        }
+
+                        @if (Model?.RoomService == true)
+                        {
+                            <div class="v7-service-card">
+                                <div class="v7-service-icon">
+                                    <i class="fas fa-utensils"></i>
+                                </div>
+                                <div class="v7-service-info">
+                                    <h4>Room Service</h4>
+                                    <p>24/7 In-room dining</p>
+                                    <div class="v7-service-status">Available</div>
+                                </div>
+                                <div class="v7-service-price">₱ 800</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="v7-reservation-actions">
+                <button class="v7-action-btn secondary" onclick="downloadReceipt()" style="min-width: 180px;">
+                    <i class="fas fa-file-invoice"></i> Download Receipt
+                </button>
+                @if (Model?.Status == "Pending")
+                {
+                    <button class="v7-action-btn danger cancel-reservation" data-booking-id="@Model?.BookingId" style="min-width: 180px;">
+                        <i class="fas fa-times"></i> Cancel Reservation
+                    </button>
+                }
+                else
+                {
+                    <button class="v7-action-btn secondary" onclick="addToCalendar()" style="min-width: 180px;">
+                        <i class="fas fa-calendar-plus"></i> Add to Calendar
+                    </button>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Hotel Information -->
+    <div class="v7-hotel-info">
+        <h3><i class="fas fa-hotel"></i> Hotel Information</h3>
+        <div class="v7-hotel-details">
+            <div class="v7-hotel-contact">
+                <p><i class="fas fa-map-marker-alt"></i> Le Celestia Hotel, Osmeña Boulevard, Cebu City, Philippines</p>
+                <p><i class="fas fa-phone"></i> +63 2 8123 4567</p>
+                <p><i class="fas fa-envelope"></i> reservations@lecelestia-hotel.com</p>
+            </div>
+            <div class="v7-hotel-map">
+                <div id="hotelMap" style="width: 100%; height: 300px; border-radius: 8px; overflow: hidden;">
+                    <div id="map-loading" style="text-align: center; padding: 120px 20px;">
+                        <p>Loading map...</p>
+                    </div>
+                    <div id="map-error" style="display: none; text-align: center; padding: 120px 20px;">
+                        <p style="color: #e74c3c;">Unable to load map. Please try again later.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Receipt Template (Hidden) -->
+<div id="receipt-template" style="display: none;">
+    <div class="receipt-container">
+        <div class="receipt-header">
+            <h1>Le Celestia Hotel</h1>
+            <h2>Receipt</h2>
+            <p id="receipt-number"></p>
+            <p id="receipt-date"></p>
+        </div>
+
+        <div class="receipt-section">
+            <h3>Guest Information</h3>
+            <div class="info-grid" style="padding-left: 10%;">
+                <div class="receipt-section">
+                    <h3>Guest Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value">${booking.guestName}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">${booking.guestEmail}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone:</span>
+                        <span class="info-value">${booking.guestPhone || 'N/A'}</span>
+                    </div>
+                </div>
+                
+                <div class="receipt-section">
+                    <h3>Booking Details</h3>
+                    <div class="info-item">
+                        <span class="info-label">Room Type:</span>
+                        <span class="info-value">${booking.roomType} Room</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Check-in:</span>
+                        <span class="info-value">${booking.checkIn}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Check-out:</span>
+                        <span class="info-value">${booking.checkOut}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Duration:</span>
+                        <span class="info-value">${nights} night${nights > 1 ? 's' : ''}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="receipt-section">
+            <h3>Charges</h3>
+            <table id="receipt-charges">
+                <colgroup>
+                    <col style="width:25%">
+                    <col style="width:25%">
+                    <col style="width:15%">
+                    <col style="width:35%">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Rate</th>
+                        <th>Qty</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Charges will be added here -->
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3">Total</td>
+                        <td id="receipt-total"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="receipt-footer">
+            <p>Thank you for choosing Le Celestia Hotel!</p>
+            <p>We look forward to serving you again.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Add Google Maps JavaScript -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCsKigWohA68GSjZAWVQdIKiAP8r3Bfwhg&callback=initMap" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
+<script type="text/javascript">
+    // JavaScript code for the reservation page
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            // Show loading message
+            const mapLoading = document.getElementById('map-loading');
+            if (mapLoading) {
+                mapLoading.style.display = 'block';
+            }
+            loadGoogleMaps();
+        } catch (error) {
+            console.error('Error initializing page:', error);
+        }
+    });
+    
+    // Load Google Maps API with callback
+    function loadGoogleMaps() {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCsKigWohA68GSjZAWVQdIKiAP8r3Bfwhg&callback=initMap`;
+        script.async = true;
+        script.defer = true;
+        script.onerror = function() {
+            const mapLoading = document.getElementById('map-loading');
+            const mapError = document.getElementById('map-error');
+            if (mapLoading) mapLoading.style.display = 'none';
+            if (mapError) mapError.style.display = 'block';
+        };
+        document.body.appendChild(script);
+    }
+    
+    // Initialize map when API is loaded
+    function initMap() {
+        try {
+            const mapLoading = document.getElementById('map-loading');
+            if (mapLoading) {
+                mapLoading.style.display = 'none';
+            }
+            
+            // Hotel coordinates in Cebu City
+            const hotelLocation = {
+                lat: 10.3124,
+                lng: 123.8916
+            };
+
+            // Create map with error handling
+            const mapElement = document.getElementById('hotelMap');
+            if (!mapElement) {
+                console.error('Map element not found');
+                return;
+            }
+            
+            const map = new google.maps.Map(mapElement, {
+                center: hotelLocation,
+                zoom: 16,
+                styles: [
+                    {
+                        "featureType": "all",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#f5f5f5"}]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#ffffff"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "geometry",
+                        "stylers": [{"color": "#c9c9c9"}]
+                    },
+                    {
+                        "featureType": "poi",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#290909"}]
+                    },
+                    {
+                        "featureType": "transit",
+                        "elementType": "geometry",
+                        "stylers": [{"visibility": "on"}]
+                    }
+                ]
+            });
+
+            // Add marker for hotel location
+            const marker = new google.maps.Marker({
+                position: hotelLocation,
+                map: map,
+                title: 'Le Celestia Hotel',
+                animation: google.maps.Animation.DROP,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    fillColor: '#290909',
+                    fillOpacity: 1,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 2,
+                    scale: 10
+                }
+            });
+
+            // Add info window with hotel information
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div style="padding: 10px;">
+                        <h3 style="margin: 0 0 5px 0; color: #290909;">Le Celestia Hotel</h3>
+                        <p style="margin: 0 0 5px 0; color: #666;">Osmeña Boulevard</p>
+                        <p style="margin: 0; color: #666;">Cebu City, Philippines</p>
+                    </div>
+                `
+            });
+
+            // Show info window when marker is clicked
+            marker.addListener('click', () => {
+                infoWindow.open(map, marker);
+            });
+
+            // Initially open the info window
+            infoWindow.open(map, marker);
+
+        } catch (error) {
+            console.error('Error initializing map:', error);
+            const mapLoading = document.getElementById('map-loading');
+            const mapError = document.getElementById('map-error');
+            if (mapLoading) mapLoading.style.display = 'none';
+            if (mapError) mapError.style.display = 'block';
+        }
+    }
+    
+    // If Google Maps script loading failed, try loading it again
+    window.addEventListener('error', function(e) {
+        if (e.target.src && e.target.src.includes('maps.googleapis.com')) {
+            console.warn('Google Maps script failed to load, attempting to reload');
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCsKigWohA68GSjZAWVQdIKiAP8r3Bfwhg&callback=initMap`;
+            script.async = true;
+            script.defer = true;
+            script.onerror = function() {
+                console.error('Failed to load Google Maps script again');
+            };
+            document.body.appendChild(script);
+        }
+    }, true);
+    
+    // Rest of the JavaScript functions...
+    
+    function downloadReceipt() {
+        try {
+            // Try to use jsPDF approach first
+            if (window.jspdf && window.jspdf.jsPDF) {
+                generatePdfWithJsPdf();
+            } else {
+                // Fall back to simpler approach
+                generateBasicReceipt();
+            }
+        } catch (error) {
+            console.error('Error in downloadReceipt:', error);
+            alert('Could not generate receipt: ' + error.message);
+        }
+    }
+
+    function generatePdfWithJsPdf() {
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Set basic information
+        const booking = {
+            reservationNumber: '@Model?.ReservationNumber',
+            bookingDate: '@(Model?.BookingDate.ToString("MMMM dd, yyyy"))',
+            guestName: '@(Model?.User?.FirstName) @(Model?.User?.LastName)',
+            guestEmail: '@(Model?.User?.Email)',
+            guestPhone: '@(Model?.User?.Contact)',
+            roomType: '@Model?.RoomType',
+            checkIn: '@(Model?.CheckInDate.ToString("MMMM dd, yyyy"))',
+            checkOut: '@(Model?.CheckOutDate.ToString("MMMM dd, yyyy"))',
+            nights: '@ViewBag.Nights',
+            roomRate: @(Model?.RoomRate ?? 0),
+            totalAmount: @(Model?.TotalAmount ?? 0),
+            paymentMethod: '@Model?.PaymentMethod',
+            status: '@Model?.Status',
+            extraBeds: @(Model?.ExtraBeds ?? 0),
+            extraRooms: @(Model?.ExtraRooms ?? 0),
+            spaService: @(Model?.SpaService == true ? "true" : "false"),
+            roomService: @(Model?.RoomService == true ? "true" : "false"),
+            airportTransfer: @(Model?.AirportTransfer == true ? "true" : "false")
+        };
+        
+        // Calculate all charges
+        const nights = parseInt(booking.nights) || 1;
+        const roomRate = parseFloat(booking.roomRate) || 15000;
+        let calculatedTotal = 0;
+        
+        // Create charges array for the table
+        const chargesData = [];
+        
+        // Add room charge
+        const roomCharge = roomRate * nights;
+        calculatedTotal += roomCharge;
+        chargesData.push([
+            `${booking.roomType} Room`,
+            `PHP ${roomRate.toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+            nights,
+            `PHP ${roomCharge.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+        ]);
+        
+        // Add extra beds if any
+        const extraBeds = parseInt(booking.extraBeds) || 0;
+        if (extraBeds > 0) {
+            const extraBedCharge = 1000 * extraBeds * nights;
+            calculatedTotal += extraBedCharge;
+            chargesData.push([
+                `Extra Bed${extraBeds > 1 ? 's' : ''}`,
+                `PHP 1,000.00`,
+                extraBeds * nights,
+                `PHP ${extraBedCharge.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+            ]);
+        }
+        
+        // Add extra rooms if any
+        if (parseInt(booking.extraRooms) > 0) {
+            const extraRoomCharge = roomRate * booking.extraRooms * nights;
+            calculatedTotal += extraRoomCharge;
+            chargesData.push([
+                `Extra Room${parseInt(booking.extraRooms) > 1 ? 's' : ''}`,
+                `PHP ${roomRate.toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+                booking.extraRooms * nights,
+                `PHP ${extraRoomCharge.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+            ]);
+        }
+        
+        // Add spa service if selected
+        if (booking.spaService === "true") {
+            calculatedTotal += 1000;
+            chargesData.push(['Spa Service', 'PHP 1,000.00', 1, 'PHP 1,000.00']);
+        }
+        
+        // Add room service if selected
+        if (booking.roomService === "true") {
+            calculatedTotal += 800;
+            chargesData.push(['Room Service', 'PHP 800.00', 1, 'PHP 800.00']);
+        }
+        
+        // Add airport transfer if selected
+        if (booking.airportTransfer === "true") {
+            calculatedTotal += 1200;
+            chargesData.push(['Airport Transfer', 'PHP 1,200.00', 1, 'PHP 1,200.00']);
+        }
+        
+        // Force calculated total to match the required total
+        calculatedTotal = parseFloat(booking.totalAmount);
+        
+        // Document title
+        doc.setFontSize(24);
+        doc.setTextColor(41, 9, 9);
+        doc.text('Le Celestia Hotel', 105, 20, { align: 'center' });
+        doc.setFontSize(18);
+        doc.text('Receipt', 105, 30, { align: 'center' });
+        
+        // Receipt info
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Receipt No: ${booking.reservationNumber}`, 105, 40, { align: 'center' });
+        doc.text(`Date: ${booking.bookingDate}`, 105, 45, { align: 'center' });
+        
+        // Draw a line
+        doc.setDrawColor(41, 9, 9);
+        doc.setLineWidth(0.5);
+        doc.line(20, 50, 190, 50);
+        
+        // Guest Information and Booking Details side by side
+        doc.setFontSize(14);
+        doc.setTextColor(41, 9, 9);
+        doc.text('Guest Information', 35, 65, { align: 'center' });
+        doc.text('Booking Details', 155, 65, { align: 'center' });
+        
+        // Guest Information
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text('Name:', 25, 80);
+        doc.text(booking.guestName, 55, 80);
+        doc.text('Email:', 25, 90);
+        doc.text(booking.guestEmail, 55, 90);
+        doc.text('Phone:', 25, 100);
+        doc.text(booking.guestPhone || 'N/A', 55, 100);
+        
+        // Booking Details 
+        doc.text('Room Type:', 115, 80);
+        doc.text(`${booking.roomType} Room`, 155, 80);
+        doc.text('Check-in:', 115, 90);
+        doc.text(booking.checkIn, 155, 90);
+        doc.text('Check-out:', 115, 100);
+        doc.text(booking.checkOut, 155, 100);
+        doc.text('Duration:', 115, 110);
+        doc.text(`${nights} night${nights > 1 ? 's' : ''}`, 155, 110);
+        
+        // Add a separator line
+        doc.setLineWidth(0.3);
+        doc.line(20, 120, 190, 120);
+        
+        // Charges
+        doc.setFontSize(14);
+        doc.setTextColor(41, 9, 9);
+        doc.text('Charges', 105, 135, { align: 'center' });
+        
+        // Add total row
+        chargesData.push([
+            { content: 'Total Amount', colSpan: 3, styles: { fontStyle: 'bold', halign: 'right' } },
+            { content: `PHP ${calculatedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, styles: { fontStyle: 'bold' } }
+        ]);
+        
+        // Create table with improved styling
+        doc.autoTable({
+            startY: 145,
+            head: [['Description', 'Rate', 'Qty', 'Amount']],
+            body: chargesData,
+            theme: 'grid',
+            headStyles: { 
+                fillColor: [41, 9, 9], 
+                textColor: 255,
+                fontSize: 12,
+                valign: 'middle',
+                lineWidth: 0.1,
+                halign: 'center'
+            },
+            styles: { 
+                fontSize: 10,
+                cellPadding: 6,
+                lineColor: [200, 200, 200],
+                lineWidth: 0.1,
+                overflow: 'visible',
+                minCellWidth: 0,
+                halign: 'center'
+            },
+            columnStyles: {
+                0: { cellWidth: 45, halign: 'center' },
+                1: { cellWidth: 45, halign: 'left' },
+                2: { cellWidth: 20, halign: 'center' },
+                3: { cellWidth: 60, halign: 'right' }
+            },
+            margin: { right: 10, left: 10 },
+            tableWidth: 'wrap',
+            alternateRowStyles: {
+                fillColor: [248, 248, 248]
+            },
+            tableLineColor: [200, 200, 200],
+            tableLineWidth: 0.1,
+            foot: [],
+            didDrawPage: function(data) {
+                // Add footer on each page
+                const pageHeight = doc.internal.pageSize.height;
+                doc.setDrawColor(41, 9, 9);
+                doc.setLineWidth(0.5);
+                doc.line(20, pageHeight - 30, 190, pageHeight - 30);
+                
+                doc.setFontSize(10);
+                doc.setTextColor(41, 9, 9); // Only brown color
+                doc.text('Thank you for choosing Le Celestia Hotel!', 105, pageHeight - 20, { align: 'center' });
+                doc.text('We look forward to serving you again.', 105, pageHeight - 10, { align: 'center' });
+            }
+        });
+        
+        // Save the PDF
+        doc.save(`LecelestiaHotel-Receipt-${booking.reservationNumber}.pdf`);
+    }
+
+    function addToCalendar() {
+        try {
+            const checkInDate = '@Model?.CheckInDate.ToString("yyyy-MM-dd")';
+            const checkOutDate = '@Model?.CheckOutDate.ToString("yyyy-MM-dd")';
+            const roomType = '@Model?.RoomType';
+            const hotelName = 'Le Celestia Hotel';
+            const reservationNumber = '@Model?.ReservationNumber';
+            
+            // Create calendar event details
+            const title = `${hotelName} - ${roomType} Room`;
+            const description = `Reservation #: ${reservationNumber}\nRoom Type: ${roomType}\nHotel: ${hotelName}\nAddress: Osmeña Boulevard, Cebu City, Philippines\nPhone: +63 2 8123 4567`;
+            
+            // Format dates for Google Calendar
+            const startDate = checkInDate.replace(/-/g, '');
+            const endDate = checkOutDate.replace(/-/g, '');
+            
+            // Create Google Calendar URL
+            const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startDate}/${endDate}&details=${encodeURIComponent(description)}&location=${encodeURIComponent('Le Celestia Hotel, Osmeña Boulevard, Cebu City, Philippines')}`;
+            
+            // Open calendar in a new tab
+            window.open(googleCalendarUrl, '_blank');
+            
+        } catch (error) {
+            console.error('Error adding to calendar:', error);
+            alert('Error adding to calendar: ' + error.message);
+        }
+    }
+
+    function emailDetails() {
+        alert('Reservation details will be sent to your email address.');
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+        // Add event listeners for the buttons
+        document.querySelectorAll('.cancel-reservation').forEach(button => {
+            button.addEventListener('click', function() {
+                const bookingId = this.getAttribute('data-booking-id');
+                cancelReservation(bookingId);
+            });
+        });
+
+        document.querySelectorAll('.modify-reservation').forEach(button => {
+            button.addEventListener('click', function() {
+                const bookingId = this.getAttribute('data-booking-id');
+                modifyReservation(bookingId);
+            });
+        });
+    });
+
+    async function cancelReservation(bookingId) {
+        if (!confirm('Are you sure you want to cancel this reservation?')) {
+            return;
+        }
+
+        try {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            const response = await fetch(`/Reservation/CancelReservation/${bookingId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to cancel reservation');
+            }
+
+            if (data.success) {
+                alert('Reservation cancelled successfully');
+                window.location.reload();
+            } else {
+                throw new Error(data.message || 'Failed to cancel reservation');
+            }
+        } catch (error) {
+            console.error('Error cancelling reservation:', error);
+            alert(error.message || 'An error occurred while cancelling the reservation');
+        }
+    }
+
+    function modifyReservation(bookingId) {
+        // Implement modification logic or redirect to modification page
+        alert('Reservation modification will be implemented soon.');
+    }
+
+    function viewDetails(reservationNumber) {
+        window.location.href = `/Reservation/Index?reservationNumber=${reservationNumber}`;
+    }
+
+    // Add modal styles
+    const modalStyles = document.createElement('style');
+    modalStyles.textContent = `
+.v7-status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 0.5px solid transparent;
+}
+
+.v7-status-badge.confirmed,
+.v7-status-badge.checkin, 
+.v7-status-badge.checked-in,
+.v7-status-badge.checkedin {
+    background-color: #BEF6D0 !important;
+    color: #28a745 !important;
+    border: 1px solid #28a745 !important;
+}
+
+.v7-status-badge.pending {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+    color: #ffc107 !important;
+    border: 1px solid #ffc107 !important;
+}
+
+.v7-status-badge.cancelled {
+    background-color: #ffebee !important;
+    color: #c62828 !important;
+    border: 1px solid #c62828 !important;
+}
+
+.v7-status-badge.checkout,
+.v7-status-badge.checked-out,
+.v7-status-badge.checkedout {
+    background-color: #E7A5A6 !important;
+    color: #dc3545 !important;
+    border: 1px solid #dc3545 !important;
+}
+
+.v7-book-now-btn {
+    display: inline-block;
+    background-color: var(--primary, #290909);
+    color: white;
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-decoration: none;
+    margin-top: 1.5rem;
+    border: 2px solid var(--primary, #290909);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.v7-book-now-btn:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--accent, #d4a373);
+    transition: all 0.4s ease-out;
+    z-index: -1;
+}
+
+.v7-book-now-btn:hover {
+    color: white;
+    border-color: var(--accent, #d4a373);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.v7-book-now-btn:hover:before {
+    left: 0;
+}
+
+.v7-book-now-btn:active {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.v7-action-btn.danger {
+    background-color: #dc3545;
+    color: white;
+    border: 2px solid #dc3545;
+}
+
+.v7-action-btn.danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+`;
+    document.head.appendChild(modalStyles);
+</script>

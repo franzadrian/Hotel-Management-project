@@ -1,0 +1,936 @@
+@{
+    ViewData["Title"] = "Annual Income Report";
+    Layout = null;
+    
+    // Get values from ViewBag
+    var currentYear = ViewBag.CurrentYear ?? DateTime.Now.Year;
+    var lastYear = ViewBag.LastYear ?? currentYear - 1;
+    var currentYearTotal = ViewBag.CurrentYearTotal ?? 0;
+    var lastYearTotal = ViewBag.LastYearTotal ?? 0;
+    var validMonths = ViewBag.ValidMonths ?? DateTime.Now.Month;
+    var ytdCurrentYear = ViewBag.YtdCurrentYear ?? 0;
+    var ytdLastYear = ViewBag.YtdLastYear ?? 0;
+    var percentChange = ViewBag.PercentChange ?? 0.0;
+    var monthlyComparison = ViewBag.MonthlyComparison as List<dynamic> ?? new List<dynamic>();
+    var currentYearData = ViewBag.CurrentYearData ?? new int[12];
+    var lastYearData = ViewBag.LastYearData ?? new int[12];
+    var roomTypeData = ViewBag.RoomTypeData ?? new {
+        Standard = new { CurrentYear = 0, LastYear = 0 },
+        Deluxe = new { CurrentYear = 0, LastYear = 0 },
+        Suite = new { CurrentYear = 0, LastYear = 0 }
+    };
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <style>
+        :root {
+            --primary: #290909;
+            --primary-light: #3a0d0d;
+            --primary-dark: #1a0505;
+            --accent: #d4a373;
+            --accent-light: #e8c9a8;
+            --text-light: #f8f8f8;
+            --text-muted: #aaaaaa;
+            --text-dark: #222222;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            color: var(--text-light);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            border-right: 1px solid var(--primary-dark);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand i {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--accent);
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            margin-top: 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: var(--accent);
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 2.5rem;
+            width: calc(100% - 280px);
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        /* DASHBOARD CARDS */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .dashboard-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border-top: 4px solid var(--primary);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background-color: rgba(41, 9, 9, 0.1);
+            color: var(--primary);
+        }
+
+        .card-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0.5rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-footer i {
+            margin-right: 0.5rem;
+        }
+
+        .card-footer i.up {
+            color: var(--success);
+        }
+
+        .card-footer i.down {
+            color: var(--danger);
+        }
+
+        /* CHART CARD */
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            border-top: 4px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .analytics-grid .chart-card {
+            min-height: 320px;
+            height: 100%;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            margin-top: 2rem;
+            min-height: 320px;
+        }
+
+        @@media (max-width: 992px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .chart-filters {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .chart-filter {
+            background: #f5f5f5;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .chart-filter:hover {
+            background: var(--accent-light);
+        }
+
+        .chart-filter.active {
+            background: var(--accent);
+            color: var(--primary);
+            border-color: var(--accent);
+        }
+
+        .chart-container {
+            height: 400px;
+            position: relative;
+            max-height: 100%;
+            overflow: hidden;
+        }
+        
+        .analytics-chart-container {
+            height: 280px;
+            position: relative;
+            max-height: 100%;
+            overflow: visible;
+            min-height: 200px;
+        }
+
+        /* TABLE */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            background-color: #f9f9f9;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table .positive {
+            color: var(--success);
+        }
+
+        .data-table .negative {
+            color: var(--danger);
+        }
+
+        /* RESPONSIVE */
+        @@media (max-width: 1200px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+
+        /* YEAR SELECTOR */
+        .year-selector {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .year-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .year-btn:hover {
+            background: var(--accent-light);
+        }
+
+        .year-btn.active {
+            background: var(--accent);
+            color: var(--primary);
+            border-color: var(--accent);
+        }
+
+        /* LOGOUT BUTTON */
+        .logout-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-sm);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .logout-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .logout-btn i {
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand">
+            <i class="fas fa-shield-alt"></i>
+            <h1>Admin Portal</h1>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item">
+                <a href="/Admin/AdminDashboard" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>&nbsp;Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/UserManagement" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>&nbsp;Guests</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/StaffManagement" class="nav-link">
+                    <i class="fas fa-user-tie"></i>
+                    <span>&nbsp;Staffs</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/FeedbackManagement" class="nav-link">
+                    <i class="fas fa-comments"></i>
+                    <span>&nbsp;Feedbacks</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/EventManagement" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>&nbsp;Events</span>
+                </a>
+            </div>
+            <div class="nav-item active">
+                <a href="/Admin/AnnualReport" class="nav-link active">
+                    <i class="fas fa-chart-line"></i>
+                    <span>&nbsp;Annual Report</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="header">
+            <h1 class="page-title">Annual Income Report</h1>
+        </div>
+
+        @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger" style="padding: 15px; margin-bottom: 20px; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24; background-color: #f8d7da;">
+                <i class="fas fa-exclamation-circle"></i> @ViewBag.ErrorMessage
+            </div>
+        }
+        
+        @if (ViewBag.HasNoCurrentYearData == true)
+        {
+            <div class="alert alert-warning" style="padding: 15px; margin-bottom: 20px; border: 1px solid #ffeeba; border-radius: 4px; color: #856404; background-color: #fff3cd;">
+                <i class="fas fa-exclamation-triangle"></i> <strong>No Data Found:</strong> @ViewBag.CurrentYearMessage
+                <div style="margin-top: 10px;">
+                    <strong>Possible reasons why your bookings aren't showing up:</strong>
+                    <ul style="margin-top: 5px;">
+                        <li>Bookings might have "Pending" payment status instead of "Paid" or "Completed"</li>
+                        <li>Bookings might be marked as "Cancelled" which are excluded</li>
+                        <li>Booking dates might be recorded in a different year</li>
+                        <li>The system found @ViewBag.TotalBookingsInDb total bookings in database</li>
+                    </ul>
+                </div>
+            </div>
+        }
+        else if (ViewBag.Using2024DemoData == true)
+        {
+            <div class="alert alert-warning" style="padding: 15px; margin-bottom: 20px; border: 1px solid #ffeeba; border-radius: 4px; color: #856404; background-color: #fff3cd;">
+                <i class="fas fa-info-circle"></i> <strong>Notice:</strong> This report is using demonstration data for @lastYear, while showing real booking data for @currentYear.
+            </div>
+        }
+        else if (ViewBag.UsingSampleData == true)
+        {
+            <div class="alert alert-warning" style="padding: 15px; margin-bottom: 20px; border: 1px solid #ffeeba; border-radius: 4px; color: #856404; background-color: #fff3cd;">
+                <i class="fas fa-info-circle"></i> <strong>Notice:</strong> This report is displaying sample demonstration data because no real booking data was found.
+            </div>
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(ViewBag.CurrentYearMessage))
+            {
+                <div class="alert alert-info" style="padding: 15px; margin-bottom: 20px; border: 1px solid #bee5eb; border-radius: 4px; color: #0c5460; background-color: #d1ecf1;">
+                    <i class="fas fa-info-circle"></i> <strong>@currentYear:</strong> @ViewBag.CurrentYearMessage
+                </div>
+            }
+            
+            @if (!string.IsNullOrEmpty(ViewBag.LastYearMessage) && ViewBag.Using2024DemoData != true)
+            {
+                <div class="alert alert-info" style="padding: 15px; margin-bottom: 20px; border: 1px solid #bee5eb; border-radius: 4px; color: #0c5460; background-color: #d1ecf1;">
+                    <i class="fas fa-info-circle"></i> <strong>@lastYear:</strong> @ViewBag.LastYearMessage
+                </div>
+            }
+        }
+
+        <!-- YEAR SELECTOR -->
+        <div class="year-selector">
+            <button type="button" class="year-btn active" id="showBothYears">Both Years</button>
+            <button type="button" class="year-btn" id="showCurrentYear">This Year</button>
+            <button type="button" class="year-btn" id="showLastYear">Last Year</button>
+        </div>
+
+        <!-- MONTHLY REVENUE CHART -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="fas fa-chart-bar"></i> Annual Report
+                </div>
+                <div class="chart-filters">
+                    <button class="chart-filter active" data-chart-type="bar">Bar Chart</button>
+                    <button class="chart-filter" data-chart-type="line">Line Chart</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- ROOM ANALYTICS AND AVAILABILITY SECTION -->
+        <div class="analytics-grid">
+            <!-- ROOM ANALYTICS CHART -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <i class="fas fa-bed"></i> Room Analytics
+                    </div>
+                </div>
+                <div class="analytics-chart-container">
+                    <canvas id="roomAnalyticsChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- ROOM AVAILABILITY CHART -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <i class="fas fa-door-open"></i> Room Availability
+                    </div>
+                </div>
+                <div class="analytics-chart-container">
+                    <canvas id="roomAvailabilityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Register the datalabels plugin
+            Chart.register(ChartDataLabels);
+            
+            // Set global defaults to hide datalabels
+            Chart.defaults.plugins.datalabels = {
+                display: false
+            };
+            
+            // Disable specific Chart.js plugins that might cause buttons
+            Chart.defaults.plugins.legend.display = false;
+            Chart.defaults.plugins.tooltip.enabled = false;
+            
+            // Monthly Revenue Chart
+            const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+            const monthlyChart = new Chart(monthlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [
+                        {
+                            label: '@currentYear',
+                            data: @Html.Raw(Json.Serialize(currentYearData)),
+                            backgroundColor: '#d4a373',
+                            borderColor: '#d4a373',
+                            borderWidth: 1,
+                            order: 1
+                        },
+                        {
+                            label: '@lastYear',
+                            data: @Html.Raw(Json.Serialize(lastYearData)),
+                            backgroundColor: '#3a0d0d',
+                            borderColor: '#3a0d0d',
+                            borderWidth: 1,
+                            order: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                display: true,
+                                callback: function(value) {
+                                    // Only show peso sign at 0 and some major points
+                                    if (value === 0 || value % 1000 === 0) {
+                                        return '₱' + value;
+                                    }
+                                    return '';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ₱' + context.raw;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Chart type toggle
+            document.querySelectorAll('.chart-filter').forEach(button => {
+                button.addEventListener('click', function() {
+                    const chartType = this.getAttribute('data-chart-type');
+                    
+                    document.querySelectorAll('.chart-filter').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    if (chartType === 'line') {
+                        // Configure line chart options for better appearance
+                        monthlyChart.options.spanGaps = false; // Don't span across gaps (zeros)
+                        
+                        // Configure both datasets for line display
+                        monthlyChart.data.datasets.forEach(dataset => {
+                            dataset.tension = 0.2; // slight curve for lines
+                            dataset.fill = false;  // don't fill under the line
+                            dataset.pointRadius = 5; // larger points
+                            dataset.pointHoverRadius = 7;
+                            
+                            // Create a copy of the data that shows null for zeros
+                            // This prevents drawing lines to zero values
+                            let fixedData = dataset.data.map(value => value === 0 ? null : value);
+                            dataset._originalData = dataset.data; // store original data
+                            dataset.data = fixedData;
+                        });
+                    } else {
+                        // Reset to bar chart display and restore original data
+                        monthlyChart.data.datasets.forEach(dataset => {
+                            if (dataset._originalData) {
+                                dataset.data = dataset._originalData;
+                                delete dataset._originalData;
+                            }
+                            dataset.tension = 0;
+                            delete dataset.pointRadius;
+                            delete dataset.pointHoverRadius;
+                        });
+                        
+                        monthlyChart.options.spanGaps = true;
+                    }
+                    
+                    monthlyChart.config.type = chartType;
+                    monthlyChart.update();
+                });
+            });
+
+            // Year filter buttons
+            document.getElementById('showBothYears').addEventListener('click', function() {
+                this.classList.add('active');
+                document.getElementById('showCurrentYear').classList.remove('active');
+                document.getElementById('showLastYear').classList.remove('active');
+                
+                monthlyChart.data.datasets[0].hidden = false;
+                monthlyChart.data.datasets[1].hidden = false;
+                monthlyChart.update();
+            });
+
+            document.getElementById('showCurrentYear').addEventListener('click', function() {
+                this.classList.add('active');
+                document.getElementById('showBothYears').classList.remove('active');
+                document.getElementById('showLastYear').classList.remove('active');
+                
+                monthlyChart.data.datasets[0].hidden = false;
+                monthlyChart.data.datasets[1].hidden = true;
+                monthlyChart.update();
+            });
+
+            document.getElementById('showLastYear').addEventListener('click', function() {
+                this.classList.add('active');
+                document.getElementById('showBothYears').classList.remove('active');
+                document.getElementById('showCurrentYear').classList.remove('active');
+                
+                monthlyChart.data.datasets[0].hidden = true;
+                monthlyChart.data.datasets[1].hidden = false;
+                monthlyChart.update();
+            });
+
+            // Room Analytics Horizontal Bar Chart
+            const roomAnalyticsCtx = document.getElementById('roomAnalyticsChart').getContext('2d');
+            
+            // Allow display but prevent interaction
+            const roomAnalyticsCanvas = document.getElementById('roomAnalyticsChart');
+            roomAnalyticsCanvas.style.pointerEvents = 'none';
+            
+            const roomTypeCurrentYear = {
+                'Standard': @roomTypeData.Standard.CurrentYear,
+                'Deluxe': @roomTypeData.Deluxe.CurrentYear,
+                'Suite': @roomTypeData.Suite.CurrentYear
+            };
+            
+            // Calculate total for percentages
+            const roomTotalCurrent = Object.values(roomTypeCurrentYear).reduce((a, b) => a + b, 0);
+            
+            // Create percentages
+            const roomPercentages = {};
+            Object.keys(roomTypeCurrentYear).forEach(key => {
+                roomPercentages[key] = roomTotalCurrent > 0 
+                    ? Math.round((roomTypeCurrentYear[key] / roomTotalCurrent) * 100) 
+                    : 0;
+            });
+            
+            const roomAnalyticsChart = new Chart(roomAnalyticsCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(roomTypeCurrentYear),
+                    datasets: [{
+                        label: '',
+                        data: Object.values(roomTypeCurrentYear),
+                        backgroundColor: ['#d4a373', '#e9edc9', '#faedcd'],
+                        borderColor: ['#d4a373', '#e9edc9', '#faedcd'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Horizontal bar chart
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    events: [], // Disable all events
+                    layout: {
+                        padding: {
+                            right: 70 // Add more padding to ensure labels are visible
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const percentage = roomPercentages[context.label];
+                                    return `₱${value} (${percentage}%)`;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            display: true, // Show the data labels
+                            align: 'end',
+                            anchor: 'end',
+                            formatter: function(value, context) {
+                                const percentage = roomPercentages[context.chart.data.labels[context.dataIndex]];
+                                return percentage + '%';
+                            },
+                            color: '#290909',
+                            font: {
+                                weight: 'bold',
+                                size: 14
+                            },
+                            offset: 8,
+                            clamp: true // Prevent labels from going outside the chart area
+                        },
+                        legend: {
+                            display: false // Hide legend
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                display: false // Hide X-axis labels
+                            },
+                            grid: {
+                                display: false
+                            },
+                            max: function() {
+                                // Dynamically set maximum value with some padding
+                                const maxValue = Math.max(...Object.values(roomTypeCurrentYear));
+                                return maxValue * 1.2; // Add 20% padding
+                            }()
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Room Availability Doughnut Chart 
+            const roomAvailabilityCtx = document.getElementById('roomAvailabilityChart').getContext('2d');
+            
+            // Get room stats from ViewBag
+            const roomStats = {
+                'Available': @ViewBag.RoomStats.Available,
+                'Occupied': @ViewBag.RoomStats.Occupied,
+                'Cleaning': @ViewBag.RoomStats.Cleaning,
+                'Maintenance': @ViewBag.RoomStats.Maintenance
+            };
+            
+            const totalRooms = Object.values(roomStats).reduce((a, b) => a + b, 0);
+            
+            // Calculate percentages for room availability
+            const availabilityPercentages = {};
+            Object.keys(roomStats).forEach(key => {
+                availabilityPercentages[key] = totalRooms > 0 
+                    ? Math.round((roomStats[key] / totalRooms) * 100) 
+                    : 0;
+            });
+            
+            const roomAvailabilityChart = new Chart(roomAvailabilityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(roomStats),
+                    datasets: [{
+                        data: Object.values(roomStats),
+                        backgroundColor: ['#d4a373', '#e41a1c', '#377eb8', '#ff7f00'],
+                        borderColor: ['#d4a373', '#e41a1c', '#377eb8', '#ff7f00'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            display: false // Hide the legend completely
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const percentage = availabilityPercentages[context.label];
+                                    return `${context.label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Add center text displaying Available percentage
+            const availablePercentage = availabilityPercentages['Available'] || 0;
+            const availabilityContainer = document.getElementById('roomAvailabilityChart').parentNode;
+            
+            // Create a center text div that will display the availability percentage
+            const centerTextDiv = document.createElement('div');
+            centerTextDiv.style.position = 'absolute';
+            centerTextDiv.style.top = '50%';
+            centerTextDiv.style.left = '50%';
+            centerTextDiv.style.transform = 'translate(-50%, -50%)';
+            centerTextDiv.style.textAlign = 'center';
+            
+            centerTextDiv.innerHTML = `
+                <div style="font-size: 28px; font-weight: bold; color: #290909;">${availablePercentage}%</div>
+                <div style="font-size: 12px; color: #666;">Room Availability</div>
+            `;
+            
+            // Make the container position relative for absolute positioning
+            availabilityContainer.style.position = 'relative';
+            availabilityContainer.appendChild(centerTextDiv);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1558 @@
+@using System.Security.Claims
+
+@{
+    Layout = "_base";
+    // Debug the claims to make sure we're getting the data
+    var claims = User?.Claims?.ToDictionary(c => c.Type, c => c.Value) ?? new Dictionary<string, string>();
+    var user = User?.Identity?.IsAuthenticated == true ? new {
+        FirstName = User.FindFirst(ClaimTypes.GivenName)?.Value,
+        LastName = User.FindFirst(ClaimTypes.Surname)?.Value,
+        Email = User.FindFirst(ClaimTypes.Email)?.Value,
+        Contact = User.FindFirst("Contact")?.Value
+    } : null;
+}
+
+<!-- Alert interceptor script - place this at the top to ensure it loads first -->
+<script>
+    // ALERT INTERCEPTOR - will automatically dismiss any alert dialogs with the problematic message
+    (function() {
+        console.log('Installing alert interceptor...');
+        
+        // Store original alert function
+        const originalAlert = window.alert;
+        
+        // Override alert function to auto-dismiss problematic alerts
+        window.alert = function(message) {
+            if (typeof message === 'string' && 
+                (message.includes('Room availability has been updated') || 
+                 message.includes('rooms are now available'))) {
+                console.log('🚫 AUTO-DISMISSED ALERT:', message);
+                return; // Don't show the alert
+            }
+            
+            // For other alerts, use the original function
+            return originalAlert.apply(this, arguments);
+        };
+        
+        // Configure a MutationObserver to automatically click "OK" on any alert dialogs
+        // This serves as a fallback in case the alert function override doesn't work
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.addedNodes) {
+                        mutation.addedNodes.forEach(function(node) {
+                            if (node.nodeType === 1) { // Element node
+                                // Look for alert dialogs or buttons
+                                if ((node.role === 'dialog' || node.tagName === 'DIALOG') && 
+                                    node.textContent && 
+                                    (node.textContent.includes('Room availability') || 
+                                     node.textContent.includes('rooms are now available'))) {
+                                    console.log('Auto-dismissing dialog:', node);
+                                    
+                                    // Try to find and click any button that looks like a close button
+                                    const buttons = node.querySelectorAll('button');
+                                    buttons.forEach(function(button) {
+                                        if (button.textContent === 'OK' || 
+                                            button.textContent === 'Close' || 
+                                            button.textContent === 'Cancel' || 
+                                            button.textContent === 'Dismiss') {
+                                            console.log('Auto-clicking button:', button);
+                                            button.click();
+                                        }
+                                    });
+                                    
+                                    // If no buttons found, try to remove the dialog
+                                    if (node.close) node.close();
+                                    if (node.remove) node.remove();
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Start observing the document
+            observer.observe(document.body, { childList: true, subtree: true });
+            
+            console.log('Alert interceptor ready');
+        });
+    })();
+</script>
+
+@await Html.PartialAsync("_custom-header")
+@await Html.PartialAsync("_sidebar")
+
+<div class="header-right">
+    <button class="sidebar-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<div class="v5-booking-container">
+    <!-- Vertical Step Tracker -->
+    <div class="v5-booking-stepper">
+        <div class="v5-booking-step" data-step="1">
+            <div class="v5-booking-step-icon"><i class="fas fa-calendar-alt"></i></div>
+            <div class="v5-booking-step-label">Booking Type</div>
+        </div>
+        <div class="v5-booking-step" data-step="2">
+            <div class="v5-booking-step-icon"><i class="fas fa-bed"></i></div>
+            <div class="v5-booking-step-label">Room Selection</div>
+        </div>
+        <div class="v5-booking-step" data-step="3">
+            <div class="v5-booking-step-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="v5-booking-step-label">Pick Dates</div>
+        </div>
+        <div class="v5-booking-step" data-step="4">
+            <div class="v5-booking-step-icon"><i class="fas fa-user"></i></div>
+            <div class="v5-booking-step-label">Guest Details</div>
+        </div>
+        <div class="v5-booking-step" data-step="5">
+            <div class="v5-booking-step-icon"><i class="fas fa-credit-card"></i></div>
+            <div class="v5-booking-step-label">Payment</div>
+        </div>
+        <div class="v5-booking-step" data-step="6">
+            <div class="v5-booking-step-icon"><i class="fas fa-clipboard-check"></i></div>
+            <div class="v5-booking-step-label">Confirmation</div>
+        </div>
+        <div class="v5-booking-step" data-step="7">
+            <div class="v5-booking-step-icon"><i class="fas fa-file-alt"></i></div>
+            <div class="v5-booking-step-label">Terms</div>
+        </div>
+    </div>
+
+    <!-- Content Section -->
+    <div class="v5-booking-content">
+        <!-- Step 1: Booking Type -->
+        <div class="v5-booking-form active" id="v5-form1">
+            <div class="v5-booking-header">
+                <h1 class="v5-booking-title">Rooms & Bookings</h1>
+                <p class="v5-booking-subtitle">Start your journey with us!</p>
+            </div>
+            <div class="v5-booking-options-section">
+                <h2 class="v5-booking-step-title">Choose Your Booking!</h2>
+                <div class="v5-booking-options">
+                    <button class="v5-booking-button" onclick="nextForm(2)">Immediate Booking</button>
+                    <button class="v5-booking-button" onclick="nextForm(2)">Advanced Booking</button>
+                </div>
+            </div>
+        </div>
+
+<!-- Step 2: Room Selection -->
+<div class="v5-booking-form" id="v5-form2">
+    <div class="v5-booking-header">
+        <h1 class="v5-booking-title">Rooms & Bookings</h1>
+        <p class="v5-booking-subtitle">Select your perfect room</p>
+    </div>
+    <div class="v5-booking-options-section">
+        <h2 class="v5-booking-step-title">Choose Your Room</h2>
+        <select class="v5-booking-select" onchange="changeRoomImage(this)">
+            <option value="standard">Standard Room - P1,806/Night</option>
+            <option value="deluxe">Deluxe Room - P3,588/Night</option>
+            <option value="suite">Suite Room - P15,000/Night</option>
+        </select>
+        <div class="v5-booking-room-option" id="v5-room-display">
+            <!-- Dynamically populated by JavaScript -->
+        </div>
+        <div class="v5-booking-button-group">
+            <button class="v5-booking-button secondary" onclick="prevForm(1)">Back</button>
+            <button class="v5-booking-button" onclick="nextForm(3)">Next</button>
+        </div>
+    </div>
+</div>
+        <!-- Step 3: Pick Dates -->
+<div class="v5-booking-form" id="v5-form3">
+    <div class="v5-booking-header">
+        <h1 class="v5-booking-title">Select Your Dates</h1>
+        <p class="v5-booking-subtitle">Choose your check-in and check-out dates</p>
+    </div>
+    <div class="v5-booking-options-section">
+        <div class="v5-calendars-container">
+            <!-- Check-in Calendar -->
+            <div class="v5-calendar-wrapper">
+                <h3 class="v5-calendar-title">Check-in Date</h3>
+                <div class="v5-booking-calendar" id="checkin-calendar">
+                    <div class="v5-calendar-header">
+                        <button type="button" class="v5-calendar-nav-button" onclick="changeMonth(-1, 'checkin')">&#10094;</button>
+                        <div class="v5-calendar-month-year" id="checkin-month-year">FEB 2024</div>
+                        <button type="button" class="v5-calendar-nav-button" onclick="changeMonth(1, 'checkin')">&#10095;</button>
+                    </div>
+                    <div class="v5-calendar-weekdays">
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                    </div>
+                    <div class="v5-calendar-dates" id="checkin-dates">
+                        <!-- Calendar dates will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Check-out Calendar -->
+            <div class="v5-calendar-wrapper">
+                <h3 class="v5-calendar-title">Check-out Date</h3>
+                <div class="v5-booking-calendar" id="checkout-calendar">
+            <div class="v5-calendar-header">
+                        <button type="button" class="v5-calendar-nav-button" onclick="changeMonth(-1, 'checkout')">&#10094;</button>
+                        <div class="v5-calendar-month-year" id="checkout-month-year">MAR 2024</div>
+                        <button type="button" class="v5-calendar-nav-button" onclick="changeMonth(1, 'checkout')">&#10095;</button>
+            </div>
+                <div class="v5-calendar-weekdays">
+                    <div>Sun</div>
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                </div>
+                    <div class="v5-calendar-dates" id="checkout-dates">
+                <!-- Calendar dates will be generated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="v5-selected-dates">
+            <div class="v5-selected-date">
+                <label>Check-in:</label>
+                <span id="v5-check-in-date">Not selected</span>
+            </div>
+            <div class="v5-selected-date">
+                <label>Check-out:</label>
+                <span id="v5-check-out-date">Not selected</span>
+            </div>
+            <button type="button" class="v5-clear-dates-button" onclick="clearDates()">Clear Dates</button>
+        </div>
+        
+        <div class="v5-booking-button-group">
+            <button class="v5-booking-button secondary" onclick="prevForm(2)">Back</button>
+            <button class="v5-booking-button" onclick="nextForm(4)">Next</button>
+        </div>
+    </div>
+</div>
+
+      <!-- Step 4: Guest Details -->
+<div class="v5-booking-form" id="v5-form4">
+    <div class="v5-booking-header">
+        <h1 class="v5-booking-title">Guest Information</h1>
+        <p class="v5-booking-subtitle">Tell us about yourself and your preferences</p>
+    </div>
+    <div class="v5-booking-options-section">
+        <h2 class="v5-booking-step-title">Guest Details & Preferences</h2>
+        
+        <div class="v5-guest-details-container">
+            <!-- Contact Information Card -->
+            <div class="v5-guest-card">
+                <div class="v5-guest-card-header">
+                    <i class="fas fa-user-circle"></i>
+                    <h3>Contact Information</h3>
+                </div>
+                <div class="v5-guest-card-body">
+                    <div class="v5-input-row">
+                        <div class="v5-input-group">
+                            <label class="v5-input-label">Full Name</label>
+                            <input type="text" class="v5-input-field" id="guestName" 
+                                value="@(string.IsNullOrEmpty(user?.FirstName) || string.IsNullOrEmpty(user?.LastName) ? "" : $"{user.FirstName} {user.LastName}")" 
+                                placeholder="John Dela Cruz" required>
+                            <i class="fas fa-user v5-input-icon"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="v5-input-row">
+                        <div class="v5-input-group">
+                            <label class="v5-input-label">Contact Number</label>
+                            <input type="tel" class="v5-input-field" id="guestContact" 
+                                value="@(string.IsNullOrEmpty(user?.Contact) ? "" : user.Contact)" 
+                                placeholder="0912 345 6789" required>
+                            <i class="fas fa-phone v5-input-icon"></i>
+                        </div>
+                        <div class="v5-input-group">
+                            <label class="v5-input-label">Email Address</label>
+                            <input type="email" class="v5-input-field" id="guestEmail" 
+                                value="@(string.IsNullOrEmpty(user?.Email) ? "" : user.Email)" 
+                                placeholder="your@email.com" required>
+                            <i class="fas fa-envelope v5-input-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Guest Count Card -->
+            <div class="v5-guest-card">
+                <div class="v5-guest-card-header">
+                    <i class="fas fa-users"></i>
+                    <h3>Number of Guests</h3>
+                </div>
+                <div class="v5-guest-card-body">
+                    <div class="v5-input-row">
+                        <div class="v5-input-group">
+                            <label class="v5-input-label">Adults</label>
+                            <div class="v5-number-input">
+                                <button type="button" class="v5-number-btn" onclick="adjustNumber(this.parentElement.querySelector('.v5-number-field'), -1, 1)">-</button>
+                                <input type="number" class="v5-number-field" value="1" min="1" readonly>
+                                <button type="button" class="v5-number-btn" onclick="adjustNumber(this.parentElement.querySelector('.v5-number-field'), 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="v5-input-group">
+                            <label class="v5-input-label">Children</label>
+                            <div class="v5-number-input">
+                                <button type="button" class="v5-number-btn" onclick="adjustNumber(this.parentElement.querySelector('.v5-number-field'), -1, 0)">-</button>
+                                <input type="number" class="v5-number-field" value="0" min="0" readonly>
+                                <button type="button" class="v5-number-btn" onclick="adjustNumber(this.parentElement.querySelector('.v5-number-field'), 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Room Selection Card -->
+            <div class="v5-guest-card">
+                <div class="v5-guest-card-header">
+                    <i class="fas fa-door-open"></i>
+                    <h3>Room Selection</h3>
+                </div>
+                <div class="v5-guest-card-body">
+                    <h4>Available Rooms</h4>
+                    <p>Please select your preferred room number:</p>
+                    <div class="v5-room-selection-container" id="v5-room-selection">
+                        <!-- Room buttons will be generated here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Special Requests Card -->
+            <div class="v5-guest-card">
+                <div class="v5-guest-card-header">
+                    <i class="fas fa-concierge-bell"></i>
+                    <h3>Special Requests</h3>
+                    <p class="v5-optional">(Optional)</p>
+                </div>
+                <div class="v5-guest-card-body">
+                    <div class="v5-input-group v5-full-width">
+                        <label class="v5-input-label">Additional Notes</label>
+                        <div style="position: relative;">
+                            <i class="fas fa-edit v5-textarea-icon"></i>
+                            <textarea class="v5-textarea-field" placeholder="E.g. Special requests, amenities preferences, etc."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Extras Card -->
+            <div class="v5-guest-card">
+                <div class="v5-guest-card-header">
+                    <i class="fas fa-plus-circle"></i>
+                    <h3>Additional Services</h3>
+                    <p class="v5-optional">(Optional)</p>
+                </div>
+                <div class="v5-guest-card-body">
+                    <div class="v5-input-row">
+                        <div class="v5-input-group">
+                            <label class="v5-input-label">Extra Beds</label>
+                            <div class="v5-number-input">
+                                <button type="button" class="v5-number-btn" onclick="adjustNumber(this.parentElement.querySelector('.v5-number-field'), -1, 0)">-</button>
+                                <input type="number" class="v5-number-field" value="0" min="0" readonly>
+                                <button type="button" class="v5-number-btn" onclick="adjustNumber(this.parentElement.querySelector('.v5-number-field'), 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="v5-input-group">
+                            <label class="v5-input-label">Extra Rooms</label>
+                            <div class="v5-number-input" id="extra-rooms-container">
+                                <button type="button" class="v5-number-btn" onclick="adjustNumber(this.parentElement.querySelector('.v5-number-field'), -1, 0)">-</button>
+                                <input type="number" class="v5-number-field" id="extra-rooms-input" value="0" min="0" readonly>
+                                <button type="button" class="v5-number-btn" onclick="adjustNumber(this.parentElement.querySelector('.v5-number-field'), 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="v5-services-grid">
+                        <div class="v5-service-card">
+                            <input type="checkbox" class="v5-service-checkbox" name="services" value="spa" data-price="2500" id="spa-service">
+                            <label class="v5-service-label" for="spa-service">
+                                <div class="v5-service-icon">
+                                    <i class="fas fa-spa"></i>
+                                </div>
+                                <div class="v5-service-info">
+                                    <span class="v5-service-name">Spa Service</span>
+                                    <span class="v5-service-price">₱1,000</span>
+                                </div>
+                                <div class="v5-service-description">
+                                    Relax and rejuvenate with our premium spa services
+                                </div>
+                        </label>
+                        </div>
+
+                        <div class="v5-service-card">
+                            <input type="checkbox" class="v5-service-checkbox" name="services" value="roomService" data-price="1000" id="room-service">
+                            <label class="v5-service-label" for="room-service">
+                                <div class="v5-service-icon">
+                                    <i class="fas fa-concierge-bell"></i>
+                                </div>
+                                <div class="v5-service-info">
+                                    <span class="v5-service-name">Room Service</span>
+                                    <span class="v5-service-price">₱800</span>
+                                </div>
+                                <div class="v5-service-description">
+                                    24/7 in-room dining and housekeeping services
+                                </div>
+                        </label>
+                        </div>
+
+                        <div class="v5-service-card">
+                            <input type="checkbox" class="v5-service-checkbox" name="services" value="airportTransfer" data-price="1500" id="airport-transfer">
+                            <label class="v5-service-label" for="airport-transfer">
+                                <div class="v5-service-icon">
+                                    <i class="fas fa-shuttle-van"></i>
+                                </div>
+                                <div class="v5-service-info">
+                                    <span class="v5-service-name">Airport Transfer</span>
+                                    <span class="v5-service-price">₱1,200</span>
+                                </div>
+                                <div class="v5-service-description">
+                                    Comfortable round-trip airport transportation
+                                </div>
+                        </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="v5-booking-button-group">
+            <button class="v5-booking-button secondary" onclick="prevForm(3)">Back</button>
+            <button class="v5-booking-button" onclick="nextForm(5)">Continue to Payment</button>
+        </div>
+    </div>
+</div>
+       <!-- Step 5: Payment -->
+<div class="v5-booking-form" id="v5-form5">
+    <div class="v5-booking-header">
+        <h1 class="v5-booking-title">Rooms & Bookings</h1>
+        <p class="v5-booking-subtitle">Choose your payment method</p>
+    </div>
+    <div class="v5-booking-options-section">
+        <h2 class="v5-booking-step-title">Payment Method</h2>
+        <div class="v5-booking-payment-options">
+            <div class="v5-booking-payment-card" data-payment="visa">
+                <img src="~/images/bookingpic-visa.png" alt="Visa" class="v5-booking-payment-logo">
+            </div>
+            <div class="v5-booking-payment-card" data-payment="maya">
+                <img src="~/images/bookingpic-maya.png" alt="Maya" class="v5-booking-payment-logo">
+            </div>
+            <div class="v5-booking-payment-card" data-payment="gcash">
+                <img src="~/images/bookingpic-gcash.png" alt="GCash" class="v5-booking-payment-logo">
+            </div>
+            <div class="v5-booking-payment-card" data-payment="mastercard">
+                <img src="~/images/bookingpic-mastercard.png" alt="Mastercard" class="v5-booking-payment-logo">
+            </div>
+            <div class="v5-booking-payment-card v5-booking-pay-at-hotel" data-payment="pay-at-hotel">
+                <span class="v5-booking-pay-at-hotel-label">Pay At Hotel</span>
+            </div>
+        </div>
+        <div class="v5-booking-button-group">
+            <button class="v5-booking-button secondary" onclick="prevForm(4)">Back</button>
+        </div>
+    </div>
+</div>
+
+<!-- Step 6: Confirmation -->
+<div class="v5-booking-form" id="v5-form6">
+    <div class="v5-confirmation-container">
+        <div class="v5-confirmation-header">
+            <i class="fas fa-check-circle"></i>
+            <h3>Your Booking is Confirmed!</h3>
+            <p>Thank you for choosing our hotel. Here's your booking summary:</p>
+        </div>
+        
+        <div class="v5-confirmation-content">
+            <!-- Left Column -->
+            <div class="v5-confirmation-details">
+                <div class="v5-confirmation-section">
+                    <h4><i class="fas fa-hotel"></i> Room Details</h4>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Room Type:</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-room-type"></span>
+                    </div>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Booking Type:</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-booking-type"></span>
+                    </div>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Check-in:</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-checkin"></span>
+                    </div>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Check-out:</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-checkout"></span>
+                    </div>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Total Nights:</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-nights"></span>
+                    </div>
+                </div>
+                
+                <div class="v5-confirmation-section">
+                    <h4><i class="fas fa-user-friends"></i> Guest Information</h4>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Name:</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-guest-name"></span>
+                    </div>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Contact:</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-guest-contact"></span>
+                    </div>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Email:</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-guest-email"></span>
+                    </div>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Adults:</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-adults"></span>
+                    </div>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Children:</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-children"></span>
+                    </div>
+                </div>
+                
+                <div class="v5-confirmation-section">
+                    <h4><i class="fas fa-concierge-bell"></i> Additional Services</h4>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Extra Beds:</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-extra-beds"></span>
+                    </div>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Extra Rooms:</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-extra-rooms"></span>
+                    </div>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Spa Service (₱1,000):</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-spa"></span>
+                    </div>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Room Service (₱800):</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-room-service"></span>
+                    </div>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Airport Transfer (₱1,200):</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-transfer"></span>
+                    </div>
+                </div>
+                
+                <div class="v5-confirmation-section">
+                    <h4><i class="fas fa-sticky-note"></i> Special Requests</h4>
+                    <div class="v5-confirmation-row v5-special-request-row">
+                        <span class="v5-confirmation-label">Notes:</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-notes"></span>
+                    </div>
+                    </div>
+                </div>
+
+            <!-- Right Column -->
+                <div class="v5-right-column">
+                    <div class="v5-room-gallery">
+                        <h4><i class="fas fa-images"></i> Your Selected Room</h4>
+                        <div class="v5-room-main-image-container">
+                            <img id="v5-confirm-main-image" src="" alt="Room Image" class="v5-room-main-image">
+                        </div>
+                    <div class="v5-room-description">
+                        <h4><i class="fas fa-info-circle"></i> Description</h4>
+                        <div class="v5-room-rating">
+                            <i class="fas fa-star"></i>
+                            <span class="v5-rating-text">5.0 (120 reviews)</span>
+                        </div>
+                        <p id="v5-confirm-description"></p>
+                        <div class="v5-room-amenities">
+                            <div class="v5-amenity"><i class="fas fa-wifi"></i> Free WiFi</div>
+                            <div class="v5-amenity"><i class="fas fa-snowflake"></i> Air Conditioning</div>
+                            <div class="v5-amenity"><i class="fas fa-tv"></i> Smart TV</div>
+                            <div class="v5-amenity"><i class="fas fa-coffee"></i> Coffee Maker</div>
+                        </div>
+                    </div>
+                    </div>
+
+                <div class="v5-payment-breakdown">
+                    <h4><i class="fas fa-calculator"></i> Payment Summary</h4>
+                    <div class="v5-breakdown-item">
+                        <span class="v5-breakdown-label">Room Rate:</span>
+                        <span class="v5-breakdown-value" id="v5-breakdown-room-rate"></span>
+                        <span class="v5-breakdown-details" id="v5-breakdown-room-details"></span>
+                    </div>
+                    <div class="v5-breakdown-item">
+                        <span class="v5-breakdown-label">Extra Beds:</span>
+                        <span class="v5-breakdown-value" id="v5-breakdown-beds"></span>
+                        <span class="v5-breakdown-details" id="v5-breakdown-beds-details"></span>
+                    </div>
+                    <div class="v5-breakdown-item">
+                        <span class="v5-breakdown-label">Extra Rooms:</span>
+                        <span class="v5-breakdown-value" id="v5-breakdown-rooms"></span>
+                        <span class="v5-breakdown-details" id="v5-breakdown-rooms-details"></span>
+                    </div>
+                    <div class="v5-breakdown-item">
+                        <span class="v5-breakdown-label">Additional Services:</span>
+                        <div class="v5-breakdown-services" id="v5-breakdown-services"></div>
+                    </div>
+                    <div class="v5-breakdown-total">
+                        <span class="v5-breakdown-label">Total Amount:</span>
+                        <span class="v5-breakdown-value" id="v5-breakdown-total"></span>
+                    </div>
+                </div>
+
+                <div class="v5-confirmation-section">
+                    <h4><i class="fas fa-credit-card"></i> Payment Method</h4>
+                    <div class="v5-confirmation-row">
+                        <span class="v5-confirmation-label">Method:</span>
+                        <span class="v5-confirmation-value" id="v5-confirm-payment"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="v5-confirmation-actions">
+            <button class="v5-booking-button secondary" onclick="prevForm(5)">Back</button>
+            <button class="v5-booking-button" onclick="submitBooking()">Confirm Booking</button>
+        </div>
+    </div>
+</div>
+
+        <!-- Step 7: Terms -->
+        <div class="v5-booking-form" id="v5-form7">
+            <div class="v5-booking-header">
+                <h1 class="v5-booking-title">Booking Complete!</h1>
+                <p class="v5-booking-subtitle">Thank you for your reservation</p>
+            </div>
+            <div class="v5-booking-options-section">
+                <h2 class="v5-booking-step-title">Terms & Conditions</h2>
+                <div class="v5-booking-terms">
+                    <p>By proceeding with your booking, you agree to the following terms and conditions:</p>
+                    
+                    <div class="v5-terms-section">
+                        <h3>1. Booking & Payment</h3>
+                        <p>1.1. All bookings are subject to availability.</p>
+                        <p>1.2. Full or partial payment may be required to confirm your reservation.</p>
+                        <p>1.3. Accepted payment methods include credit/debit cards, e-wallets, bank transfers, and other options specified during checkout.</p>
+                        <p>1.4. Any promotional discounts or offers must be applied at the time of booking and cannot be added afterward.</p>
+                    </div>
+                    
+                    <div class="v5-terms-section">
+                        <h3>2. Cancellation & Refund Policy</h3>
+                        <p>2.1. Cancellations made 48 hours before check-in are eligible for a full/partial refund. After this period, cancellation fees may apply.</p>
+                        <p>2.2. No-shows will be charged the full booking amount.</p>
+                        <p>2.3. Refunds, if applicable, will be processed within 7 business days.</p>
+                    </div>
+                    
+                    <div class="v5-terms-section">
+                        <h3>3. Check-in & Check-out</h3>
+                        <p>3.1. Standard check-in time: 2:00 PM | Standard check-out time: 12:00 PM. Early check-in or late check-out may be subject to availability and additional charges.</p>
+                        <p>3.2. Guests must present a valid ID/passport and booking confirmation upon check-in.</p>
+                        <p>3.3. The registered guest is responsible for all charges and conduct during the stay.</p>
+                    </div>
+                    
+                    <div class="v5-terms-section">
+                        <h3>4. Guest Responsibilities</h3>
+                        <p>4.1. The hotel reserves the right to refuse service or remove guests who violate hotel policies, cause disturbances, or engage in unlawful activities.</p>
+                        <p>4.2. Any damage to hotel property caused by guests will be charged accordingly.</p>
+                    </div>
+                    
+                    <div class="v5-terms-section">
+                        <h3>5. Privacy & Data Protection</h3>
+                        <p>5.1. Personal information provided during booking is used solely for processing reservations and enhancing guest experience.</p>
+                        <p>5.2. We do not share your data with third parties except as required by law.</p>
+                    </div>
+                    
+                    <div class="v5-terms-section">
+                        <h3>6. Amendments & Force Majeure</h3>
+                        <p>6.1. The hotel reserves the right to modify bookings due to unforeseen circumstances (e.g., natural disasters, government regulations).</p>
+                        <p>6.2. Any changes will be communicated to the guest, and alternative arrangements will be provided where possible.</p>
+                    </div>
+                    
+                    <div class="v5-terms-checkbox">
+                        <input type="checkbox" id="v5-terms-agreement" required>
+                        <label for="v5-terms-agreement">By completing your booking, you acknowledge that you have read, understood, and agreed to these terms and conditions.</label>
+                    </div>
+                </div>
+                <div class="v5-booking-button-group">
+                    <button class="v5-booking-button" id="v5-terms-accept-btn" disabled>Accept</button>
+                </div>
+            </div>
+        </div>
+
+       <!-- Payment Modals -->
+<div class="v5-booking-modal" id="v5-visa-modal">
+    <div class="v5-payment-modal-content">
+        <span class="v5-modal-close">&times;</span>
+        <div class="v5-payment-modal-header">
+            <h3>Credit Card Payment</h3>
+        </div>
+        <form id="v5-visa-form">
+            <div class="v5-payment-input-wrapper">
+                <label>Card Number</label>
+                <input type="text" class="v5-payment-input" placeholder="1234 5678 9012 3456" required>
+            </div>
+            <div class="v5-booking-input-group">
+                <div class="v5-payment-input-wrapper" style="width: 60%; float: left; padding-right: 10px;">
+                    <label>Expiry Date</label>
+                    <input type="text" class="v5-payment-input" placeholder="MM/YY" required>
+                </div>
+                <div class="v5-payment-input-wrapper" style="width: 40%; float: left;">
+                    <label>CVV</label>
+                    <input type="text" class="v5-payment-input" placeholder="•••" required>
+                </div>
+                <div style="clear: both;"></div>
+            </div>
+            <div class="v5-payment-input-wrapper">
+                <label>Cardholder Name</label>
+                <input type="text" class="v5-payment-input" placeholder="John Doe" required>
+            </div>
+            <button type="submit" class="v5-payment-submit-btn">Pay Now</button>
+            <div class="v5-payment-security">
+                <i class="fas fa-lock"></i>
+                <span>Secure SSL Encryption</span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="v5-booking-modal" id="v5-maya-modal">
+    <div class="v5-payment-modal-content">
+        <span class="v5-modal-close">&times;</span>
+        <div class="v5-payment-modal-header">
+            <h3>Maya Payment</h3>
+        </div>
+        <form id="v5-maya-form">
+            <div class="v5-otp-instructions">
+                <p>You will receive a 6-digit OTP on your registered mobile number</p>
+            </div>
+            <div class="v5-payment-input-wrapper">
+                <label>Mobile Number</label>
+                <input type="tel" class="v5-payment-input" placeholder="0912 345 6789" required>
+            </div>
+            <div class="v5-payment-input-wrapper">
+                <label>OTP Code</label>
+                <input type="text" class="v5-payment-input" placeholder="Enter 6-digit OTP" required>
+            </div>
+            <button type="submit" class="v5-payment-submit-btn">Verify & Pay</button>
+            <div class="v5-otp-resend">
+                <a href="#">Resend OTP</a>
+            </div>
+            <div class="v5-payment-security">
+                <i class="fas fa-lock"></i>
+                <span>Secure SSL Encryption</span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="v5-booking-modal" id="v5-gcash-modal">
+    <div class="v5-payment-modal-content">
+        <span class="v5-modal-close">&times;</span>
+        <div class="v5-payment-modal-header">
+            <h3>GCash Payment</h3>
+        </div>
+        <form id="v5-gcash-form">
+            <div class="v5-otp-instructions">
+                <p>You will receive a 6-digit OTP on your registered mobile number</p>
+            </div>
+            <div class="v5-payment-input-wrapper">
+                <label>Mobile Number</label>
+                <input type="tel" class="v5-payment-input" placeholder="0912 345 6789" required>
+            </div>
+            <div class="v5-payment-input-wrapper">
+                <label>OTP Code</label>
+                <input type="text" class="v5-payment-input" placeholder="Enter 6-digit OTP" required>
+            </div>
+            <button type="submit" class="v5-payment-submit-btn">Verify & Pay</button>
+            <div class="v5-otp-resend">
+                <a href="#">Resend OTP</a>
+            </div>
+            <div class="v5-payment-security">
+                <i class="fas fa-lock"></i>
+                <span>Secure SSL Encryption</span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="v5-booking-modal" id="v5-mastercard-modal">
+    <div class="v5-payment-modal-content">
+        <span class="v5-modal-close">&times;</span>
+        <div class="v5-payment-modal-header">
+            <h3>Mastercard Payment</h3>
+        </div>
+        <form id="v5-mastercard-form">
+            <div class="v5-payment-input-wrapper">
+                <label>Card Number</label>
+                <input type="text" class="v5-payment-input" placeholder="1234 5678 9012 3456" required>
+            </div>
+            <div class="v5-booking-input-group">
+                <div class="v5-payment-input-wrapper" style="width: 60%; float: left; padding-right: 10px;">
+                    <label>Expiry Date</label>
+                    <input type="text" class="v5-payment-input" placeholder="MM/YY" required>
+                </div>
+                <div class="v5-payment-input-wrapper" style="width: 40%; float: left;">
+                    <label>CVV</label>
+                    <input type="text" class="v5-payment-input" placeholder="•••" required>
+                </div>
+                <div style="clear: both;"></div>
+            </div>
+            <div class="v5-payment-input-wrapper">
+                <label>Cardholder Name</label>
+                <input type="text" class="v5-payment-input" placeholder="John Doe" required>
+            </div>
+            <button type="submit" class="v5-payment-submit-btn">Pay Now</button>
+            <div class="v5-payment-security">
+                <i class="fas fa-lock"></i>
+                <span>Secure SSL Encryption</span>
+            </div>
+        </form>
+    </div>
+</div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/room-data.js" defer></script>
+    <script src="~/js/booking-script.js" defer></script>
+    <script>
+        // Ensure DOM is fully loaded before initializing
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set global silent flag to avoid alerts
+            window.isSilentReset = true;
+            
+            // Check if elements exist
+            const roomDisplay = document.getElementById('v5-room-display');
+            const checkinCalendar = document.getElementById('checkin-dates');
+            const checkoutCalendar = document.getElementById('checkout-dates');
+            const paymentMethods = document.querySelectorAll('.v5-booking-payment-card');
+
+            if (!roomDisplay) console.error('Room display element not found');
+            if (!checkinCalendar) console.error('Check-in calendar not found');
+            if (!checkoutCalendar) console.error('Check-out calendar not found');
+            if (!paymentMethods.length) console.error('Payment methods not found');
+            
+            // Listen for form navigation to sync with API when reaching room selection step
+            window.addEventListener('formStepChanged', function(event) {
+                if (event.detail && event.detail.step === 4) {
+                    console.log("Navigated to room selection step, syncing with API...");
+                    // Sync with API and then update room selection
+                    if (window.RoomStatusManager) {
+                        window.RoomStatusManager.syncWithAPI().then(success => {
+                            if (success) {
+                                console.log("Successfully synced with API, updating room selection");
+                                const roomSelector = document.querySelector('.v5-booking-select');
+                                if (roomSelector) {
+                                    const roomType = roomSelector.value || 'standard';
+                                    updateRoomSelection(roomType);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+            
+            // Also listen for room status changes from the API/other pages
+            window.addEventListener('roomStatusesSynced', function(event) {
+                console.log("Room statuses synced from API:", event.detail);
+                // If we're on step 4, update the room selection
+                if (currentStep === 4) {
+                    const roomSelector = document.querySelector('.v5-booking-select');
+                    if (roomSelector) {
+                        const roomType = roomSelector.value || 'standard';
+                        updateRoomSelection(roomType);
+                    }
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    .v5-room-selection-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+        max-height: 350px;
+        overflow-y: auto;
+        padding: 15px;
+    }
+
+    .v5-room-selection-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .v5-room-selection-container::-webkit-scrollbar-thumb {
+        background-color: #290909;
+        border-radius: 3px;
+    }
+
+    .v5-room-selection-container::-webkit-scrollbar-track {
+        background-color: #f0f0f0;
+    }
+
+    .v5-room-button {
+        padding: 10px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background-color: #fff;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        text-align: center;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .v5-room-button:hover {
+        border-color: #290909;
+        background-color: #f8f8f8;
+    }
+
+    .v5-room-button.selected {
+        background-color: #290909;
+        color: #fff;
+        border-color: #290909;
+    }
+
+    .v5-room-button:disabled {
+        background-color: #f5f5f5;
+        border-color: #ddd;
+        color: #999;
+        cursor: not-allowed;
+    }
+    
+    /* Room status indicators */
+    .room-status {
+        display: block;
+        font-size: 11px;
+        padding: 2px 0;
+        margin-top: 4px;
+        background-color: #f5f5f5;
+        border-radius: 2px;
+    }
+    
+    .room-status.occupied {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .room-status.cleaning {
+        background-color: #ffc107;
+        color: #333;
+    }
+    
+    .room-status.maintenance {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    /* Calendar styles */
+    .v5-booking-calendar {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin: 20px 0;
+        padding: 20px;
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .v5-calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .v5-calendar-month-year {
+        font-size: 18px;
+        font-weight: bold;
+        color: #290909;
+    }
+
+    .v5-calendar-nav-button {
+        background: none;
+        border: none;
+        color: #290909;
+        cursor: pointer;
+        font-size: 20px;
+        padding: 5px 10px;
+    }
+
+    .v5-calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .v5-calendar-weekdays div {
+        font-weight: bold;
+        color: #290909;
+        padding: 5px;
+    }
+
+    .v5-calendar-dates {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+    }
+
+    .v5-calendar-dates div {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        width: 40px;
+        height: 40px;
+        margin: 2px auto;
+    }
+
+    .v5-calendar-dates div:not(.disabled):hover {
+        background-color: rgba(41, 9, 9, 0.1);
+        color: #290909;
+    }
+
+    .v5-calendar-dates div.selected {
+        background-color: #290909;
+        color: white !important;
+    }
+
+    .v5-calendar-dates div.selected:hover {
+        background-color: #290909;
+        color: white !important;
+    }
+
+    .v5-calendar-dates div.in-range {
+        background-color: rgba(41, 9, 9, 0.1);
+        color: #290909;
+    }
+
+    .v5-calendar-dates div.disabled {
+        color: #ccc;
+        cursor: not-allowed;
+    }
+
+    .v5-calendar-dates div.disabled:hover {
+        background-color: transparent;
+    }
+
+    .v5-selected-dates {
+        margin-top: 20px;
+        padding: 15px;
+        background: #f8f8f8;
+        border-radius: 8px;
+    }
+
+    .v5-selected-date {
+        margin: 10px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .v5-selected-date label {
+        font-weight: bold;
+        color: #290909;
+    }
+
+    .v5-clear-dates-button {
+        margin-top: 10px;
+        padding: 8px 15px;
+        background-color: #f8f8f8;
+        border: 1px solid #290909;
+        color: #290909;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .v5-clear-dates-button:hover {
+        background-color: #290909;
+        color: white;
+    }
+
+    /* Add new styles for dual calendars */
+    .v5-calendars-container {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .v5-calendar-wrapper {
+        flex: 1;
+        min-width: 300px;
+        max-width: 400px;
+    }
+
+    .v5-calendar-title {
+        color: #290909;
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .v5-booking-calendar {
+        margin: 0;
+        width: 100%;
+    }
+
+    @@media (max-width: 768px) {
+        .v5-calendars-container {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .v5-calendar-wrapper {
+            width: 100%;
+        }
+    }
+
+    /* Room Gallery Styles */
+    .v5-room-gallery {
+        background: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .v5-room-main-image-container {
+        width: 100%;
+        height: 280px;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .v5-room-main-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .v5-room-thumbnails {
+        display: flex;
+        gap: 12px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .v5-room-thumbnails img {
+        width: 90px;
+        height: 65px;
+        object-fit: cover;
+        cursor: pointer;
+        border: 2px solid transparent;
+        border-radius: 4px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .v5-room-thumbnails img:hover {
+        border-color: #290909;
+        transform: scale(1.05);
+    }
+
+    .v5-room-thumbnails img.active {
+        border-color: #290909;
+    }
+
+    .v5-room-thumbnails img.main-view {
+        border: 2px solid #ddd;
+        background-color: #f9f9f9;
+    }
+
+    .v5-room-thumbnails img.main-view:hover {
+        border-color: #290909;
+        background-color: #f5f5f5;
+    }
+
+    .v5-room-thumbnails img.main-view.active {
+        border-color: #290909;
+        background-color: #f5f5f5;
+    }
+
+    /* Hide scrollbar but keep functionality */
+    .v5-room-thumbnails::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .v5-room-thumbnails::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .v5-room-thumbnails::-webkit-scrollbar-thumb {
+        background: #290909;
+        border-radius: 3px;
+    }
+
+    .v5-room-thumbnails::-webkit-scrollbar-thumb:hover {
+        background: #1a0606;
+    }
+
+    .v5-room-description {
+        background: #f9f9f9;
+        border-radius: 8px;
+        padding: 20px;
+        border-left: 4px solid #290909;
+        margin: 20px 0;
+        width: 100%;
+        font-size: 0.95rem;
+    }
+
+    .v5-room-rating {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 10px 0;
+    }
+
+    .v5-stars {
+        color: #FFD700;
+        font-size: 1.1rem;
+    }
+
+    .v5-rating-text {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    #v5-confirm-description {
+        margin-top: 15px;
+        color: #555;
+        line-height: 1.5;
+        font-size: 0.95rem;
+    }
+
+    .v5-special-requests {
+        background: #f9f9f9;
+        border-radius: 8px;
+        padding: 15px;
+        border-left: 4px solid #290909;
+    }
+
+    .v5-special-requests h4 {
+        margin-top: 0;
+        color: #290909;
+        font-size: 1rem;
+    }
+
+    .v5-special-requests-content {
+        display: flex;
+        padding: 8px 0;
+        font-size: 0.95rem;
+    }
+
+    .v5-special-requests-label {
+        font-weight: 600;
+        color: #290909;
+        min-width: 60px;
+    }
+
+    #v5-confirm-notes {
+        color: #555;
+        word-break: break-word;
+        flex: 1;
+    }
+
+    @@media (max-width: 1024px) {
+        .v5-confirmation-content {
+            grid-template-columns: 1fr;
+            padding: 0 15px;
+        }
+
+        .v5-right-column {
+            grid-column: 1;
+            max-width: 100%;
+            margin: 0;
+            padding-left: 0;
+        }
+
+        .v5-confirmation-details {
+            padding-right: 0;
+        }
+
+        .v5-room-main-image-container {
+            height: 350px;
+        }
+    }
+
+    .v5-confirmation-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin: 20px 0;
+        padding: 0 20px;
+    }
+
+    .v5-confirmation-details {
+        grid-column: 1;
+        padding-right: 20px;
+    }
+
+    .v5-right-column {
+        grid-column: 2;
+        width: 100%;
+        position: sticky;
+        top: 20px;
+        padding-left: 20px;
+    }
+
+    .v5-payment-breakdown {
+        background: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .v5-breakdown-item {
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .v5-breakdown-item:last-child {
+        border-bottom: none;
+    }
+
+    .v5-breakdown-label {
+        font-weight: 600;
+        color: #290909;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .v5-breakdown-value {
+        color: #333;
+        font-size: 1.1rem;
+    }
+
+    .v5-breakdown-details {
+        display: block;
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 3px;
+    }
+
+    .v5-breakdown-services {
+        margin-top: 8px;
+    }
+
+    .v5-breakdown-service-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        color: #555;
+        font-size: 0.95rem;
+    }
+
+    .v5-breakdown-total {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px solid #290909;
+    }
+
+    .v5-breakdown-total .v5-breakdown-label {
+        font-size: 1.1rem;
+    }
+
+    .v5-breakdown-total .v5-breakdown-value {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #290909;
+    }
+
+    .v5-service-price {
+        color: #290909;
+        font-size: 0.9em;
+        margin-left: 5px;
+        opacity: 0.8;
+    }
+
+    .v5-checkbox-label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .v5-checkbox-group {
+        margin-top: 15px;
+    }
+
+    .v5-checkbox-group h4 {
+        margin-bottom: 12px;
+        color: #290909;
+        font-size: 1rem;
+    }
+
+    .v5-special-request-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .v5-special-request-row .v5-confirmation-label {
+        min-width: 60px;
+    }
+
+    .v5-special-request-row .v5-confirmation-value {
+        flex: 1;
+        word-break: break-word;
+        padding-left: 15px;
+    }
+
+    /* Enhanced Additional Services Styles */
+    .v5-services-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .v5-services-title {
+        font-size: 1.1rem;
+        color: #290909;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .v5-service-card {
+        position: relative;
+        width: 100%;
+    }
+
+    .v5-service-checkbox {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+
+    .v5-service-label {
+        display: flex;
+        align-items: flex-start;
+        padding: 1.25rem;
+        background: #fff;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        gap: 1.25rem;
+    }
+
+    .v5-service-checkbox:checked + .v5-service-label {
+        border-color: #290909;
+        background: rgba(41, 9, 9, 0.02);
+        box-shadow: 0 4px 12px rgba(41, 9, 9, 0.08);
+    }
+
+    .v5-service-icon {
+        flex-shrink: 0;
+        width: 48px;
+        height: 48px;
+        background: #290909;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .v5-service-checkbox:checked + .v5-service-label .v5-service-icon {
+        background: #d4a373;
+        transform: scale(1.05);
+    }
+
+    .v5-service-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .v5-service-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #290909;
+    }
+
+    .v5-service-price {
+        font-size: 1rem;
+        color: #d4a373;
+        font-weight: 600;
+    }
+
+    .v5-service-description {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 0.5rem;
+        line-height: 1.4;
+    }
+
+    /* Hover Effects */
+    .v5-service-label:hover {
+        border-color: #d4a373;
+        transform: translateY(-2px);
+    }
+
+    .v5-service-checkbox:focus + .v5-service-label {
+        border-color: #290909;
+        box-shadow: 0 0 0 2px rgba(41, 9, 9, 0.1);
+    }
+
+    /* Responsive Adjustments */
+    @@media (max-width: 768px) {
+        .v5-service-label {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .v5-service-icon {
+            margin-bottom: 0.5rem;
+        }
+
+        .v5-service-info {
+            align-items: center;
+        }
+    }
+
+    /* Animation for checkbox selection */
+    .v5-service-checkbox:checked + .v5-service-label {
+        animation: selectService 0.3s ease forwards;
+    }
+
+    @@keyframes selectService {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.02);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+</style>

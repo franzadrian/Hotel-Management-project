@@ -1,0 +1,1288 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = null;
+    
+    // Get counts from ViewBag - aligned with User.cs model
+    var guestCount = ViewBag.GuestCount ?? 0; // Users with Role = "Guest"
+    var staffCount = ViewBag.StaffCount ?? 0; // Users with Role = "Staff"
+    
+    // Room statistics - aligned with Room.cs model
+    var roomStats = ViewBag.RoomStats ?? new {
+        Total = 90,
+        Available = 75,
+        Occupied = 10,
+        Cleaning = 3,
+        Maintenance = 2
+    };
+    
+    // Calculate percentages
+    var occupancyRate = Math.Round((double)roomStats.Occupied / roomStats.Total * 100);
+    var vacancyRate = Math.Round((double)roomStats.Available / roomStats.Total * 100);
+    
+    // Room types - aligned with Room.cs RoomType property
+    var standardRooms = ViewBag.StandardRooms ?? new { 
+        Total = 30, 
+        Available = 25,
+        Occupied = 3,
+        Cleaning = 1,
+        Maintenance = 1
+    };
+    
+    var deluxeRooms = ViewBag.DeluxeRooms ?? new { 
+        Total = 30, 
+        Available = 26,
+        Occupied = 2,
+        Cleaning = 1,
+        Maintenance = 1
+    };
+    
+    var suiteRooms = ViewBag.SuiteRooms ?? new { 
+        Total = 30, 
+        Available = 24,
+        Occupied = 5,
+        Cleaning = 1,
+        Maintenance = 0
+    };
+    
+    // Notifications
+    var notifications = ViewBag.Notifications as List<dynamic> ?? new List<dynamic>();
+    var unreadCount = ViewBag.UnreadNotificationsCount ?? 0;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #290909;
+            --primary-light: #3a0d0d;
+            --primary-dark: #1a0505;
+            --accent: #d4a373;
+            --accent-light: #e8c9a8;
+            --text-light: #f8f8f8;
+            --text-muted: #aaaaaa;
+            --text-dark: #222222;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            color: var(--text-light);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            border-right: 1px solid var(--primary-dark);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand i {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--accent);
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            margin-top: 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: var(--accent);
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 2.5rem;
+            width: calc(100% - 280px);
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        /* ENHANCED LOGOUT BUTTON */
+        .logout-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-sm);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .logout-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .logout-btn i {
+            font-size: 1rem;
+        }
+
+        /* ENHANCED DASHBOARD CARDS */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .dashboard-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border-top: 4px solid var(--primary);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-aura {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(41, 9, 9, 0.05) 0%, transparent 70%);
+            z-index: 0;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .dashboard-card:hover .card-aura {
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background-color: rgba(41, 9, 9, 0.1);
+            color: var(--primary);
+        }
+
+        .card-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0.5rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-footer i {
+            margin-right: 0.5rem;
+            color: var(--success);
+        }
+
+        /* STATS SECTION */
+        .stats-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: #f9f9f9;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            margin-top: 1rem;
+        }
+
+        /* RECENT ACTIVITY */
+        .activity-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+        }
+
+        .activity-list {
+            margin-top: 1rem;
+        }
+
+        .activity-item {
+            display: flex;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            background: rgba(212, 163, 115, 0.2);
+            color: var(--accent);
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* QUICK ACTIONS */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .action-btn {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: var(--transition);
+            text-decoration: none;
+            color: var(--text-dark);
+            border-top: 3px solid var(--primary);
+        }
+
+        .action-btn:hover {
+            background: var(--accent);
+            color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .action-btn i {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+
+        /* RESPONSIVE */
+        @@media (max-width: 1200px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+
+        /* Progress bar styles */
+        .progress-container {
+            height: 8px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--success);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* Notification styles */
+        .notification-center {
+            position: relative;
+            margin-left: 15px;
+        }
+        
+        .notification-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.2rem;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 350px;
+            background-color: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .notification-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .notification-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .notification-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .notification-action {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 5px;
+        }
+        
+        .notification-action:hover {
+            text-decoration: underline;
+        }
+        
+        .notification-body {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .notification-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .notification-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .notification-item.unread {
+            background-color: rgba(41, 9, 9, 0.05);
+        }
+        
+        .notification-item.unread:hover {
+            background-color: rgba(41, 9, 9, 0.08);
+        }
+        
+        .notification-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(41, 9, 9, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+        
+        .notification-icon.booking {
+            background-color: rgba(23, 162, 184, 0.1);
+            color: var(--info);
+        }
+        
+        .notification-icon.service {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+        }
+        
+        .notification-icon.feedback {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+        
+        .notification-icon.room {
+            background-color: rgba(90, 24, 154, 0.1);
+            color: #5a189a;
+        }
+        
+        .notification-icon.user {
+            background-color: rgba(214, 51, 132, 0.1);
+            color: #d63384;
+        }
+        
+        .notification-content {
+            flex-grow: 1;
+        }
+        
+        .notification-text {
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+        
+        .notification-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .notification-footer {
+            padding: 10px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+        
+        .view-all-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .view-all-link:hover {
+            text-decoration: underline;
+        }
+        
+        .empty-notification {
+            padding: 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        /* Room status details styles */
+        .room-status-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+            display: inline-block;
+        }
+        
+        .status-dot.available {
+            background-color: var(--success);
+        }
+        
+        .status-dot.occupied {
+            background-color: var(--danger);
+        }
+        
+        .status-dot.cleaning {
+            background-color: var(--warning);
+        }
+        
+        .status-dot.maintenance {
+            background-color: var(--info);
+        }
+        
+        .status-text {
+            color: var(--text-dark);
+        }
+
+        /* Dashboard Layout */
+        .dashboard-layout {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .top-stats-section {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stats-cards {
+            flex: 1;
+        }
+        
+        .activity-card {
+            width: 350px;
+            min-width: 350px;
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            height: 100%;
+            border-top: 4px solid var(--primary);
+        }
+        
+        .activity-card h3 {
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .activity-card h3:before {
+            content: '\f017';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            color: var(--accent);
+        }
+        
+        @@media (max-width: 1200px) {
+            .top-stats-section {
+                flex-direction: column;
+            }
+            
+            .activity-card {
+                width: 100%;
+                min-width: 100%;
+            }
+        }
+
+        .view-all-activities {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 8px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .view-all-activities:hover {
+            text-decoration: underline;
+            background-color: rgba(41, 9, 9, 0.03);
+        }
+
+        /* Add no-requests style */
+        .v6-no-requests {
+            padding: 20px;
+            text-align: center;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            color: #666;
+            font-style: italic;
+            margin-top: 15px;
+        }
+        
+        /* Add empty-activity style */
+        .empty-activity {
+            padding: 20px;
+            text-align: center;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            color: #666;
+            font-style: italic;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand">
+            <i class="fas fa-shield-alt"></i>
+            <h1>Admin Portal</h1>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item active">
+                <a href="/Admin/AdminDashboard" class="nav-link active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>&nbsp;Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/UserManagement" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>&nbsp;Guests</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/StaffManagement" class="nav-link">
+                    <i class="fas fa-user-tie"></i>
+                    <span>&nbsp;Staffs</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/FeedbackManagement" class="nav-link">
+                    <i class="fas fa-comments"></i>
+                    <span>&nbsp;Feedbacks</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/EventManagement" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>&nbsp;Events</span>
+                </a>
+            </div>
+            <div class="nav-item active">
+                <a href="/Admin/AnnualReport" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>&nbsp;Annual Report</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="header">
+            <h1 class="page-title">Le Celestia Hotel Dashboard</h1>
+            <div style="display: flex; align-items: center;">
+                <div class="notification-center">
+                    <button class="notification-btn" id="notificationToggle">
+                        <i class="fas fa-bell"></i>
+                        @if (unreadCount > 0)
+                        {
+                            <span class="notification-badge">@(unreadCount > 9 ? "9+" : unreadCount.ToString())</span>
+                        }
+                    </button>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <div class="notification-title">Notifications</div>
+                            <div class="notification-actions">
+                                <button class="notification-action" id="markAllRead">Mark all as read</button>
+                            </div>
+                        </div>
+                        <div class="notification-body">
+                            @if (notifications.Any())
+                            {
+                                foreach (var notification in notifications)
+                                {
+                                    <div class="notification-item @(notification.IsRead ? "" : "unread")" data-id="@notification.Id">
+                                        @{
+                                            var iconClass = "notification-icon";
+                                            var icon = "fas fa-bell";
+                                            
+                                            switch(notification.Type?.ToLower())
+                                            {
+                                                case "booking":
+                                                    iconClass += " booking";
+                                                    icon = "fas fa-calendar-check";
+                                                    break;
+                                                case "service":
+                                                    iconClass += " service";
+                                                    icon = "fas fa-concierge-bell";
+                                                    break;
+                                                case "feedback":
+                                                    iconClass += " feedback";
+                                                    icon = "fas fa-comment-alt";
+                                                    break;
+                                                case "room":
+                                                    iconClass += " room";
+                                                    icon = "fas fa-door-open";
+                                                    break;
+                                                case "user":
+                                                    iconClass += " user";
+                                                    icon = "fas fa-user-plus";
+                                                    break;
+                                            }
+                                        }
+                                        <div class="@iconClass">
+                                            <i class="@icon"></i>
+                                        </div>
+                                        <div class="notification-content">
+                                            <div class="notification-text">@notification.Message</div>
+                                            <div class="notification-time">
+                                                @{
+                                                    // Trying to format the time in a user-friendly way
+                                                    var timeAgo = "";
+                                                    if (notification.CreatedAt != null)
+                                                    {
+                                                        var createdAt = notification.CreatedAt;
+                                                        var now = DateTime.Now;
+                                                        var diff = now - createdAt;
+                                                        
+                                                        if (diff.TotalMinutes < 1)
+                                                            timeAgo = "Just now";
+                                                        else if (diff.TotalMinutes < 60)
+                                                            timeAgo = $"{(int)diff.TotalMinutes} minute{((int)diff.TotalMinutes == 1 ? "" : "s")} ago";
+                                                        else if (diff.TotalHours < 24)
+                                                            timeAgo = $"{(int)diff.TotalHours} hour{((int)diff.TotalHours == 1 ? "" : "s")} ago";
+                                                        else if (diff.TotalDays < 7)
+                                                            timeAgo = $"{(int)diff.TotalDays} day{((int)diff.TotalDays == 1 ? "" : "s")} ago";
+                                                        else
+                                                            timeAgo = createdAt.ToString("MMM d, yyyy");
+                                                    }
+                                                }
+                                                @timeAgo
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="empty-notification">
+                                    <p>No notifications at this time.</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="notification-footer">
+                            <a href="/Admin/Notifications" class="view-all-link">View all notifications</a>
+                        </div>
+                    </div>
+                </div>
+                <form method="post" action="/Account/Logout">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- MAIN LAYOUT CONTAINER -->
+        <div class="dashboard-layout">
+            <!-- LEFT COLUMN -->
+            <div class="dashboard-main-content">
+                <!-- TOP SECTION: USER STATS & ROOM OVERVIEW -->
+                <div class="top-stats-section">
+                    <div class="stats-cards">
+                        <!-- DASHBOARD CARDS -->
+                        <div class="dashboard-grid">
+                            <div class="dashboard-card">
+                                <div class="card-aura"></div>
+                                <div class="card-header">
+                                    <h3>Registered Guests</h3>
+                                    <div class="card-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                </div>
+                                <div class="card-value">@guestCount</div>
+                                <div class="card-footer">
+                                    <i class="fas fa-user-plus"></i>
+                                    <span>Total registered guests</span>
+                                </div>
+                            </div>
+
+                            <div class="dashboard-card">
+                                <div class="card-aura"></div>
+                                <div class="card-header">
+                                    <h3>Staff Members</h3>
+                                    <div class="card-icon">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                </div>
+                                <div class="card-value">@staffCount</div>
+                                <div class="card-footer">
+                                    <i class="fas fa-id-badge"></i>
+                                    <span>Active staff members</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ROOM STATUS OVERVIEW -->
+                        <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">Room Status Overview</h3>
+                        <div class="dashboard-grid">
+                            <div class="dashboard-card">
+                                <div class="card-aura"></div>
+                                <div class="card-header">
+                                    <h3>Occupancy Rate</h3>
+                                    <div class="card-icon">
+                                        <i class="fas fa-percentage"></i>
+                                    </div>
+                                </div>
+                                <div class="card-value">@occupancyRate%</div>
+                                <div class="card-footer">
+                                    <i class="fas fa-bed"></i>
+                                    <span>@roomStats.Occupied out of @roomStats.Total rooms occupied</span>
+                                </div>
+                            </div>
+
+                            <div class="dashboard-card">
+                                <div class="card-aura"></div>
+                                <div class="card-header">
+                                    <h3>Vacancy Rate</h3>
+                                    <div class="card-icon">
+                                        <i class="fas fa-door-open"></i>
+                                    </div>
+                                </div>
+                                <div class="card-value">@vacancyRate%</div>
+                                <div class="card-footer">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>@roomStats.Available rooms available for booking</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ACTIVITY CARD -->
+                    <div class="activity-card">
+                        <h3>Recent Activity</h3>
+                        <div class="activity-list">
+                            @if (ViewBag.RecentActivities != null && ((List<HRSM.Models.Activity>)ViewBag.RecentActivities).Any())
+                            {
+                                foreach (var activity in (List<HRSM.Models.Activity>)ViewBag.RecentActivities)
+                                {
+                                    // Skip login/logout activities and system messages
+                                    if (activity.Message != null && (
+                                        activity.Message.Contains("logged in") || 
+                                        activity.Message.Contains("logged out") || 
+                                        activity.Message.Contains("initialized") ||
+                                        activity.Message.Contains("User login") ||
+                                        activity.Message.Contains("authentication")))
+                                    {
+                                        continue;
+                                    }
+                                    
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="@activity.Icon"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <p>@activity.Message</p>
+                                            <div class="activity-time">
+                                                @{
+                                                    var timeAgo = "";
+                                                    var now = DateTime.Now;
+                                                    var diff = now - activity.CreatedAt;
+                                                    
+                                                    if (diff.TotalMinutes < 1)
+                                                        timeAgo = "Just now";
+                                                    else if (diff.TotalMinutes < 60)
+                                                        timeAgo = $"{(int)diff.TotalMinutes} minute{((int)diff.TotalMinutes == 1 ? "" : "s")} ago";
+                                                    else if (diff.TotalHours < 24)
+                                                        timeAgo = $"{(int)diff.TotalHours} hour{((int)diff.TotalHours == 1 ? "" : "s")} ago";
+                                                    else if (diff.TotalDays < 7)
+                                                        timeAgo = $"{(int)diff.TotalDays} day{((int)diff.TotalDays == 1 ? "" : "s")} ago";
+                                                    else
+                                                        timeAgo = activity.CreatedAt.ToString("MMM d, yyyy");
+                                                }
+                                                @timeAgo
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="empty-activity">
+                                    <p>No recent activities available.</p>
+                                </div>
+                            }
+                        </div>
+                        <a href="/Admin/ActivityLog" class="view-all-activities">View All Activities</a>
+                    </div>
+                </div>
+
+                <!-- ROOM TYPE BREAKDOWN -->
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Room Type Breakdown</h3>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-aura"></div>
+                        <div class="card-header">
+                            <h3>Standard Rooms</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-bed"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">@standardRooms.Available/@standardRooms.Total</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: @(Math.Round((double)standardRooms.Available / standardRooms.Total * 100))%"></div>
+                        </div>
+                        <div class="room-status-details">
+                            <div class="status-item">
+                                <span class="status-dot available"></span>
+                                <span class="status-text">Available: @standardRooms.Available</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot occupied"></span>
+                                <span class="status-text">Occupied: @standardRooms.Occupied</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot cleaning"></span>
+                                <span class="status-text">Cleaning: @standardRooms.Cleaning</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot maintenance"></span>
+                                <span class="status-text">Maintenance: @standardRooms.Maintenance</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-aura"></div>
+                        <div class="card-header">
+                            <h3>Deluxe Rooms</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">@deluxeRooms.Available/@deluxeRooms.Total</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: @(Math.Round((double)deluxeRooms.Available / deluxeRooms.Total * 100))%"></div>
+                        </div>
+                        <div class="room-status-details">
+                            <div class="status-item">
+                                <span class="status-dot available"></span>
+                                <span class="status-text">Available: @deluxeRooms.Available</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot occupied"></span>
+                                <span class="status-text">Occupied: @deluxeRooms.Occupied</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot cleaning"></span>
+                                <span class="status-text">Cleaning: @deluxeRooms.Cleaning</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot maintenance"></span>
+                                <span class="status-text">Maintenance: @deluxeRooms.Maintenance</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-aura"></div>
+                        <div class="card-header">
+                            <h3>Suite Rooms</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">@suiteRooms.Available/@suiteRooms.Total</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: @(Math.Round((double)suiteRooms.Available / suiteRooms.Total * 100))%"></div>
+                        </div>
+                        <div class="room-status-details">
+                            <div class="status-item">
+                                <span class="status-dot available"></span>
+                                <span class="status-text">Available: @suiteRooms.Available</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot occupied"></span>
+                                <span class="status-text">Occupied: @suiteRooms.Occupied</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot cleaning"></span>
+                                <span class="status-text">Cleaning: @suiteRooms.Cleaning</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot maintenance"></span>
+                                <span class="status-text">Maintenance: @suiteRooms.Maintenance</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Existing card animations
+            const cards = document.querySelectorAll('.dashboard-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+
+            // Initialize all cards with opacity 0 for animation
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            });
+            
+            // Notification dropdown functionality
+            const notificationToggle = document.getElementById('notificationToggle');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const markAllReadBtn = document.getElementById('markAllRead');
+            
+            if (notificationToggle && notificationDropdown) {
+                // Toggle notification dropdown
+                notificationToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    notificationDropdown.classList.toggle('show');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!notificationToggle.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                        notificationDropdown.classList.remove('show');
+                    }
+                });
+                
+                // Mark all as read
+                if (markAllReadBtn) {
+                    markAllReadBtn.addEventListener('click', function() {
+                        // Send AJAX request to mark all as read
+                        fetch('/api/Notifications/MarkAllAsRead', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Update UI
+                                document.querySelectorAll('.notification-item.unread').forEach(item => {
+                                    item.classList.remove('unread');
+                                });
+                                
+                                // Remove notification badge
+                                const badge = document.querySelector('.notification-badge');
+                                if (badge) {
+                                    badge.remove();
+                                }
+                            }
+                        })
+                        .catch(error => console.error('Error marking notifications as read:', error));
+                    });
+                }
+                
+                // Mark individual notification as read
+                document.querySelectorAll('.notification-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const notificationId = this.getAttribute('data-id');
+                        
+                        // Send AJAX request to mark as read
+                        fetch(`/api/Notifications/${notificationId}/MarkAsRead`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Update UI
+                                this.classList.remove('unread');
+                                
+                                // Update unread count
+                                const badge = document.querySelector('.notification-badge');
+                                if (badge) {
+                                    let count = parseInt(badge.textContent);
+                                    if (count > 1) {
+                                        badge.textContent = (count - 1).toString();
+                                    } else {
+                                        badge.remove();
+                                    }
+                                }
+                                
+                                // Redirect to appropriate page based on notification type
+                                let redirectUrl = '';
+                                if (this.querySelector('.notification-icon.booking')) {
+                                    redirectUrl = '/Admin/Bookings';
+                                } else if (this.querySelector('.notification-icon.service')) {
+                                    redirectUrl = '/Admin/ServiceRequests';
+                                } else if (this.querySelector('.notification-icon.feedback')) {
+                                    redirectUrl = '/Admin/Feedbacks';
+                                } else if (this.querySelector('.notification-icon.room')) {
+                                    redirectUrl = '/Admin/RoomManagement';
+                                } else if (this.querySelector('.notification-icon.user')) {
+                                    // Check if it's about a guest or staff
+                                    const text = this.querySelector('.notification-text').textContent.toLowerCase();
+                                    if (text.includes('staff'))
+                                        redirectUrl = '/Admin/StaffManagement';
+                                    else
+                                        redirectUrl = '/Admin/UserManagement';
+                                }
+                                
+                                if (redirectUrl) {
+                                    window.location.href = redirectUrl;
+                                }
+                            }
+                        })
+                        .catch(error => console.error('Error marking notification as read:', error));
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

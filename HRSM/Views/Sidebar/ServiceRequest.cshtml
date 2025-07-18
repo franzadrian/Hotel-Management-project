@@ -1,0 +1,448 @@
+@model HRSM.Models.ViewModels.BookingViewModel
+@using System.Linq
+@{
+    Layout = "_base";
+    
+    // This should be determined by controller and passed via ViewBag or model
+    var isCheckedIn = ViewBag.IsCheckedIn ?? false;
+    
+    // The room information should come from the controller/database
+    var userRoom = ViewBag.UserRoom ?? "";
+    var roomType = ViewBag.RoomType ?? "";
+    var roomDisplay = !string.IsNullOrEmpty(userRoom) && !string.IsNullOrEmpty(roomType) 
+        ? $"{userRoom} - {roomType}" 
+        : "";
+}
+
+@await Html.PartialAsync("_custom-header")
+@await Html.PartialAsync("_sidebar")
+
+<div class="header-right">
+    <button class="sidebar-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<div class="v6-service-container">
+    <div class="v6-service-header">
+        <h1>Service Request</h1>
+        <p>Quickly request maintenance or housekeeping services</p>
+    </div>
+
+    @if (isCheckedIn)
+    {
+        <div class="v6-service-layout">
+            <!-- Request Form -->
+            <div class="v6-request-form">
+                <form id="serviceRequestForm">
+                    <!-- Room Selection -->
+                    <div class="v6-form-section">
+                        <h3><i class="fas fa-door-closed"></i> Your Room</h3>
+                        <select class="v6-select" id="roomNumber" name="roomNumber" required disabled>
+                            <option value="@roomDisplay" selected>@roomDisplay</option>
+                        </select>
+                        <input type="hidden" name="roomNumber" id="roomNumberHidden" value="@userRoom" />
+                    </div>
+
+                    <!-- Service Type -->
+                    <div class="v6-form-section">
+                        <h3><i class="fas fa-concierge-bell"></i> Service Type</h3>
+                        <div class="v6-option-grid">
+                            <label class="v6-option-card">
+                                <input type="radio" name="serviceType" value="maintenance" checked>
+                                <div class="v6-option-content">
+                                    <i class="fas fa-tools"></i>
+                                    <span>Maintenance</span>
+                                </div>
+                            </label>
+                            
+                            <label class="v6-option-card">
+                                <input type="radio" name="serviceType" value="housekeeping">
+                                <div class="v6-option-content">
+                                    <i class="fas fa-broom"></i>
+                                    <span>Housekeeping</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Form Sections -->
+                    <div class="v6-dynamic-form">
+                        <!-- Maintenance Section (default) -->
+                        <div class="v6-form-section" id="maintenanceSection">
+                            <h4>Maintenance Details</h4>
+                            <select class="v6-select" id="maintenanceCategory" name="maintenanceCategory">
+                                <option value="Plumbing">Plumbing</option>
+                                <option value="Electrical">Electrical</option>
+                                <option value="Furniture">Furniture</option>
+                                <option value="Appliance">Appliance</option>
+                                <option value="Others">Others</option>
+                            </select>
+                            <textarea placeholder="Describe the issue..." rows="4" id="maintenanceDescription"></textarea>
+                        </div>
+
+                        <!-- Housekeeping Section -->
+                        <div class="v6-form-section" id="housekeepingSection" style="display:none;">
+                            <h4>Housekeeping Needs</h4>
+                            <div class="v6-checkbox-group">
+                                <label><input type="checkbox" name="housekeepingNeeds" value="Room cleaning"> Room cleaning</label>
+                                <label><input type="checkbox" name="housekeepingNeeds" value="Fresh towels"> Fresh towels</label>
+                                <label><input type="checkbox" name="housekeepingNeeds" value="Toiletries"> Toiletries</label>
+                                <label><input type="checkbox" name="housekeepingNeeds" value="Bedding change"> Bedding change</label>
+                                <label><input type="checkbox" name="housekeepingNeeds" value="Others"> Others</label>
+                            </div>
+                            <textarea placeholder="Special instructions..." rows="4" id="housekeepingDescription"></textarea>
+                        </div>
+                    </div>
+
+                    <div id="submitFeedback" style="margin-bottom: 15px; display: none;"></div>
+
+                    <button type="submit" class="v6-submit-btn">
+                        <i class="fas fa-paper-plane"></i> Submit Request
+                    </button>
+                </form>
+            </div>
+
+            <!-- Request Status -->
+            <div class="v6-request-status">
+                <h3><i class="fas fa-history"></i> Recent Requests</h3>
+                
+                @if (ViewBag.RecentRequests != null)
+                {
+                    // Get at most 4 recent requests - using ToList() to materialize the query safely
+                    var recentRequests = ((IEnumerable<HRSM.Models.ServiceRequest>)ViewBag.RecentRequests).Take(4).ToList();
+                    
+                    if (recentRequests.Any())
+                    {
+                        foreach (var request in recentRequests)
+                        {
+                            <div class="v6-request-item">
+                                <div class="v6-request-meta">
+                                    <span class="v6-badge @(request.RequestType.ToLower())">@(request.RequestType)</span>
+                                    <span class="v6-date">@request.RequestDate.ToString("MMM d, yyyy h:mm tt")</span>
+                                </div>
+                                <p>
+                                    @if (request.RequestType.ToLower() == "maintenance")
+                                    {
+                                        <span>@request.ServiceCategory: </span>
+                                    }
+                                    else if (!string.IsNullOrEmpty(request.HousekeepingNeeds))
+                                    {
+                                        <span>@request.HousekeepingNeeds.Replace(",", ", "): </span>
+                                    }
+                                    @(request.Description.Length > 50 ? request.Description.Substring(0, 50) + "..." : request.Description)
+                                </p>
+                                <div class="v6-status @request.Status.ToLower()">@request.Status</div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="v6-no-requests">
+                            <p>You don't have any recent service requests.</p>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="v6-no-requests">
+                        <p>You don't have any recent service requests.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="v6-not-checked-in">
+            <div class="v6-message-container">
+                <i class="fas fa-exclamation-circle"></i>
+                <h2>Service Requests Unavailable</h2>
+                <p>You are not currently checked in to our hotel. Service requests are only available to guests with an active reservation.</p>
+                <div class="v6-action-buttons">
+                    <a href="/Reservation/Index" class="v6-view-reservations-btn">View My Reservations</a>
+                    <a href="/Sidebar/RoomBooking" class="v6-book-now-btn">Book Now</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get radio buttons and sections
+        const maintenanceRadio = document.querySelector('input[value="maintenance"]');
+        const housekeepingRadio = document.querySelector('input[value="housekeeping"]');
+        const maintenanceSection = document.getElementById('maintenanceSection');
+        const housekeepingSection = document.getElementById('housekeepingSection');
+        
+        // Add event listeners to radio buttons
+        if(maintenanceRadio && housekeepingRadio) {
+            maintenanceRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    maintenanceSection.style.display = 'block';
+                    housekeepingSection.style.display = 'none';
+                }
+            });
+            
+            housekeepingRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    maintenanceSection.style.display = 'none';
+                    housekeepingSection.style.display = 'block';
+                }
+            });
+        }
+        
+        // Add form submission handler
+        const serviceRequestForm = document.getElementById('serviceRequestForm');
+        if (serviceRequestForm) {
+            serviceRequestForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitServiceRequest();
+            });
+        }
+        
+        // Function to submit service request via AJAX
+        function submitServiceRequest() {
+            const submitFeedback = document.getElementById('submitFeedback');
+            submitFeedback.innerHTML = '<div class="v6-alert-info">Submitting your request...</div>';
+            submitFeedback.style.display = 'block';
+            
+            // Get form data
+            const roomNumber = document.getElementById('roomNumberHidden').value;
+            const requestType = document.querySelector('input[name="serviceType"]:checked').value;
+            
+            let serviceCategory = null;
+            let description = '';
+            let housekeepingNeeds = [];
+            
+            if (requestType === 'maintenance') {
+                serviceCategory = document.getElementById('maintenanceCategory').value;
+                description = document.getElementById('maintenanceDescription').value;
+            } else { // housekeeping
+                description = document.getElementById('housekeepingDescription').value;
+                // Get selected housekeeping needs
+                document.querySelectorAll('input[name="housekeepingNeeds"]:checked').forEach(function(checkbox) {
+                    housekeepingNeeds.push(checkbox.value);
+                });
+            }
+            
+            // Validate fields
+            if (!description.trim()) {
+                submitFeedback.innerHTML = '<div class="v6-alert-error">Please provide a description</div>';
+                return;
+            }
+            
+            // Create request payload
+            const requestData = {
+                roomNumber: roomNumber,
+                requestType: requestType,
+                serviceCategory: serviceCategory,
+                housekeepingNeeds: housekeepingNeeds,
+                description: description
+            };
+            
+            // Send API request
+            fetch('/api/ServiceRequest', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Replace standard alert with SweetAlert
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Your service request has been submitted successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#290909'
+                    });
+                    
+                    // Reset form
+                    serviceRequestForm.reset();
+                    
+                    // Reset UI state
+                    if (maintenanceRadio) {
+                        maintenanceRadio.checked = true;
+                        maintenanceSection.style.display = 'block';
+                        housekeepingSection.style.display = 'none';
+                    }
+                    
+                    // Hide previous feedback
+                    submitFeedback.style.display = 'none';
+                    
+                    // Reload recent requests after a short delay
+                    setTimeout(function() {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    // Error with SweetAlert
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Something went wrong. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#290909'
+                    });
+                    submitFeedback.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Error with SweetAlert
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while processing your request. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#290909'
+                });
+                submitFeedback.style.display = 'none';
+            });
+        }
+    });
+</script>
+
+<style>
+    .v6-not-checked-in {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+    }
+    
+    .v6-message-container {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 40px;
+        text-align: center;
+        max-width: 600px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-left: 4px solid #290909;
+    }
+    
+    .v6-message-container i {
+        font-size: 4rem;
+        color: #290909;
+        margin-bottom: 20px;
+        opacity: 0.8;
+    }
+    
+    .v6-message-container h2 {
+        color: #290909;
+        margin-bottom: 15px;
+        font-size: 1.8rem;
+    }
+    
+    .v6-message-container p {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+    
+    .v6-action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .v6-view-reservations-btn, .v6-book-now-btn {
+        display: inline-block;
+        padding: 12px 25px;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .v6-view-reservations-btn {
+        background-color: #f5f5f5;
+        color: #290909;
+        border: 2px solid #290909;
+    }
+    
+    .v6-view-reservations-btn:hover {
+        background-color: #e9e9e9;
+        transform: translateY(-2px);
+    }
+    
+    .v6-book-now-btn {
+        background-color: #290909;
+        color: white;
+        border: 2px solid #290909;
+    }
+    
+    .v6-book-now-btn:hover {
+        background-color: #3a1010;
+        transform: translateY(-2px);
+    }
+    
+    /* Add alert styles */
+    .v6-alert-success,
+    .v6-alert-error,
+    .v6-alert-info {
+        padding: 12px 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        font-weight: 500;
+    }
+    
+    .v6-alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+    
+    .v6-alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+    }
+    
+    .v6-alert-info {
+        background-color: #e9ecef;
+        color: #555;
+        border-left: 4px solid #290909;
+    }
+    
+    /* Add no-requests style */
+    .v6-no-requests {
+        padding: 20px;
+        text-align: center;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        color: #666;
+        font-style: italic;
+        margin-top: 15px;
+    }
+    
+    /* Status colors */
+    .v6-status.pending {
+        background-color: #ffc107;
+        color: #000;
+    }
+    
+    .v6-status.inprogress {
+        background-color: #17a2b8;
+        color: #fff;
+    }
+    
+    .v6-status.completed {
+        background-color: #28a745;
+        color: #fff;
+    }
+    
+    .v6-status.cancelled {
+        background-color: #dc3545;
+        color: #fff;
+    }
+</style>

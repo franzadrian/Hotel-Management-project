@@ -1,0 +1,72 @@
+@{
+    ViewData["Title"] = "Contact Us";
+    Layout = "_base";
+}
+
+@await Html.PartialAsync("_custom-header")
+@await Html.PartialAsync("_sidebar")
+
+<div class="header-right">
+    <button class="sidebar-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<style>
+    .contact-section {
+        font-family: 'Poppins', sans-serif;
+        background-color: #190606;
+        color: #fff;
+        text-align: center;
+        padding: 50px 20px;
+    }
+
+    .social-icons {
+        margin-top: 10px;
+    }
+
+    .social-icons a {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        margin: 0 10px;
+    }
+
+    .social-icons img {
+        width: 100%;
+        height: auto;
+    }
+</style>
+
+<div class="contact-section">
+    <h2>📞 Contact Us</h2>
+    <p>We’d love to hear from you! Whether you have questions, feedback, or need assistance, feel free to reach out.</p>
+    <br>
+    <hr>
+    <br>
+    <p>📍 <strong>Address:</strong> 123 Main Street, City, Country</p>
+    <p>📧 <strong>Email:</strong> <a href="mailto:LeCelestia@gmail.com" style="color: #fff;">LeCelestia@gmail.com</a></p>
+    <p>📞 <strong>Phone:</strong> <a href="tel:09123456789" style="color: #fff;">09123456789</a></p>
+    <p>🌐 <strong>Website:</strong> <a href="https://LeCelestia.Hotel.com" target="_blank" style="color: #fff;">LeCelestia.Hotel.com</a></p>
+    <br>
+
+    <p>📅 <strong>Business Hours:</strong></p>
+    <p>Monday – Friday: 9:00 AM – 6:00 PM</p>
+    <p>Saturday – Sunday: Closed (But we’re available for urgent inquiries!)</p>
+    <br>
+
+    <p>💬 <strong>Stay Connected:</strong></p>
+    <p>Follow us on social media for updates, special events, and exclusive offers!</p>
+    <br>
+
+    <div class="social-icons">
+        <a href="https://facebook.com"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook"></a>
+        <a href="https://instagram.com"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram"></a>
+        <a href="https://twitter.com"><img src="https://abs.twimg.com/responsive-web/client-web/icon-ios.77d25eba.png" alt="Twitter X" width="40"></a>
+    </div>
+    <br>
+    
+    <p>Need help? Drop us a message, and we’ll get back to you as soon as possible! 😊</p>
+    <br>
+    <hr>
+</div>

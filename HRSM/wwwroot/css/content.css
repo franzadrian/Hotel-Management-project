@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Ysabeau+Office:ital,wght@1,900&display=swap');
+
+.book-now-section {
+    background-color: #1C0707;
+    padding: 50px 0;
+    text-align: center;
+    color: white;
+}
+
+.book-now-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.book-now-title {
+    font-family: 'Ysabeau Office', sans-serif;
+    font-style: italic;
+    font-weight: bold;
+    font-size: 32px;
+    margin-right: 10px;
+    letter-spacing: 0.5px;
+}
+
+.separator-img {
+    width: 70%; /* Adjust width as needed */
+    height: auto; /* Keeps the aspect ratio */
+    margin-left: 10px; /* Adds space between text and image */
+}
+
+
+.room-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.room-card {
+    width: 30%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.room-card img {
+    width: 100%;
+    height: auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.room-card:hover img {
+    transform: scale(1.05);
+}
+
+.room-title {
+    position: absolute;
+    bottom: 10px; /* Moves text to the bottom */
+    left: 20px; /* Moves text to the left */
+    color: white;
+    padding: 5px 15px;
+    font-size: 18px;
+    font-weight: bold;
+    font-family: 'Yinmar', sans-serif;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    letter-spacing: 0.5px;
+}
+
+.centered-image {
+    display: flex;
+    justify-content: center;
+    margin-top: -20px;
+    margin-bottom: 50px;
+}
+
+.below-book-now-img {
+    width: 30%;
+    height: 50px;
+}

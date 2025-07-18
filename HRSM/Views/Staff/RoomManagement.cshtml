@@ -1,0 +1,999 @@
+@{
+    ViewData["Title"] = "Room Management";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #290909;
+            --primary-light: #3a0d0d;
+            --primary-dark: #1a0505;
+            --accent: #d4a373;
+            --accent-light: #e8c9a8;
+            --text-light: #f8f8f8;
+            --text-muted: #aaaaaa;
+            --text-dark: #222222;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            color: var(--text-light);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            border-right: 1px solid var(--primary-dark);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand i {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--accent);
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            margin-top: 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: var(--accent);
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 2.5rem;
+            width: calc(100% - 280px);
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        /* FILTER SECTION */
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background-color: white;
+            font-family: 'Montserrat', sans-serif;
+            min-width: 150px;
+        }
+
+        /* ROOM GRID */
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .room-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .room-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px);
+        }
+
+        .room-status-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+        }
+
+        .status-available {
+            background-color: var(--success);
+        }
+
+        .status-occupied {
+            background-color: var(--danger);
+        }
+
+        .status-cleaning {
+            background-color: var(--warning);
+        }
+
+        .status-maintenance {
+            background-color: var(--info);
+        }
+
+        .room-card-header {
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .room-number {
+            font-size: 1.4rem;
+            color: var(--primary);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .room-number i {
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        .room-type {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .room-card-body {
+            padding: 1.5rem;
+        }
+
+        .room-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .badge-available {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+
+        .badge-occupied {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+        }
+
+        .badge-cleaning {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-maintenance {
+            background-color: rgba(23, 162, 184, 0.1);
+            color: var(--info);
+        }
+
+        .room-info {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+        }
+
+        .info-row i {
+            width: 24px;
+            margin-right: 0.75rem;
+            color: var(--primary);
+        }
+
+        .status-actions {
+            margin-top: 1.5rem;
+        }
+
+        .status-heading {
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .status-btn {
+            border: none;
+            padding: 0.65rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        .status-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-available {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-occupied {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-cleaning {
+            background-color: var(--warning);
+            color: var(--text-dark);
+        }
+
+        .btn-maintenance {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .status-btn:disabled {
+            background-color: #e9e9e9;
+            color: #a9a9a9;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-btn.active {
+            box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor;
+        }
+
+        .status-updated {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* ROOM ACTIONS */
+        .room-actions {
+            display: flex;
+            justify-content: center;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            border-top: 1px solid var(--border);
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .btn-view {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-view:hover {
+            background-color: var(--primary-dark);
+        }
+
+        @@media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                overflow: visible;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1.5rem;
+            }
+
+            .brand h1 {
+                font-size: 1.2rem;
+            }
+
+            .room-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filter-select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand">
+            <i class="fas fa-hotel"></i>
+            <h1>Staff Portal</h1>
+        </div>
+        <nav class="nav-menu">
+            @{
+                var department = User.FindFirst("Department")?.Value ?? "Receptionist";
+            }
+            
+            @if (department == "Receptionist")
+            {
+                <div class="nav-item">
+                    <a href="/Staff/ReceptionistDashboard" class="nav-link">
+                        <i class="fas fa-concierge-bell" style="margin-right: 0.75rem;"></i>
+                        <span>Receptionist</span>
+                    </a>
+                </div>
+            }
+            
+            @if (department == "Housekeeping")
+            {
+                <div class="nav-item">
+                    <a href="/Staff/HousekeepingManagement" class="nav-link">
+                        <i class="fas fa-broom" style="margin-right: 0.75rem;"></i>
+                        <span>Housekeeping</span>
+                    </a>
+                </div>
+            }
+            
+            @if (department == "Maintenance")
+            {
+                <div class="nav-item">
+                    <a href="/Staff/MaintenanceManagement" class="nav-link">
+                        <i class="fas fa-tools" style="margin-right: 0.75rem;"></i>
+                        <span>Maintenance</span>
+                    </a>
+                </div>
+            }
+            
+            <div class="nav-item">
+                <a href="/Staff/RoomManagement" class="nav-link active">
+                    <i class="fas fa-bed" style="margin-right: 0.75rem;"></i>
+                    <span>Rooms</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Account/Logout" class="nav-link">
+                    <i class="fas fa-sign-out-alt" style="margin-right: 0.75rem;"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="page-title">Room Management</h1>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-group">
+                <label class="filter-label">Room Type:</label>
+                <select class="filter-select" id="filterRoomType">
+                    <option value="all">All Types</option>
+                    <option value="standard">Standard</option>
+                    <option value="deluxe">Deluxe</option>
+                    <option value="suite">Suite</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Status:</label>
+                <select class="filter-select" id="filterStatus">
+                    <option value="all">All Statuses</option>
+                    <option value="available">Available</option>
+                    <option value="occupied">Occupied</option>
+                    <option value="cleaning">Cleaning</option>
+                    <option value="maintenance">Maintenance</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <button class="action-btn btn-view" id="refreshButton">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+                <button class="action-btn" id="resetButton" style="background-color: var(--danger); color: white; margin-left: 10px;">
+                    <i class="fas fa-redo-alt"></i>
+                    Reset All Rooms
+                </button>
+            </div>
+        </div>
+
+        <!-- Room Grid -->
+        <div class="room-grid" id="roomGrid">
+            <!-- Room cards will be dynamically generated here -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            const roomGrid = document.getElementById('roomGrid');
+            const filterRoomType = document.getElementById('filterRoomType');
+            const filterStatus = document.getElementById('filterStatus');
+            const refreshButton = document.getElementById('refreshButton');
+            const resetButton = document.getElementById('resetButton');
+            
+            // Load rooms when page loads
+            loadRooms();
+            
+            // Add event listeners for filters
+            filterRoomType.addEventListener('change', loadRooms);
+            filterStatus.addEventListener('change', loadRooms);
+            refreshButton.addEventListener('click', async function() {
+                // Save current scroll position
+                const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+                
+                await loadRooms();
+                
+                // Restore scroll position
+                window.scrollTo(0, scrollPosition);
+            });
+            
+            // Add event listener for reset button
+            resetButton.addEventListener('click', async function() {
+                if (confirm('Are you sure you want to reset all room statuses? This will mark all rooms as available.')) {
+                    try {
+                        // Save current scroll position
+                        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+                        
+                        const response = await fetch('/api/Room/ResetAllStatuses', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            await loadRooms();
+                            // Restore scroll position
+                            window.scrollTo(0, scrollPosition);
+                            alert('All rooms have been reset to Available status');
+                        } else {
+                            alert('Error resetting room statuses: ' + result.message);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error resetting room statuses');
+                    }
+                }
+            });
+            
+            // Function to load rooms based on filters
+            async function loadRooms() {
+                return new Promise(async (resolve) => {
+                    try {
+                        // Clear existing rooms
+                        roomGrid.innerHTML = '';
+                        
+                        // Show loading indicator
+                        roomGrid.innerHTML = '<div style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Loading rooms...</p></div>';
+                        
+                        // Get filter values
+                        const roomTypeFilter = filterRoomType.value;
+                        const statusFilter = filterStatus.value;
+                        
+                        // Fetch rooms based on filters
+                        let url = '/api/Room';
+                        
+                        if (roomTypeFilter !== 'all' && statusFilter !== 'all') {
+                            // Need to get all rooms and filter client-side
+                            const response = await fetch(url);
+                            const result = await response.json();
+                            
+                            if (result.success) {
+                                // Filter rooms by type and status
+                                let rooms = result.data.filter(room => 
+                                    (roomTypeFilter === 'all' || room.roomType === roomTypeFilter) &&
+                                    (statusFilter === 'all' || room.status === statusFilter)
+                                );
+                                
+                                // Sort rooms by number numerically
+                                rooms.sort((a, b) => {
+                                    const numA = parseInt(a.roomNumber);
+                                    const numB = parseInt(b.roomNumber);
+                                    return numA - numB;
+                                });
+                                
+                                // Clear loading indicator
+                                roomGrid.innerHTML = '';
+                                
+                                // Create room cards
+                                if (rooms.length > 0) {
+                                    rooms.forEach(room => {
+                                        roomGrid.appendChild(createRoomCard(room));
+                                    });
+                                } else {
+                                    roomGrid.innerHTML = '<div style="text-align: center; padding: 2rem;"><p>No rooms found matching the selected filters.</p></div>';
+                                }
+                            } else {
+                                roomGrid.innerHTML = '<div style="text-align: center; padding: 2rem;"><p>Error loading rooms: ' + result.message + '</p></div>';
+                            }
+                        } else if (roomTypeFilter !== 'all') {
+                            // Filter by room type
+                            url = `/api/Room/ByType/${roomTypeFilter}`;
+                            const response = await fetch(url);
+                            const result = await response.json();
+                            
+                            if (result.success) {
+                                // Apply status filter if needed
+                                let rooms = result.data;
+                                if (statusFilter !== 'all') {
+                                    rooms = rooms.filter(room => room.status === statusFilter);
+                                }
+                                
+                                // Sort rooms by number numerically
+                                rooms.sort((a, b) => {
+                                    const numA = parseInt(a.roomNumber);
+                                    const numB = parseInt(b.roomNumber);
+                                    return numA - numB;
+                                });
+                                
+                                // Clear loading indicator
+                                roomGrid.innerHTML = '';
+                                
+                                // Create room cards
+                                if (rooms.length > 0) {
+                                    rooms.forEach(room => {
+                                        roomGrid.appendChild(createRoomCard(room));
+                                    });
+                                } else {
+                                    roomGrid.innerHTML = '<div style="text-align: center; padding: 2rem;"><p>No rooms found matching the selected filters.</p></div>';
+                                }
+                            } else {
+                                roomGrid.innerHTML = '<div style="text-align: center; padding: 2rem;"><p>Error loading rooms: ' + result.message + '</p></div>';
+                            }
+                        } else if (statusFilter !== 'all') {
+                            // Filter by status
+                            url = `/api/Room/ByStatus/${statusFilter}`;
+                            const response = await fetch(url);
+                            const result = await response.json();
+                            
+                            if (result.success) {
+                                // Apply room type filter if needed
+                                let rooms = result.data;
+                                if (roomTypeFilter !== 'all') {
+                                    rooms = rooms.filter(room => room.roomType === roomTypeFilter);
+                                }
+                                
+                                // Sort rooms by number numerically
+                                rooms.sort((a, b) => {
+                                    const numA = parseInt(a.roomNumber);
+                                    const numB = parseInt(b.roomNumber);
+                                    return numA - numB;
+                                });
+                                
+                                // Clear loading indicator
+                                roomGrid.innerHTML = '';
+                                
+                                // Create room cards
+                                if (rooms.length > 0) {
+                                    rooms.forEach(room => {
+                                        roomGrid.appendChild(createRoomCard(room));
+                                    });
+                                } else {
+                                    roomGrid.innerHTML = '<div style="text-align: center; padding: 2rem;"><p>No rooms found matching the selected filters.</p></div>';
+                                }
+                            } else {
+                                roomGrid.innerHTML = '<div style="text-align: center; padding: 2rem;"><p>Error loading rooms: ' + result.message + '</p></div>';
+                            }
+                        } else {
+                            // No filters, get all rooms
+                            const response = await fetch(url);
+                            const result = await response.json();
+                            
+                            if (result.success) {
+                                // Sort rooms by number numerically
+                                const rooms = result.data.sort((a, b) => {
+                                    const numA = parseInt(a.roomNumber);
+                                    const numB = parseInt(b.roomNumber);
+                                    return numA - numB;
+                                });
+                                
+                                // Clear loading indicator
+                                roomGrid.innerHTML = '';
+                                
+                                // Create room cards
+                                if (rooms.length > 0) {
+                                    rooms.forEach(room => {
+                                        roomGrid.appendChild(createRoomCard(room));
+                                    });
+                                } else {
+                                    roomGrid.innerHTML = '<div style="text-align: center; padding: 2rem;"><p>No rooms found.</p></div>';
+                                }
+                            } else {
+                                roomGrid.innerHTML = '<div style="text-align: center; padding: 2rem;"><p>Error loading rooms: ' + result.message + '</p></div>';
+                            }
+                        }
+                        
+                        // Add event listeners for status buttons
+                        attachStatusButtonsEvents();
+                        
+                        // Resolve the promise
+                        resolve();
+                    } catch (error) {
+                        console.error('Error:', error);
+                        roomGrid.innerHTML = '<div style="text-align: center; padding: 2rem;"><p>Error loading rooms: ' + error.message + '</p></div>';
+                        
+                        // Resolve the promise
+                        resolve();
+                    }
+                });
+            }
+            
+            // Function to create a room card
+            function createRoomCard(room) {
+                const card = document.createElement('div');
+                card.className = 'room-card';
+                card.setAttribute('data-room', room.roomNumber);
+                
+                // Create status indicator
+                const statusIndicator = document.createElement('div');
+                statusIndicator.className = `room-status-indicator status-${room.status}`;
+                card.appendChild(statusIndicator);
+                
+                // Room header
+                const header = document.createElement('div');
+                header.className = 'room-card-header';
+                
+                // Room number and type
+                const roomInfo = document.createElement('div');
+                
+                const roomNumber = document.createElement('div');
+                roomNumber.className = 'room-number';
+                
+                // Icons for different room types
+                let roomIcon = 'fas fa-bed';
+                if (room.roomType === 'deluxe') {
+                    roomIcon = 'fas fa-star';
+                } else if (room.roomType === 'suite') {
+                    roomIcon = 'fas fa-crown';
+                }
+                
+                roomNumber.innerHTML = `<i class="${roomIcon}"></i> ${room.roomNumber}`;
+                roomInfo.appendChild(roomNumber);
+                
+                const roomType = document.createElement('div');
+                roomType.className = 'room-type';
+                roomType.textContent = room.roomType.charAt(0).toUpperCase() + room.roomType.slice(1);
+                roomInfo.appendChild(roomType);
+                
+                header.appendChild(roomInfo);
+                card.appendChild(header);
+                
+                // Room body
+                const body = document.createElement('div');
+                body.className = 'room-card-body';
+                
+                // Room status
+                const status = document.createElement('div');
+                status.className = 'room-status';
+                
+                // Get status text and class
+                let statusText = '';
+                let statusClass = '';
+                let statusIcon = '';
+                
+                switch(room.status) {
+                    case 'available':
+                        statusText = 'Available';
+                        statusClass = 'badge-available';
+                        statusIcon = 'fas fa-check-circle';
+                        break;
+                    case 'occupied':
+                        statusText = 'Occupied';
+                        statusClass = 'badge-occupied';
+                        statusIcon = 'fas fa-user';
+                        break;
+                    case 'cleaning':
+                        statusText = 'Cleaning';
+                        statusClass = 'badge-cleaning';
+                        statusIcon = 'fas fa-broom';
+                        break;
+                    case 'maintenance':
+                        statusText = 'Maintenance';
+                        statusClass = 'badge-maintenance';
+                        statusIcon = 'fas fa-tools';
+                        break;
+                }
+                
+                status.innerHTML = `<span class="status-badge ${statusClass}"><i class="${statusIcon}"></i> ${statusText}</span>`;
+                body.appendChild(status);
+                
+                // Room info
+                const info = document.createElement('div');
+                info.className = 'room-info';
+                
+                // Add info rows
+                const infoRows = [
+                    { icon: 'fas fa-hashtag', text: `Room ${room.roomNumber}` },
+                    { icon: 'fas fa-building', text: `${room.roomType.charAt(0).toUpperCase() + room.roomType.slice(1)} Room` },
+                    { icon: 'fas fa-clock', text: `Last Updated: ${formatDate(room.statusUpdatedAt)}` }
+                ];
+                
+                infoRows.forEach(row => {
+                    const infoRow = document.createElement('div');
+                    infoRow.className = 'info-row';
+                    infoRow.innerHTML = `<i class="${row.icon}"></i> ${row.text}`;
+                    info.appendChild(infoRow);
+                });
+                
+                body.appendChild(info);
+                
+                // Status actions
+                const actions = document.createElement('div');
+                actions.className = 'status-actions';
+                
+                const actionsHeading = document.createElement('div');
+                actionsHeading.className = 'status-heading';
+                actionsHeading.textContent = 'Change Status:';
+                actions.appendChild(actionsHeading);
+                
+                const buttons = document.createElement('div');
+                buttons.className = 'status-buttons';
+                
+                // Create status buttons
+                const statuses = [
+                    { value: 'available', text: 'Available', icon: 'fas fa-check-circle', className: 'btn-available' },
+                    { value: 'occupied', text: 'Occupied', icon: 'fas fa-user', className: 'btn-occupied' },
+                    { value: 'cleaning', text: 'Cleaning', icon: 'fas fa-broom', className: 'btn-cleaning' },
+                    { value: 'maintenance', text: 'Maintenance', icon: 'fas fa-tools', className: 'btn-maintenance' }
+                ];
+                
+                statuses.forEach(status => {
+                    const button = document.createElement('button');
+                    button.className = `status-btn ${status.className} ${room.status === status.value ? 'active' : ''}`;
+                    button.disabled = room.status === status.value;
+                    button.setAttribute('data-status', status.value);
+                    button.setAttribute('data-room', room.roomNumber);
+                    button.innerHTML = `<i class="${status.icon}"></i> ${status.text}`;
+                    buttons.appendChild(button);
+                });
+                
+                actions.appendChild(buttons);
+                
+                // Status updated info
+                const updatedInfo = document.createElement('div');
+                updatedInfo.className = 'status-updated';
+                updatedInfo.textContent = `Last updated: ${formatDate(room.statusUpdatedAt)}`;
+                actions.appendChild(updatedInfo);
+                
+                body.appendChild(actions);
+                card.appendChild(body);
+                
+                return card;
+            }
+            
+            // Function to attach event listeners to status buttons
+            function attachStatusButtonsEvents() {
+                const statusButtons = document.querySelectorAll('.status-btn');
+                statusButtons.forEach(button => {
+                    button.addEventListener('click', async function() {
+                        const roomNumber = this.getAttribute('data-room');
+                        const newStatus = this.getAttribute('data-status');
+                        
+                        try {
+                            // Show button as loading
+                            const originalText = this.innerHTML;
+                            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                            this.disabled = true;
+                            
+                            // Save current scroll position
+                            const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+                            
+                            // Update room status
+                            const response = await fetch(`/api/Room/${roomNumber}/Status`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(newStatus)
+                            });
+                            
+                            const result = await response.json();
+                            
+                            if (result.success) {
+                                // Reload rooms to reflect changes
+                                await loadRooms();
+                                
+                                // Restore scroll position
+                                window.scrollTo(0, scrollPosition);
+                            } else {
+                                // Restore button state
+                                this.innerHTML = originalText;
+                                this.disabled = false;
+                                
+                                alert('Error updating room status: ' + result.message);
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            
+                            // Restore button state
+                            this.innerHTML = originalText;
+                            this.disabled = false;
+                            
+                            alert('Error updating room status');
+                        }
+                    });
+                });
+            }
+            
+            // Helper function to format date
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                const options = {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                };
+                return date.toLocaleDateString('en-US', options);
+            }
+        });
+    </script>
+</body>
+</html> 

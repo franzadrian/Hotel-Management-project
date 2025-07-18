@@ -1,0 +1,255 @@
+/* Sidebar container */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -300px; /* Initially hidden */
+    width: 300px;
+    height: 100%;
+    background-color: #290909; /* Updated background color */
+    color: white;
+    padding-top: 20px;
+    transition: right 0.3s ease-in-out;
+    box-shadow: -3px 0px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    overflow-y: auto; /* Enables scrolling */
+}
+
+/* Sidebar visible */
+.sidebar.active {
+    right: 0;
+}
+
+/* Sidebar header */
+.sidebar-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding: 15px;
+}
+
+/* Sidebar logo */
+.sidebar-logo {
+    width: 200px;
+    margin-bottom: 15px; /* Spacing below logo */
+}
+
+/* Close button */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Sidebar menu */
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.sidebar-menu li {
+    width: 100%;
+    text-align: center; /* Centers the text */
+}
+
+.sidebar-menu li a {
+    display: flex; /* Use flexbox */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    padding: 12px 20px;
+    width: 100%;
+    color: white;
+    text-decoration: none;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.sidebar-menu li a:hover {
+    background: #4d0c0c; /* Dark red hover effect */
+    transform: scale(1.05);
+    border-radius: 5px;
+}
+
+/* Hide notification & sidebar buttons when sidebar is active */
+.sidebar.active ~ .header-right {
+    display: none;
+}
+
+/* HEADER RIGHT SECTION */
+.header-right {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    display: flex;
+    gap: 15px;
+    z-index: 1100;
+}
+
+.notification-btn, .sidebar-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+}
+
+.notification-btn i, .sidebar-btn i {
+    font-size: 28px;
+}
+
+/* Sidebar Button Hover */
+.sidebar-btn:hover {
+    color: #ff4d4d; /* Slight red tone */
+    transform: scale(1.1); /* Slightly enlarges */
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover effect for notification button */
+.notification-btn:hover {
+    color: #ff4d4d; /* Slight red tone */
+    transform: scale(1.1);
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+/* ====== NOTIFICATION DROPDOWN ====== */
+
+/* Notification Container */
+.notification-container {
+    position: relative; /* Ensures the box is positioned relative to this */
+    display: inline-block;
+}
+
+/* Notification Box (Dropdown) */
+.notification-box {
+    position: absolute;
+    top: 40px; /* Adjust this value to move it closer */
+    right: 0;
+    width: 250px;
+    background: #290909; /* Same as sidebar */
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    display: none; /* Initially hidden */
+    z-index: 1500; /* Stays on top */
+}
+
+/* Show Notification */
+.notification-box.active {
+    display: block;
+}
+
+/* Adjusting it closer to the bell icon */
+.notification-container .notification-btn {
+    position: relative;
+    z-index: 1100;
+}
+
+/* Notification Box Header */
+.notification-box h4 {
+    margin: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Notification List */
+.notification-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.notification-box ul li {
+    padding: 8px 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Show Notification */
+.notification-box.active {
+    display: block;
+}
+
+/* Hover effect for notification dropdown items */
+.notification-box ul li:hover {
+    background: #4d0c0c; /* Dark red hover effect */
+    border-radius: 3px;
+}
+
+/* User Profile Button */
+.user-profile-btn {
+    background: none; /* Remove background */
+    border: none; /* Remove border */
+    padding: 0; /* Remove padding */
+    cursor: pointer; /* Add pointer cursor */
+    font-size: 24px; /* Match font size with other buttons */
+    color: white; /* Match color with other buttons */
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    width: 40px; /* Match width with other buttons */
+    height: 40px; /* Match height with other buttons */
+}
+
+/* User Profile Icon */
+.user-profile-btn i {
+    font-size: 28px; /* Match icon size with other buttons */
+}
+
+/* Hover effect for User Profile Button */
+.user-profile-btn:hover {
+    color: #ff4d4d; /* Slight red tone, same as other buttons */
+    transform: scale(1.1); /* Slightly enlarges, same as other buttons */
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+/* User Profile Dropdown */
+.user-profile-dropdown {
+    display: none;
+    position: absolute;
+    top: 50px; /* Adjust as needed */
+    right: 0;
+    background-color: #290909;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1500;
+    text-align: center; /* Center text horizontally */
+    margin-right: 40px;
+}
+
+.user-profile-dropdown ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.user-profile-dropdown ul li {
+    padding: 0; /* Remove padding from the <li> */
+    transition: background 0.3s ease, border-radius 0.3s ease; /* Smooth transition */
+}
+
+.user-profile-dropdown ul li a {
+    display: block; /* Make the <a> fill the entire <li> */
+    padding: 12px 16px; /* Add padding to the <a> */
+    color: white;
+    text-decoration: none;
+    font-family: 'Your Yinmar Font', sans-serif; /* Replace with your Yinmar font */
+    text-transform: capitalize; /* Capitalize text */
+    font-weight: bold; /* Bold text */
+    text-align: center; /* Center text horizontally */
+}
+
+/* Hover effect for the entire box */
+.user-profile-dropdown ul li:hover {
+    background: #4d0c0c; /* Dark red hover effect */
+    border-radius: 5px; /* Match the sidebar hover effect */
+}
+
+/* Show dropdown when active */
+.user-profile-dropdown.active {
+    display: block;
+}

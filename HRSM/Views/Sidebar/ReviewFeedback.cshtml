@@ -1,0 +1,906 @@
+@model HRSM.Models.ViewModels.BookingViewModel
+@using System.Linq
+@{
+    Layout = "_base";
+    
+    // From controller via ViewBag
+    var canSubmitFeedback = ViewBag.CanSubmitFeedback ?? false;
+    var stayStatus = ViewBag.StayStatus ?? "";
+    var roomTypes = ViewBag.RoomTypes as List<string> ?? new List<string> { "Standard", "Deluxe", "Suite" };
+    var userRoomType = ViewBag.UserRoomType ?? ""; // Get the user's booked room type
+    
+    var allFeedbacks = ViewBag.Feedbacks as List<HRSM.Models.Feedback> ?? new List<HRSM.Models.Feedback>();
+}
+
+@await Html.PartialAsync("_custom-header")
+@await Html.PartialAsync("_sidebar")
+
+<div class="header-right">
+    <button class="sidebar-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="v6-feedback-container">
+    <div class="v6-feedback-header">
+        <h1>Guest Feedback</h1>
+        <p>Share your experience and help us improve our services</p>
+    </div>
+
+    <div class="v6-feedback-tabs">
+        <button class="v6-tab-btn active" data-tab="all">All Rooms</button>
+        @foreach (var roomType in roomTypes)
+        {
+            <button class="v6-tab-btn" data-tab="@roomType.ToLower()">@roomType</button>
+        }
+            </div>
+
+    @if (canSubmitFeedback)
+    {
+        <div class="v6-feedback-layout">
+            <!-- Feedback Form -->
+            <div class="v6-feedback-form">
+                <div class="v6-feedback-card">
+                    <h3><i class="fas fa-comment-alt"></i> Your Feedback</h3>
+                    <form id="feedbackForm">
+                        <div class="v6-form-group">
+                            <label>Room Type</label>
+                            <input type="text" id="roomTypeInput" name="roomType" value="@userRoomType" readonly class="v6-readonly-input">
+                            <input type="hidden" name="roomTypeHidden" value="@userRoomType">
+        </div>
+
+                        <div class="v6-form-group">
+                            <label>Rating</label>
+                            <div class="v6-star-rating">
+                                <i class="far fa-star" data-rating="1"></i>
+                                <i class="far fa-star" data-rating="2"></i>
+                                <i class="far fa-star" data-rating="3"></i>
+                                <i class="far fa-star" data-rating="4"></i>
+                                <i class="far fa-star" data-rating="5"></i>
+                                <input type="hidden" id="ratingInput" name="rating" value="0">
+                            </div>
+                        </div>
+                        
+                        <div class="v6-form-group">
+                            <textarea id="commentInput" name="comment" placeholder="Share your experience with us..." rows="5" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="v6-submit-btn">
+                            <i class="fas fa-paper-plane"></i> Submit Feedback
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Recent Feedbacks -->
+            <div class="v6-feedback-list">
+                <h3><i class="fas fa-comments"></i> Recent Feedbacks</h3>
+                
+                <div class="v6-feedback-filter">
+                    <div id="feedbackContainer">
+                        @if (allFeedbacks.Any())
+                        {
+                            foreach (var feedback in allFeedbacks)
+                            {
+                                <div class="v6-feedback-item" data-room="@feedback.RoomType.ToLower()">
+                                    <div class="v6-user-header">
+                                        <div class="v6-user-profile">
+                                            @if (!string.IsNullOrEmpty(feedback.User?.ProfilePicturePath))
+                                            {
+                                                <img src="@feedback.User.ProfilePicturePath" alt="@feedback.User.FirstName @feedback.User.LastName" class="v6-user-avatar">
+                                            }
+                                            else
+                                            {
+                                                <div class="v6-user-initials">
+                                                    @(feedback.User?.FirstName != null && feedback.User.FirstName.Length > 0 ? feedback.User.FirstName.Substring(0, 1) : "")
+                                                    @(feedback.User?.LastName != null && feedback.User.LastName.Length > 0 ? feedback.User.LastName.Substring(0, 1) : "")
+                            </div>
+                                            }
+                                            <div class="v6-user-name">
+                                                <strong>@(feedback.User?.FirstName ?? "") @(feedback.User?.LastName ?? "")</strong>
+                        </div>
+                    </div>
+                                        <div class="v6-feedback-meta">
+                                            <div class="v6-room-tag @feedback.RoomType.ToLower()">@feedback.RoomType</div>
+                                            <div class="v6-date">@feedback.SubmitDate.ToString("MMM d, yyyy")</div>
+                    </div>
+                </div>
+                                    <div class="v6-feedback-content">
+                                        <div class="v6-user-rating">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="@(i <= feedback.Rating ? "fas" : "far") fa-star"></i>
+                                            }
+                </div>
+                                        <div class="v6-feedback-text">
+                                            <p>@feedback.Comment</p>
+                                        </div>
+                                        
+                                        @if (!string.IsNullOrEmpty(feedback.AdminResponse))
+                                        {
+                                            <div class="v6-admin-response">
+                                                <div class="v6-response-header">
+                                                    <i class="fas fa-reply"></i>
+                                                    <span>Response from Management</span>
+                                                </div>
+                                                <div class="v6-response-content">
+                                                    <p>@feedback.AdminResponse</p>
+                                                    <div class="v6-response-date">
+                                                        @if (feedback.ResponseDate.HasValue)
+                                                        {
+                                                            <span>@feedback.ResponseDate.Value.ToString("MMM d, yyyy")</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            
+                            <!-- Pagination controls -->
+                            @if (ViewBag.TotalPages > 1)
+                            {
+                                <div class="v6-pagination">
+                                    <div class="v6-pagination-info">
+                                        Showing page @ViewBag.CurrentPage of @ViewBag.TotalPages (@ViewBag.TotalItems feedbacks)
+                                    </div>
+                                    <div class="v6-pagination-controls">
+                                        @if (ViewBag.CurrentPage > 1)
+                                        {
+                                            <a href="/Sidebar/ReviewFeedback?page=@(ViewBag.CurrentPage - 1)" class="v6-page-link v6-prev">
+                                                <i class="fas fa-chevron-left"></i> Previous
+                                            </a>
+                                        }
+                                        
+                                        @{
+                                            var startPage = Math.Max(1, ViewBag.CurrentPage - 2);
+                                            var endPage = Math.Min(ViewBag.TotalPages, startPage + 4);
+                                            
+                                            if (endPage - startPage < 4 && startPage > 1)
+                                            {
+                                                startPage = Math.Max(1, endPage - 4);
+                                            }
+                                        }
+                                        
+                                        @if (startPage > 1)
+                                        {
+                                            <a href="/Sidebar/ReviewFeedback?page=1" class="v6-page-link">1</a>
+                                            
+                                            @if (startPage > 2)
+                                            {
+                                                <span class="v6-pagination-ellipsis">...</span>
+                                            }
+                                        }
+                                        
+                                        @for (var i = startPage; i <= endPage; i++)
+                                        {
+                                            <a href="/Sidebar/ReviewFeedback?page=@i" 
+                                               class="v6-page-link @(i == ViewBag.CurrentPage ? "v6-active" : "")">@i</a>
+                                        }
+                                        
+                                        @if (endPage < ViewBag.TotalPages)
+                                        {
+                                            @if (endPage < ViewBag.TotalPages - 1)
+                                            {
+                                                <span class="v6-pagination-ellipsis">...</span>
+                                            }
+                                            
+                                            <a href="/Sidebar/ReviewFeedback?page=@ViewBag.TotalPages" class="v6-page-link">@ViewBag.TotalPages</a>
+                                        }
+                                        
+                                        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                                        {
+                                            <a href="/Sidebar/ReviewFeedback?page=@(ViewBag.CurrentPage + 1)" class="v6-page-link v6-next">
+                                                Next <i class="fas fa-chevron-right"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="v6-no-feedbacks">
+                                <p>No feedbacks have been submitted yet. Be the first to share your experience!</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+                </div>
+    }
+    else
+    {
+        <div class="v6-feedback-unavailable">
+            <div class="v6-message-box">
+                <i class="fas fa-exclamation-circle"></i>
+                <h3>Feedback Unavailable</h3>
+                <p>You need to be checked in or have recently checked out to submit feedback.</p>
+                <a href="/Sidebar/RoomBooking" class="v6-book-btn">Book a Room</a>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .v6-feedback-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .v6-feedback-header {
+        text-align: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .v6-feedback-header h1 {
+        color: #290909;
+        margin-bottom: 5px;
+    }
+    
+    .v6-feedback-header p {
+        color: #777;
+        font-size: 1.1rem;
+    }
+    
+    .v6-feedback-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .v6-tab-btn {
+        background: #f8f9fa;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        color: #555;
+    }
+    
+    .v6-tab-btn:hover {
+        background: #e9ecef;
+    }
+    
+    .v6-tab-btn.active {
+        background: #290909;
+        color: white;
+    }
+    
+    .v6-feedback-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+    
+    @@media (max-width: 768px) {
+        .v6-feedback-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .v6-feedback-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        padding: 25px;
+    }
+    
+    .v6-feedback-card h3 {
+        margin-top: 0;
+        color: #290909;
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .v6-feedback-card h3 i {
+        margin-right: 10px;
+        color: #290909;
+    }
+    
+    .v6-form-group {
+        margin-bottom: 20px;
+    }
+    
+    .v6-form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #555;
+    }
+    
+    .v6-form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: border 0.3s ease;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        background-size: 15px;
+    }
+    
+    .v6-star-rating {
+        display: flex;
+        gap: 5px;
+        font-size: 1.8rem;
+        color: #ffc107;
+        cursor: pointer;
+    }
+    
+    .v6-form-group textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: border 0.3s ease;
+        resize: vertical;
+    }
+    
+    .v6-form-group select:focus,
+    .v6-form-group textarea:focus {
+        outline: none;
+        border-color: #290909;
+    }
+    
+    .v6-submit-btn {
+        background-color: #290909;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .v6-submit-btn:hover {
+        background-color: #3a1010;
+    }
+    
+    /* Feedback unavailable */
+    .v6-feedback-unavailable {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+    }
+    
+    .v6-message-box {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        max-width: 500px;
+        width: 100%;
+    }
+    
+    .v6-message-box i {
+        font-size: 3rem;
+        color: #dc3545;
+        margin-bottom: 15px;
+        opacity: 0.8;
+    }
+    
+    .v6-message-box h3 {
+        color: #290909;
+        margin-bottom: 10px;
+        font-size: 1.5rem;
+    }
+    
+    .v6-message-box p {
+        color: #666;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+    
+    .v6-book-btn {
+        display: inline-block;
+        background-color: #290909;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .v6-book-btn:hover {
+        background-color: #3a1010;
+        transform: translateY(-2px);
+    }
+    
+    /* Feedback list */
+    .v6-feedback-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .v6-feedback-list h3 {
+        color: #290909;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 0;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .v6-feedback-item {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding: 20px;
+        transition: transform 0.3s ease;
+        margin-bottom: 15px;
+    }
+    
+    .v6-feedback-item:hover {
+        transform: translateY(-3px);
+    }
+    
+    /* User header with profile picture */
+    .v6-user-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .v6-user-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .v6-user-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .v6-user-initials {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background-color: #290909;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .v6-user-name {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .v6-user-status {
+        font-size: 0.8rem;
+        color: #777;
+        margin-top: 2px;
+    }
+    
+    .v6-feedback-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 5px;
+    }
+    
+    .v6-room-tag {
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .v6-room-tag.standard {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+    
+    .v6-room-tag.deluxe {
+        background-color: #cff4fc;
+        color: #055160;
+    }
+    
+    .v6-room-tag.suite {
+        background-color: #f8d7da;
+        color: #842029;
+    }
+    
+    .v6-date {
+        color: #777;
+        font-size: 0.8rem;
+    }
+    
+    /* Feedback content */
+    .v6-feedback-content {
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+    }
+    
+    .v6-user-rating {
+        margin-bottom: 10px;
+        color: #ffc107;
+    }
+    
+    .v6-feedback-text p {
+        color: #555;
+        margin: 0;
+        line-height: 1.6;
+    }
+    
+    .v6-no-feedbacks {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        color: #666;
+        font-style: italic;
+    }
+
+    .v6-feedback-filter {
+        margin-top: 15px;
+    }
+    
+    /* Admin Response Styles */
+    .v6-admin-response {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px dashed #ddd;
+    }
+    
+    .v6-response-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        color: #290909;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .v6-response-header i {
+        color: #290909;
+    }
+    
+    .v6-response-content {
+        background-color: #f9f9f9;
+        border-left: 3px solid #290909;
+        padding: 12px 15px;
+        border-radius: 0 5px 5px 0;
+        position: relative;
+    }
+    
+    .v6-response-content p {
+        margin: 0;
+        color: #444;
+        line-height: 1.5;
+        font-size: 0.95rem;
+    }
+    
+    .v6-response-date {
+        margin-top: 8px;
+        text-align: right;
+        font-size: 0.8rem;
+        color: #777;
+        font-style: italic;
+    }
+    
+    /* Pagination Styles */
+    .v6-pagination {
+        margin-top: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .v6-pagination-info {
+        color: #666;
+        font-size: 0.9rem;
+        background-color: #f8f9fa;
+        padding: 6px 12px;
+        border-radius: 20px;
+    }
+    
+    .v6-pagination-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .v6-page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+        border-radius: 5px;
+        background-color: #fff;
+        color: #290909;
+        text-decoration: none;
+        font-weight: 500;
+        border: 1px solid #ddd;
+        transition: all 0.3s ease;
+    }
+    
+    .v6-page-link:hover {
+        background-color: #f4f4f4;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+    
+    .v6-page-link.v6-active {
+        background-color: #290909;
+        color: white;
+        border-color: #290909;
+    }
+    
+    .v6-page-link.v6-prev,
+    .v6-page-link.v6-next {
+        padding: 0 15px;
+        gap: 5px;
+    }
+    
+    .v6-pagination-ellipsis {
+        color: #777;
+        padding: 0 8px;
+    }
+
+    .v6-readonly-input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+        background-color: #f7f7f7;
+        cursor: not-allowed;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Room type tabs functionality
+        const tabButtons = document.querySelectorAll('.v6-tab-btn');
+        const feedbackItems = document.querySelectorAll('.v6-feedback-item');
+        const paginationContainer = document.querySelector('.v6-pagination');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Update active tab
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Filter feedback items
+                const roomType = this.getAttribute('data-tab');
+                let visibleCount = 0;
+                
+                feedbackItems.forEach(item => {
+                    if (roomType === 'all') {
+                        item.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        const itemRoomType = item.getAttribute('data-room');
+                        if (itemRoomType === roomType) {
+                            item.style.display = 'block';
+                            visibleCount++;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    }
+                });
+                
+                // Hide pagination when filtering by room type
+                if (paginationContainer) {
+                    if (roomType === 'all') {
+                        paginationContainer.style.display = 'flex';
+                    } else {
+                        paginationContainer.style.display = 'none';
+                    }
+                }
+                
+                // Show "no feedback" message if no items visible after filtering
+                const noFeedbacksMessage = document.querySelector('.v6-no-feedbacks');
+                const feedbackContainer = document.getElementById('feedbackContainer');
+                
+                if (visibleCount === 0 && !noFeedbacksMessage) {
+                    // Create a message element if it doesn't exist
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'v6-no-feedbacks v6-filtered-empty';
+                    messageDiv.innerHTML = '<p>No feedbacks found for this room type.</p>';
+                    feedbackContainer.appendChild(messageDiv);
+                } else if (visibleCount > 0) {
+                    // Remove any dynamically added message
+                    const filteredEmptyMessage = document.querySelector('.v6-filtered-empty');
+                    if (filteredEmptyMessage) {
+                        filteredEmptyMessage.remove();
+                    }
+                }
+            });
+        });
+        
+        // Star rating functionality
+        const stars = document.querySelectorAll('.v6-star-rating i');
+        const ratingInput = document.getElementById('ratingInput');
+        
+        if (stars.length > 0 && ratingInput) {
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    ratingInput.value = rating;
+                    
+                    // Update star appearances
+                    stars.forEach(s => {
+                        const starRating = parseInt(s.getAttribute('data-rating'));
+                        if (starRating <= rating) {
+                            s.className = 'fas fa-star';
+                        } else {
+                            s.className = 'far fa-star';
+                        }
+                    });
+                });
+                
+                // Hover effects
+                star.addEventListener('mouseover', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    
+                    stars.forEach(s => {
+                        const starRating = parseInt(s.getAttribute('data-rating'));
+                        if (starRating <= rating) {
+                            s.className = 'fas fa-star';
+                        }
+                    });
+                });
+                
+                star.addEventListener('mouseout', function() {
+                    const currentRating = parseInt(ratingInput.value);
+                    
+                    stars.forEach(s => {
+                        const starRating = parseInt(s.getAttribute('data-rating'));
+                        if (starRating <= currentRating) {
+                            s.className = 'fas fa-star';
+                        } else {
+                            s.className = 'far fa-star';
+                        }
+                    });
+                });
+            });
+        }
+        
+        // Form submission
+        const feedbackForm = document.getElementById('feedbackForm');
+        if (feedbackForm) {
+            feedbackForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const roomType = document.getElementById('roomTypeInput').value.trim();
+                const rating = parseInt(document.getElementById('ratingInput').value);
+                const comment = document.getElementById('commentInput').value.trim();
+                
+                // Validate inputs
+                if (!roomType) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Room type is missing',
+                        icon: 'error',
+                        confirmButtonColor: '#290909'
+                    });
+                    return;
+                }
+                
+                if (rating < 1) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Please select a rating',
+                        icon: 'error',
+                        confirmButtonColor: '#290909'
+                    });
+                    return;
+                }
+                
+                if (!comment) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Please enter your feedback',
+                        icon: 'error',
+                        confirmButtonColor: '#290909'
+                    });
+                    return;
+                }
+                
+                // Submit feedback via AJAX
+                const feedbackData = {
+                    roomType: roomType,
+                    rating: rating,
+                    comment: comment
+                };
+                
+                // Show loading state
+                Swal.fire({
+                    title: 'Submitting...',
+                    text: 'Please wait while we submit your feedback',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                fetch('/api/Feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(feedbackData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Thank You!',
+                            text: 'Your feedback has been submitted successfully.',
+                            icon: 'success',
+                            confirmButtonColor: '#290909'
+                        }).then(() => {
+                            // Reset form
+                            feedbackForm.reset();
+                            ratingInput.value = 0;
+                            stars.forEach(s => s.className = 'far fa-star');
+                            
+                            // Reload page to show the new feedback
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: data.message || 'Something went wrong. Please try again.',
+                            icon: 'error',
+                            confirmButtonColor: '#290909'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred while submitting your feedback. Please try again.',
+                        icon: 'error',
+                        confirmButtonColor: '#290909'
+                    });
+                });
+            });
+        }
+    });
+</script>

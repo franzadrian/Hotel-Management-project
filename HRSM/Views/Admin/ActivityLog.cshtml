@@ -1,0 +1,887 @@
+@model List<HRSM.Models.Activity>
+@{
+    ViewData["Title"] = "Activity Log";
+    Layout = null;
+    
+    var activityTypes = ViewBag.ActivityTypes as List<string> ?? new List<string>();
+    var selectedType = ViewBag.SelectedType as string;
+    var fromDate = ViewBag.FromDate as DateTime?;
+    var toDate = ViewBag.ToDate as DateTime?;
+    var errorMessage = ViewBag.ErrorMessage as string;
+    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
+    var totalItems = ViewBag.TotalItems as int? ?? 0;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #290909;
+            --primary-light: #3a0d0d;
+            --primary-dark: #1a0505;
+            --accent: #d4a373;
+            --accent-light: #e8c9a8;
+            --text-light: #f8f8f8;
+            --text-muted: #aaaaaa;
+            --text-dark: #222222;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 2.5rem;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        /* HEADER BUTTONS */
+        .header-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            box-shadow: var(--shadow-sm);
+            font-family: 'Montserrat', sans-serif;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            z-index: 1;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .back-btn i {
+            font-size: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .back-btn .btn-text {
+            position: relative;
+            z-index: 2;
+        }
+
+        .back-btn .dashboard-stats {
+            position: relative;
+            margin-left: 0.5rem;
+            padding-left: 0.5rem;
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 0.8rem;
+            line-height: 1.4;
+            z-index: 2;
+        }
+
+        .back-btn .dashboard-stats .stat {
+            opacity: 0.9;
+        }
+
+        /* FILTER SECTION */
+        .filter-section {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-top: 4px solid var(--primary);
+        }
+        
+        .activity-types-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .legend-color.booking {
+            background-color: var(--info);
+        }
+        
+        .legend-color.service {
+            background-color: var(--warning);
+        }
+        
+        .legend-color.maintenance {
+            background-color: #6c757d;
+        }
+        
+        .legend-color.staff {
+            background-color: #d63384;
+        }
+        
+        .legend-color.room {
+            background-color: #3c5a99;
+        }
+        
+        .legend-color.feedback {
+            background-color: var(--success);
+        }
+        
+        .legend-color.payment {
+            background-color: #008000;
+        }
+        
+        .legend-color.system {
+            background-color: #4b4b4b;
+        }
+
+        .filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .apply-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .apply-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .reset-btn {
+            background: #f2f2f2;
+            color: var(--text-dark);
+        }
+
+        .reset-btn:hover {
+            background: #e5e5e5;
+            transform: translateY(-2px);
+        }
+
+        /* ACTIVITY TABLE */
+        .activity-section {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            border-top: 4px solid var(--primary);
+        }
+
+        .activity-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .activity-table th {
+            text-align: center;
+            padding: 1rem;
+            background-color: rgba(41, 9, 9, 0.05);
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .activity-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .activity-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .activity-table tr:hover {
+            background-color: rgba(41, 9, 9, 0.02);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(212, 163, 115, 0.2);
+            color: var(--accent);
+            margin: 0 auto;
+        }
+
+        .activity-icon.booking {
+            background-color: rgba(23, 162, 184, 0.1);
+            color: var(--info);
+        }
+        
+        .activity-icon.service {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+        }
+        
+        .activity-icon.feedback {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+
+        .activity-icon.maintenance {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: #6c757d;
+        }
+        
+        .activity-icon.staff {
+            background-color: rgba(214, 51, 132, 0.1);
+            color: #d63384;
+        }
+        
+        .activity-icon.room {
+            background-color: rgba(60, 90, 153, 0.1);
+            color: #3c5a99;
+        }
+        
+        .activity-icon.payment {
+            background-color: rgba(0, 128, 0, 0.1);
+            color: #008000;
+        }
+        
+        .activity-icon.system {
+            background-color: rgba(75, 75, 75, 0.1);
+            color: #4b4b4b;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .type-badge.booking {
+            background-color: rgba(23, 162, 184, 0.1);
+            color: var(--info);
+        }
+        
+        .type-badge.service {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+        }
+        
+        .type-badge.feedback {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+
+        .type-badge.maintenance {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: #6c757d;
+        }
+        
+        .type-badge.staff {
+            background-color: rgba(214, 51, 132, 0.1);
+            color: #d63384;
+        }
+        
+        .type-badge.room {
+            background-color: rgba(60, 90, 153, 0.1);
+            color: #3c5a99;
+        }
+        
+        .type-badge.payment {
+            background-color: rgba(0, 128, 0, 0.1);
+            color: #008000;
+        }
+        
+        .type-badge.system {
+            background-color: rgba(75, 75, 75, 0.1);
+            color: #4b4b4b;
+        }
+
+        .related-link {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .related-link:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .empty-table {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .result-summary {
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .result-summary span {
+            display: inline-block;
+            margin-left: 1rem;
+        }
+        
+        .result-summary strong {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* PAGINATION */
+        .pagination-container {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .pagination-info {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background-color: var(--card-bg);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(41, 9, 9, 0.1), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .page-link:hover::before {
+            opacity: 1;
+        }
+
+        .page-link:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .page-link.active {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .pagination-ellipsis {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        /* RESPONSIVE STYLES */
+        @@media (max-width: 1200px) {
+            .filter-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-buttons {
+                margin-top: 1rem;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .header-buttons {
+                width: 100%;
+            }
+            
+            .back-btn {
+                width: 100%;
+                justify-content: space-between;
+                padding: 1rem;
+            }
+            
+            .back-btn .dashboard-stats {
+                text-align: right;
+            }
+            
+            .activity-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .pagination-container {
+                padding: 0 1rem;
+            }
+            
+            .pagination {
+                margin: 0 auto;
+            }
+            
+            .page-link {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .filter-form {
+                padding: 0;
+            }
+            
+            .form-group label {
+                font-size: 0.85rem;
+            }
+            
+            .form-group input, 
+            .form-group select {
+                padding: 0.6rem;
+                font-size: 0.85rem;
+            }
+            
+            .filter-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .filter-btn {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .activity-table th,
+            .activity-table td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.8rem;
+            }
+            
+            .activity-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
+            }
+            
+            .type-badge {
+                padding: 0.2rem 0.5rem;
+                font-size: 0.7rem;
+            }
+            
+            .page-link {
+                width: 30px;
+                height: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="header">
+            <h1 class="page-title">Activity Log</h1>
+            <div class="header-buttons">
+                <a href="/Admin/AdminDashboard" class="back-btn">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="btn-text">Back to Dashboard</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- FILTER SECTION -->
+        <div class="filter-section">
+            <form method="get" action="/Admin/ActivityLog" class="filter-form">
+                <div class="form-group">
+                    <label for="type">Activity Type</label>
+                    <select id="type" name="type">
+                        <option value="">All Types</option>
+                        @foreach (var type in activityTypes)
+                        {
+                            if (type == selectedType)
+                            {
+                                <option value="@type" selected>@type.ToUpper()</option>
+                            }
+                            else
+                            {
+                                <option value="@type">@type.ToUpper()</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="fromDate">From Date</label>
+                    <input type="date" id="fromDate" name="fromDate" value="@(fromDate?.ToString("yyyy-MM-dd"))">
+                </div>
+                <div class="form-group">
+                    <label for="toDate">To Date</label>
+                    <input type="date" id="toDate" name="toDate" value="@(toDate?.ToString("yyyy-MM-dd"))">
+                </div>
+                <input type="hidden" name="page" value="1">
+                <div class="filter-buttons">
+                    <button type="submit" class="filter-btn apply-btn">Apply Filters</button>
+                    <a href="/Admin/ActivityLog" class="filter-btn reset-btn">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- ACTIVITY TABLE SECTION -->
+        <div class="activity-section">
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="error-message">
+                    @errorMessage
+                </div>
+            }
+
+            @if (Model.Count > 0)
+            {
+                <div class="result-summary">
+                    Showing @Model.Count of @totalItems activities
+                    @if (totalPages > 1)
+                    {
+                        <span>(page @currentPage of @totalPages)</span>
+                    }
+                    @if (!string.IsNullOrEmpty(selectedType))
+                    {
+                        <span>filtered by type: <strong>@selectedType</strong></span>
+                    }
+                    @if (fromDate.HasValue)
+                    {
+                        <span>from: <strong>@fromDate.Value.ToString("MMM d, yyyy")</strong></span>
+                    }
+                    @if (toDate.HasValue)
+                    {
+                        <span>to: <strong>@toDate.Value.ToString("MMM d, yyyy")</strong></span>
+                    }
+                </div>
+
+                <table class="activity-table">
+                    <thead>
+                        <tr>
+                            <th width="10%"></th>
+                            <th width="15%">Type</th>
+                            <th width="50%">Description</th>
+                            <th width="25%">Date & Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var activity in Model)
+                        {
+                            // Skip login/logout activities and system initialization messages
+                            if (activity.Message != null && 
+                                (activity.Message.Contains("logged in") || 
+                                 activity.Message.Contains("logged out") ||
+                                 activity.Message.Contains("Hotel Reservation Management System initialized") ||
+                                 activity.Message.Contains("User login") ||
+                                 activity.Message.Contains("authentication")))
+                            {
+                                continue;
+                            }
+                            
+                            <tr>
+                                <td>
+                                    <div class="activity-icon @activity.ActivityType.ToLower()">
+                                        <i class="@activity.Icon"></i>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="type-badge @activity.ActivityType.ToLower()">@activity.ActivityType</span>
+                                </td>
+                                <td>@activity.Message</td>
+                                <td>@activity.CreatedAt.ToString("MMM d, yyyy h:mm tt")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                @if (totalPages > 1)
+                {
+                    <div class="pagination-container">
+                        <div class="pagination-info">
+                            Page @currentPage of @totalPages (@totalItems items)
+                        </div>
+                        <div class="pagination">
+                            @if (currentPage > 1)
+                            {
+                                <a href="@Url.Action("ActivityLog", new { type = selectedType, fromDate = fromDate?.ToString("yyyy-MM-dd"), toDate = toDate?.ToString("yyyy-MM-dd"), page = currentPage - 1 })" class="page-link">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            }
+
+                            @{
+                                // Calculate range of pages to show
+                                var startPage = Math.Max(1, currentPage - 2);
+                                var endPage = Math.Min(totalPages, startPage + 4);
+                                
+                                // Adjust start page if end page is too close
+                                if (endPage - startPage < 4 && startPage > 1)
+                                {
+                                    startPage = Math.Max(1, endPage - 4);
+                                }
+                            }
+
+                            @if (startPage > 1)
+                            {
+                                <a href="@Url.Action("ActivityLog", new { type = selectedType, fromDate = fromDate?.ToString("yyyy-MM-dd"), toDate = toDate?.ToString("yyyy-MM-dd"), page = 1 })" class="page-link">1</a>
+                                
+                                @if (startPage > 2)
+                                {
+                                    <span class="pagination-ellipsis">...</span>
+                                }
+                            }
+
+                            @for (var i = startPage; i <= endPage; i++)
+                            {
+                                <a href="@Url.Action("ActivityLog", new { type = selectedType, fromDate = fromDate?.ToString("yyyy-MM-dd"), toDate = toDate?.ToString("yyyy-MM-dd"), page = i })" 
+                                   class="page-link @(i == currentPage ? "active" : "")">@i</a>
+                            }
+
+                            @if (endPage < totalPages)
+                            {
+                                @if (endPage < totalPages - 1)
+                                {
+                                    <span class="pagination-ellipsis">...</span>
+                                }
+                                
+                                <a href="@Url.Action("ActivityLog", new { type = selectedType, fromDate = fromDate?.ToString("yyyy-MM-dd"), toDate = toDate?.ToString("yyyy-MM-dd"), page = totalPages })" class="page-link">@totalPages</a>
+                            }
+
+                            @if (currentPage < totalPages)
+                            {
+                                <a href="@Url.Action("ActivityLog", new { type = selectedType, fromDate = fromDate?.ToString("yyyy-MM-dd"), toDate = toDate?.ToString("yyyy-MM-dd"), page = currentPage + 1 })" class="page-link">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-table">
+                    <i class="fas fa-inbox fa-3x" style="opacity: 0.3; margin-bottom: 1rem;"></i>
+                    <p>No activities found matching your criteria.</p>
+                    @if (!string.IsNullOrEmpty(selectedType) || fromDate.HasValue || toDate.HasValue)
+                    {
+                        <p style="margin-top: 0.5rem;">Try adjusting your filters or <a href="/Admin/ActivityLog">view all activities</a>.</p>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Validation for date inputs
+            const fromDateInput = document.getElementById('fromDate');
+            const toDateInput = document.getElementById('toDate');
+            
+            if (fromDateInput && toDateInput) {
+                // Ensure to date is not before from date
+                toDateInput.addEventListener('change', function() {
+                    if (fromDateInput.value && toDateInput.value && toDateInput.value < fromDateInput.value) {
+                        alert('To date cannot be earlier than from date.');
+                        toDateInput.value = fromDateInput.value;
+                    }
+                });
+                
+                // Ensure from date is not after to date
+                fromDateInput.addEventListener('change', function() {
+                    if (fromDateInput.value && toDateInput.value && fromDateInput.value > toDateInput.value) {
+                        alert('From date cannot be later than to date.');
+                        fromDateInput.value = toDateInput.value;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

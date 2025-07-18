@@ -1,0 +1,88 @@
+@model HRSM.Models.Staff
+
+<div class="staff-details">
+    <div class="profile-header">
+        <div class="profile-picture large">
+            @(Model.FirstName != null && Model.FirstName.Length > 0 ? Model.FirstName[0] : "")@(Model.LastName != null && Model.LastName.Length > 0 ? Model.LastName[0] : "")
+        </div>
+        <div class="profile-title">
+            <h3>@Model.FirstName @Model.LastName</h3>
+            <p>@Model.Department</p>
+        </div>
+    </div>
+
+    <div class="details-section">
+        <div class="details-row">
+            <div class="detail-label">Email:</div>
+            <div class="detail-value">@Model.Email</div>
+        </div>
+        <div class="details-row">
+            <div class="detail-label">Contact:</div>
+            <div class="detail-value">@Model.Contact</div>
+        </div>
+        <div class="details-row">
+            <div class="detail-label">Hire Date:</div>
+            <div class="detail-value">@Model.HireDate.ToString("MMM dd, yyyy")</div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .staff-details {
+        padding: 1rem;
+    }
+    
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .profile-picture.large {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary);
+        color: white;
+        font-weight: 600;
+        font-size: 1.5rem;
+        margin-right: 1.5rem;
+    }
+    
+    .profile-title h3 {
+        margin: 0;
+        color: var(--primary);
+        font-weight: 600;
+    }
+    
+    .profile-title p {
+        color: var(--text-muted);
+        margin: 0.25rem 0 0 0;
+    }
+    
+    .details-section {
+        display: grid;
+        gap: 1rem;
+    }
+    
+    .details-row {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .detail-label {
+        font-weight: 500;
+        color: var(--primary);
+    }
+    
+    .detail-value {
+        color: var(--text-dark);
+    }
+</style> 

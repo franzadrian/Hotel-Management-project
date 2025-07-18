@@ -1,0 +1,141 @@
+@model List<HRSM.Models.Event>
+@{
+    Layout = "_base";
+}
+
+@await Html.PartialAsync("_custom-header")
+@await Html.PartialAsync("_sidebar")
+
+<div class="march-events-v2">
+    <img src="/images/evebigleft.png" class="event-title-separator-v2" alt="Left Separator">
+    <h2>@(ViewBag.EventPageTitle ?? "Events")</h2>
+    <img src="/images/evebigright.png" class="event-title-separator-v2" alt="Right Separator">
+</div>
+
+@if (Model != null && Model.Any())
+{
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        var evt = Model[i];
+        
+        @* Format the date for display *@
+        string formattedDate = evt.EventDate;
+        if (DateTime.TryParse(evt.EventDate, out DateTime eventDate))
+        {
+            formattedDate = eventDate.ToString("MMMM d, yyyy");
+        }
+        
+        @if (i % 2 == 0)
+        {
+            <!-- Event with image on left -->
+            <div class="event-container-v2">
+                <div class="event-image-v2">
+                    <img src="@evt.ImagePath" alt="@evt.Title">
+                </div>
+                <div class="event-details-v2">
+                    <div class="event-title-v2">
+                        <img src="/images/evesmalll.png" class="small-separator-v2" alt="Left Separator">
+                        <h3>@evt.Title</h3>
+                        <img src="/images/evesmallr.png" class="small-separator-v2" alt="Right Separator">
+                    </div>
+                    <p><strong>Where:</strong> @evt.Location</p>
+                    <p><strong>What:</strong> @evt.Description</p>
+                    <p><strong>When:</strong> @formattedDate</p>
+                    <p><strong>Who:</strong> @evt.Participants</p>
+                    @if (!string.IsNullOrEmpty(evt.Note))
+                    {
+                        <p class="note-v2">@evt.Note</p>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Event with image on right -->
+            <div class="event-container-v2">
+                <div class="event-details-v2">
+                    <div class="event-title-v2">
+                        <img src="/images/evesmalll.png" class="small-separator-v2" alt="Left Separator">
+                        <h3>@evt.Title</h3>
+                        <img src="/images/evesmallr.png" class="small-separator-v2" alt="Right Separator">
+                    </div>
+                    <p><strong>Where:</strong> @evt.Location</p>
+                    <p><strong>What:</strong> @evt.Description</p>
+                    <p><strong>When:</strong> @formattedDate</p>
+                    <p><strong>Who:</strong> @evt.Participants</p>
+                    @if (!string.IsNullOrEmpty(evt.Note))
+                    {
+                        <p class="note-v2">@evt.Note</p>
+                    }
+                </div>
+                <div class="event-image-v2">
+                    <img src="@evt.ImagePath" alt="@evt.Title">
+                </div>
+            </div>
+        }
+    }
+}
+else
+{
+    <div class="no-events-message">
+        <p>No upcoming events are currently scheduled. Please check back later!</p>
+    </div>
+}
+
+<script>
+    // Function to update the page title
+    function updatePageTitle(title) {
+        if (title && title.trim() !== '') {
+            document.querySelector('.march-events-v2 h2').textContent = title;
+        }
+    }
+    
+    // Function to get a cookie by name
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+    
+    // Check all possible sources for the title (in order of priority)
+    window.addEventListener('DOMContentLoaded', function() {
+        // First check server-side ViewBag value
+        const viewBagTitle = '@ViewBag.EventPageTitle';
+        if (viewBagTitle && viewBagTitle !== 'Events') {
+            updatePageTitle(viewBagTitle);
+        }
+        
+        // Then check localStorage
+        const localTitle = localStorage.getItem('eventPageTitle');
+        if (localTitle) {
+            updatePageTitle(localTitle);
+        }
+        
+        // Then check sessionStorage
+        const sessionTitle = sessionStorage.getItem('eventPageTitle');
+        if (sessionTitle) {
+            updatePageTitle(sessionTitle);
+        }
+        
+        // Finally check cookies
+        const cookieTitle = getCookie('EventPageTitle');
+        if (cookieTitle) {
+            updatePageTitle(cookieTitle);
+        }
+    });
+
+    // Listen for storage events to update the title immediately
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'eventPageTitle' && e.newValue) {
+            updatePageTitle(e.newValue);
+        }
+    });
+
+    // Listen for custom message events
+    window.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'updateEventTitle' && e.data.title) {
+            updatePageTitle(e.data.title);
+        }
+    });
+</script>

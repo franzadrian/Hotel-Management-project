@@ -1,0 +1,141 @@
+@{
+    ViewData["Title"] = "Language & Currency";
+    Layout = "_base";
+}
+
+@await Html.PartialAsync("_custom-header")
+@await Html.PartialAsync("_sidebar")
+<div class="header-right">
+    <div class="notification-container">
+        <button class="notification-btn" id="notificationToggle">
+            <i class="fas fa-bell"></i>
+        </button>
+        <div class="notification-box" id="notificationBox">
+            <h4>Notifications</h4>
+            <ul>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+        </div>
+    </div>
+        <button class="sidebar-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <style>
+        /* Apply custom fonts */
+.bodied {
+    background-color: white;
+    color: #000;
+    font-family: 'Poppins', Arial, sans-serif; /* Uses Poppins first */
+    margin: 0;
+    padding: 0;
+}
+
+/* Fix header issue */
+.custom-header {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    background-image: url('/images/headerrrv2.png'); /* Background image */
+    background-size: cover;
+    background-position: center;
+}
+
+/* Dark overlay */
+.custom-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Increased darkness */
+}
+
+/* Keep header content above overlay */
+.header-content {
+    position: relative;
+    padding: 20px;
+}
+
+/* Logo */
+.header-logo {
+    width: 200px; /* Increased size */
+    height: auto;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1;
+}
+
+/* Fix container layout */
+.main-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 200px); /* Prevent affecting the header */
+}
+
+/* Style for the language & currency selection box */
+.container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+    width: 500px;
+}
+
+/* Button Styles */
+.btn-dark-brown {
+    background-color: #2c0b07;
+    color: #fff;
+    border: none;
+    width: 200px;
+    padding: 10px;
+}
+
+.btn-outline-dark-brown {
+    border: 2px solid #2c0b07;
+    color: #2c0b07;
+    background: none;
+    width: 200px;
+    padding: 10px;
+}
+
+.spacer {
+    margin-bottom: 15px;
+}
+
+    </style>
+
+<div class="bodied">
+   <div class="main-container">
+    <div class="container">
+        <h3>Select Language & Currency</h3>
+        <br>
+        <h5>
+            <span>&#127760;</span> Language
+        </h5>
+        <br>
+        <div class="spacer">
+            <button class="btn btn-dark-brown">ENGLISH</button>
+            <button class="btn btn-outline-dark-brown">FILIPINO</button>
+        </div>
+        <button class="btn btn-outline-dark-brown">OTHERS</button>
+        <br><br>
+        <br>
+        <h5>
+            <span>&#128176;</span> Currency
+        </h5>
+        <br>
+        <div class="spacer">
+            <button class="btn btn-dark-brown">₱</button>
+            <button class="btn btn-outline-dark-brown">$</button>
+        </div>
+        <button class="btn btn-outline-dark-brown">OTHERS</button>
+    </div>
+</div>
+</div>

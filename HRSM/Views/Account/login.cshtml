@@ -1,0 +1,45 @@
+@model HRSM.ViewModels.LoginViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/css/login.css">
+    <!-- Include jQuery Validation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"></script>
+</head>
+<body class="login">
+    <div class="login-box">
+        <!-- Centered Logo -->
+        <img src="~/images/logo.png" alt="Logo" class="logo">
+
+        <!-- Login Form -->
+        <form method="post" asp-controller="Account" asp-action="Login">
+            <!-- Email Field -->
+            <input type="email" asp-for="Email" placeholder="Email" class="input-field" required>
+            <span asp-validation-for="Email" class="text-danger"></span>
+
+            <!-- Password Field -->
+            <input type="password" asp-for="Password" placeholder="Password" class="input-field" required>
+            <span asp-validation-for="Password" class="text-danger"></span>
+
+            <!-- Login Button -->
+            <button type="submit" class="login-btn">Login</button>
+
+            <!-- Forgot Password Link -->
+            <a href="/Account/ForgotPassword" class="forgot-password">Forgot Password</a>
+
+            <!-- Register Link -->
+            <p class="register">Don’t have an account? <a asp-controller="Account" asp-action="Register">Register Here!</a></p>
+        </form>
+    </div>
+</body>
+</html>

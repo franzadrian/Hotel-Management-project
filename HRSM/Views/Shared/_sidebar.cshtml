@@ -1,0 +1,35 @@
+@* This is a partial view and should not have a layout *@
+
+<div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <img src="/images/celestialogo.png" alt="Le Celestia Logo" class="sidebar-logo">
+        <button class="close-btn" onclick="toggleSidebar()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <ul class="sidebar-menu">
+    <li>
+    <a asp-controller="Home" asp-action="Home">Dashboard</a>
+    </li>
+    <li>
+    <a asp-controller="Sidebar" asp-action="RoomBooking">Rooms & Bookings</a>
+    </li>
+    <li>
+    <a asp-controller="Reservation" asp-action="Index">My Reservation</a>
+    </li>
+    <li>
+    <a asp-controller="Sidebar" asp-action="ServiceRequest">Services Request</a>
+    </li>
+    <li>
+    <a asp-controller="Sidebar" asp-action="Event">Events</a>
+    </li>
+    <li>
+    <a asp-controller="Sidebar" asp-action="Contact">Contact Us</a>
+    </li>
+    <li>
+    <a asp-controller="Sidebar" asp-action="ReviewFeedback">Reviews & Feedback</a>
+    </li>
+    <li>
+    <a asp-controller="Account" asp-action="Logout">Logout</a>
+    </li>
+</div>

@@ -1,0 +1,1429 @@
+@{
+    ViewData["Title"] = "Receptionist";
+    Layout = null;
+    var today = DateTime.Now;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #290909;
+            --primary-light: #3a0d0d;
+            --primary-dark: #1a0505;
+            --accent: #d4a373;
+            --accent-light: #e8c9a8;
+            --text-light: #f8f8f8;
+            --text-muted: #aaaaaa;
+            --text-dark: #222222;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            color: var(--text-light);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            border-right: 1px solid var(--primary-dark);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand i {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--accent);
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            margin-top: 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: var(--accent);
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 2.5rem;
+            width: calc(100% - 280px);
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        /* PROFILE PICTURE STYLES */
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            margin-top: -50px;
+        }
+
+        .profile-picture {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--accent-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid var(--accent);
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .profile-picture:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-picture i {
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        .edit-profile-tooltip {
+            position: absolute;
+            bottom: -30px;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+            border-radius: var(--radius-sm);
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            white-space: nowrap;
+            box-shadow: var(--shadow-md);
+        }
+
+        .profile-container:hover .edit-profile-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ENHANCED LOGOUT BUTTON */
+        .logout-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-sm);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .logout-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .logout-btn i {
+            font-size: 1rem;
+        }
+
+        /* RESERVATION MANAGEMENT STYLES */
+        .reservation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        .filter-select, .filter-input {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            min-width: 150px;
+        }
+
+        .search-box {
+            position: relative;
+            flex-grow: 1;
+            max-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-sm);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .action-btn.secondary {
+            background: white;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .action-btn.danger {
+            background: var(--danger);
+        }
+
+        .action-btn.success {
+            background: var(--success);
+        }
+
+        /* RESERVATION TABLE */
+        .reservation-table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .reservation-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .reservation-table th {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+
+        .reservation-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .reservation-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .reservation-table tr:hover {
+            background: rgba(212, 163, 115, 0.05);
+        }
+
+        /* STATUS BADGES */
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 0.5px solid transparent;
+        }
+
+        .status-confirmed {
+            background-color: #B4E4FF !important;
+            color: #0d6efd !important;
+            border-color: #0d6efd !important;
+        }
+
+        .status-pending {
+            background-color: #FFE69C !important;
+            color: #ffc107 !important;
+            border-color: #ffc107 !important;
+        }
+
+        .status-cancelled {
+            background-color: #FFB7B7 !important;
+            color: #dc3545 !important;
+            border-color: #dc3545 !important;
+        }
+
+        .status-checkedin {
+            background-color: #BEF6D0 !important;
+            color: #28a745 !important;
+            border-color: #28a745 !important;
+        }
+
+        .status-checkedout {
+            background-color: #E7A5A6 !important;
+            color: #dc3545 !important;
+            border-color: #dc3545 !important;
+        }
+
+        /* ACTION BUTTONS */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn-sm {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            color: white;
+        }
+
+        .action-btn-sm:hover {
+            transform: scale(1.1);
+        }
+
+        .action-btn-sm.edit {
+            background: var(--info);
+        }
+
+        .action-btn-sm.view {
+            background: var(--primary);
+        }
+
+        .action-btn-sm.cancel {
+            background: var(--danger);
+        }
+
+        .action-btn-sm.checkin {
+            background: var(--success);
+        }
+
+        /* PAGINATION */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 1.5rem;
+            gap: 0.5rem;
+        }
+
+        .page-item {
+            list-style: none;
+        }
+
+        .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            background: white;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .page-link:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .page-link.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* FORM STYLES */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(41, 9, 9, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-col {
+            flex: 1;
+        }
+
+        /* ROOM SELECTION */
+        .room-selection {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .room-card {
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .room-card.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(41, 9, 9, 0.1);
+        }
+
+        .room-image {
+            height: 150px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .room-details {
+            padding: 1rem;
+        }
+
+        .room-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .room-price {
+            color: var(--success);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .room-description {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        /* RESPONSIVE */
+        @@media (max-width: 1200px) {
+            .reservation-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .form-row, .room-selection {
+                flex-direction: column;
+            }
+            
+            .reservation-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .search-box {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+
+        /* CUSTOM STYLES FOR DATE */
+        .today-date {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* STATISTICS CARDS */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .stat-icon.confirmed {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: #0d6efd;
+        }
+
+        .stat-icon.checkedin {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+
+        .stat-icon.checkedout {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+        }
+
+        .stat-icon.pending {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+        }
+
+        .stat-info h3 {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* SECTION HEADINGS */
+        .section-heading {
+            margin: 2rem 0 1.5rem;
+        }
+
+        .section-heading h2 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 0.5rem;
+        }
+
+        .section-heading h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        /* TODAY'S TASKS */
+        .today-tasks {
+            margin-bottom: 2rem;
+        }
+
+        .tasks-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .task-card {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border-left: 4px solid var(--accent);
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .task-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .task-icon.checkin {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+
+        .task-icon.checkout {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+        }
+
+        .task-info h3 {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .task-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand">
+            <i class="fas fa-hotel"></i>
+            <h1>Staff Portal</h1>
+        </div>
+        <nav class="nav-menu">
+            @{
+                var department = User.FindFirst("Department")?.Value ?? "Receptionist";
+            }
+            <div class="nav-item">
+                <a href="/Staff/ReceptionistDashboard" class="nav-link active">
+                    <i class="fas fa-concierge-bell"></i>
+                    <span>&nbsp;Receptionist</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Staff/RoomManagement" class="nav-link">
+                    <i class="fas fa-bed"></i>
+                    <span>&nbsp;Rooms</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Account/Logout" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>&nbsp;Logout</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <h1 class="page-title">Welcome back, @(ViewBag.StaffName?.Split(' ')[0])!</h1>
+                <div class="today-date">@today.ToString("dddd, MMMM dd, yyyy")</div>
+            </div>
+            <a href="/Staff/StaffInfo" class="profile-container">
+                <div class="profile-picture">
+                    @if (User.FindFirst("ProfilePicture")?.Value != null)
+                    {
+                        <img src="@User.FindFirst("ProfilePicture")?.Value" alt="Profile" />
+                    }
+                    else
+                    {
+                        <i class="fas fa-user"></i>
+                    }
+                </div>
+                <div class="edit-profile-tooltip">Edit Profile</div>
+            </a>
+        </div>
+
+        <!-- RESERVATION STATISTICS -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon confirmed">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Confirmed Reservations</h3>
+                    <span class="stat-value">@ViewBag.ConfirmedReservations</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon checkedin">
+                    <i class="fas fa-door-open"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Checked In</h3>
+                    <span class="stat-value">@ViewBag.CheckedInReservations</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon checkedout">
+                    <i class="fas fa-door-closed"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Checked Out</h3>
+                    <span class="stat-value">@ViewBag.CheckedOutReservations</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon pending">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Pending</h3>
+                    <span class="stat-value">@ViewBag.PendingReservations</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TODAY'S TASKS -->
+        <div class="today-tasks">
+            <div class="section-heading">
+                <h2>Today's Tasks</h2>
+            </div>
+            <div class="tasks-row">
+                <div class="task-card">
+                    <div class="task-icon checkin">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <div class="task-info">
+                        <h3>Check-Ins Today</h3>
+                        <span class="task-value">@ViewBag.TodayCheckIns</span>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Guests arriving today</p>
+                    </div>
+                </div>
+                
+                <div class="task-card">
+                    <div class="task-icon checkout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                    <div class="task-info">
+                        <h3>Check-Outs Today</h3>
+                        <span class="task-value">@ViewBag.TodayCheckOuts</span>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Guests departing today</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESERVATION CONTROLS -->
+        <div class="section-heading">
+            <h2>Manage Reservations</h2>
+        </div>
+        <div class="reservation-header">
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <span class="filter-label">Status:</span>
+                    <select class="filter-select">
+                        <option value="all">All</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="pending">Pending</option>
+                        <option value="cancelled">Cancelled</option>
+                        <option value="checkedin">Checked In</option>
+                        <option value="checkedout">Checked Out</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">Date Range:</span>
+                    <input type="date" class="filter-input">
+                    <span>to</span>
+                    <input type="date" class="filter-input">
+                </div>
+            </div>
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search reservations...">
+            </div>
+        </div>
+
+        <!-- RESERVATION TABLE -->
+        <div class="reservation-table-container">
+            <table class="reservation-table">
+                <thead>
+                    <tr>
+                        <th>Reservation ID</th>
+                        <th>Guest Name</th>
+                        <th>Room Type</th>
+                        <th>Check-In</th>
+                        <th>Check-Out</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table data will be dynamically populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGINATION -->
+        <ul class="pagination">
+            <li class="page-item">
+                <a href="#" class="page-link">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a href="#" class="page-link active">1</a>
+            </li>
+            <li class="page-item">
+                <a href="#" class="page-link">2</a>
+            </li>
+            <li class="page-item">
+                <a href="#" class="page-link">3</a>
+            </li>
+            <li class="page-item">
+                <a href="#" class="page-link">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- VIEW RESERVATION MODAL -->
+    <div class="modal-overlay" id="viewReservationModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Reservation Details</h3>
+                <button class="modal-close" id="closeViewModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="reservation-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Reservation ID:</span>
+                        <span class="detail-value">RES-2023-0015</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Guest Name:</span>
+                        <span class="detail-value">John Smith</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Contact Number:</span>
+                        <span class="detail-value">+63 912 345 6789</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value">john.smith@example.com</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Room Type:</span>
+                        <span class="detail-value">Deluxe Room</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Check-In:</span>
+                        <span class="detail-value">15/05/2023</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Check-Out:</span>
+                        <span class="detail-value">20/05/2023</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Nights:</span>
+                        <span class="detail-value">5</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Guests:</span>
+                        <span class="detail-value">2 Adults, 1 Child</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Status:</span>
+                        <span class="status-badge status-confirmed">Confirmed</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Payment Method:</span>
+                        <span class="detail-value">Credit Card</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Total Amount:</span>
+                        <span class="detail-value">₱17,940</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Special Requests:</span>
+                        <span class="detail-value">Non-smoking room, high floor preferred</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn" id="printReservation">Print</button>
+                <button class="action-btn secondary" id="closeDetails">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            let currentReservations = [];
+            let currentPage = 1;
+            const itemsPerPage = 10;
+            const statusFilter = document.querySelector('.filter-select');
+            const dateInputs = document.querySelectorAll('.filter-input');
+            const searchInput = document.querySelector('.search-input');
+            
+            // Load initial reservations
+            loadReservations();
+
+            // Event listeners for filters
+            statusFilter.addEventListener('change', loadReservations);
+            dateInputs.forEach(input => input.addEventListener('change', loadReservations));
+            searchInput.addEventListener('input', filterReservations);
+
+            // Close modal handlers
+            document.querySelectorAll('.modal-close, .action-btn.secondary').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.modal-overlay').classList.remove('active');
+                });
+            });
+            
+            // Load reservations from the server
+            async function loadReservations() {
+                try {
+                    const status = statusFilter.value;
+                    const startDate = dateInputs[0].value;
+                    const endDate = dateInputs[1].value;
+
+                    const response = await fetch(`/api/Booking/GetReservations?status=${status}&startDate=${startDate}&endDate=${endDate}`);
+                    const result = await response.json();
+
+                    if (result.success) {
+                        currentReservations = result.data;
+                        updatePagination();
+                        renderReservations(currentReservations);
+                    } else {
+                        console.error('Error loading reservations:', result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+
+            // Filter reservations based on search input
+            function filterReservations() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const filtered = currentReservations.filter(reservation => 
+                    reservation.reservationNumber.toLowerCase().includes(searchTerm) ||
+                    reservation.guestName.toLowerCase().includes(searchTerm) ||
+                    reservation.roomType.toLowerCase().includes(searchTerm)
+                );
+                renderReservations(filtered);
+            }
+
+            // Render reservations in the table
+            function renderReservations(reservations) {
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedReservations = reservations.slice(startIndex, endIndex);
+                
+                const tbody = document.querySelector('.reservation-table tbody');
+                tbody.innerHTML = '';
+
+                paginatedReservations.forEach(reservation => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${reservation.reservationNumber}</td>
+                        <td>${reservation.guestName}</td>
+                        <td>${reservation.roomType}</td>
+                        <td>${reservation.checkIn}</td>
+                        <td>${reservation.checkOut}</td>
+                        <td><span class="status-badge status-${reservation.status.toLowerCase()}">${reservation.status}</span></td>
+                        <td>₱${reservation.totalAmount.toLocaleString()}</td>
+                        <td>
+                            <div class="action-buttons">
+                                ${getActionButton(reservation.status, reservation.bookingId)}
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                updatePagination(reservations.length);
+            }
+
+            // Update pagination
+            function updatePagination(totalItems) {
+                const totalPages = Math.ceil(totalItems / itemsPerPage);
+                const pagination = document.querySelector('.pagination');
+                pagination.innerHTML = '';
+
+                // Previous button
+                pagination.innerHTML += `
+                    <li class="page-item">
+                        <a href="#" class="page-link" onclick="changePage(${currentPage - 1})">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                `;
+
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    pagination.innerHTML += `
+                        <li class="page-item">
+                            <a href="#" class="page-link ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</a>
+                        </li>
+                    `;
+                }
+
+                // Next button
+                pagination.innerHTML += `
+                    <li class="page-item">
+                        <a href="#" class="page-link" onclick="changePage(${currentPage + 1})">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                `;
+            }
+
+            // Change page
+            window.changePage = function(page) {
+                const totalPages = Math.ceil(currentReservations.length / itemsPerPage);
+                if (page >= 1 && page <= totalPages) {
+                    currentPage = page;
+                    renderReservations(currentReservations);
+                }
+            };
+
+            // Get appropriate action button based on status
+            function getActionButton(status, bookingId) {
+                switch(status.toLowerCase()) {
+                    case 'pending':
+                        return `
+                            <button class="action-btn-sm view" onclick="viewReservation(${bookingId})" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn-sm checkin" onclick="updateStatus(${bookingId}, 'Confirmed')" title="Approve">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="action-btn-sm cancel" onclick="updateStatus(${bookingId}, 'Denied')" title="Deny">
+                                <i class="fas fa-times"></i>
+                            </button>`;
+                    case 'confirmed':
+                        return `
+                            <button class="action-btn-sm view" onclick="viewReservation(${bookingId})" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn-sm checkin" onclick="updateStatus(${bookingId}, 'CheckedIn')" title="Check In">
+                                <i class="fas fa-key"></i>
+                            </button>
+                            <button class="action-btn-sm cancel" onclick="updateStatus(${bookingId}, 'Cancelled')" title="Cancel">
+                                <i class="fas fa-ban"></i>
+                            </button>`;
+                    case 'checkedin':
+                        return `
+                            <button class="action-btn-sm view" onclick="viewReservation(${bookingId})" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn-sm cancel" onclick="updateStatus(${bookingId}, 'CheckedOut')" title="Check Out">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>`;
+                    case 'denied':
+                    case 'cancelled':
+                    case 'checkedout':
+                        return `
+                            <button class="action-btn-sm view" onclick="viewReservation(${bookingId})" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>`;
+                    default:
+                        return `
+                            <button class="action-btn-sm view" onclick="viewReservation(${bookingId})" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>`;
+                }
+            }
+            
+            // View reservation details
+            window.viewReservation = async function(bookingId) {
+                try {
+                    const response = await fetch(`/api/Booking/GetReservation/${bookingId}`);
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const details = result.data;
+                        populateViewModal(details);
+                        document.getElementById('viewReservationModal').classList.add('active');
+                    } else {
+                        alert('Error loading reservation details: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error loading reservation details');
+                }
+            };
+
+            // Populate view modal with reservation details
+            function populateViewModal(details) {
+                const modalBody = document.querySelector('#viewReservationModal .modal-body');
+                modalBody.innerHTML = `
+                    <div class="reservation-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Reservation ID:</span>
+                            <span class="detail-value">${details.reservationNumber}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Guest Name:</span>
+                            <span class="detail-value">${details.guestName}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Contact Number:</span>
+                            <span class="detail-value">${details.contact}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Email:</span>
+                            <span class="detail-value">${details.email}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Room Type:</span>
+                            <span class="detail-value">${details.roomType}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Room Number:</span>
+                            <span class="detail-value">${details.roomNumber}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Check-In:</span>
+                            <span class="detail-value">${details.checkIn}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Check-Out:</span>
+                            <span class="detail-value">${details.checkOut}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Nights:</span>
+                            <span class="detail-value">${details.nights}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Guests:</span>
+                            <span class="detail-value">${details.numAdults} Adults, ${details.numChildren} Children</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status:</span>
+                            <span class="status-badge status-${details.status.toLowerCase()}">${details.status}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Payment Method:</span>
+                            <span class="detail-value">${details.paymentMethod}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Total Amount:</span>
+                            <span class="detail-value">₱${details.totalAmount.toLocaleString()}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Special Requests:</span>
+                            <span class="detail-value">${details.specialRequests || 'None'}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Update reservation status
+            window.updateStatus = async function(bookingId, newStatus) {
+                const statusMessages = {
+                    'Confirmed': 'approve',
+                    'Denied': 'deny',
+                    'Cancelled': 'cancel',
+                    'CheckedIn': 'check in',
+                    'CheckedOut': 'check out'
+                };
+
+                const actionWord = statusMessages[newStatus] || 'update the status of';
+                
+                if (!confirm(`Are you sure you want to ${actionWord} this reservation?`)) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/Booking/UpdateStatus/${bookingId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(newStatus)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(`Reservation ${actionWord}d successfully`);
+                        loadReservations();
+                    } else {
+                        alert('Error updating status: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error updating status: ' + error.message);
+                }
+            };
+        });
+    </script>
+</body>
+</html>

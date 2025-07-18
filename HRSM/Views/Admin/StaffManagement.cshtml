@@ -1,0 +1,1620 @@
+@model HRSM.Models.Staff
+
+@{
+    ViewData["Title"] = "Staff Management";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #290909;
+            --primary-light: #3a0d0d;
+            --primary-dark: #1a0505;
+            --accent: #d4a373;
+            --accent-light: #e8c9a8;
+            --text-light: #f8f8f8;
+            --text-muted: #aaaaaa;
+            --text-dark: #222222;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            color: var(--text-light);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            border-right: 1px solid var(--primary-dark);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand i {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--accent);
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            margin-top: 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: var(--accent);
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 2.5rem;
+            width: calc(100% - 280px);
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        /* TABLE STYLES */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 0;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--primary);
+            color: var(--text-light);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            text-align: center;
+        }
+
+        tr:hover {
+            background-color: rgba(212, 163, 115, 0.05);
+        }
+
+        /* ACTION BUTTONS */
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: white;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            margin-right: 0.5rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-btn.edit {
+            background: var(--warning);
+        }
+
+        .action-btn.delete {
+            background: var(--danger);
+        }
+
+        .action-btn.view {
+            background: var(--info);
+        }
+
+        /* ADD STAFF BUTTON */
+        .add-staff-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+
+        .add-staff-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* MODAL STYLES */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal.open {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-md);
+            max-width: 650px;
+            width: 95%;
+            animation: modalEnter 0.3s;
+            box-shadow: var(--shadow-lg);
+        }
+
+        @@keyframes modalEnter {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 1rem;
+        }
+
+        /* FORM STYLING */
+        .form-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-title {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .form-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.35rem;
+            font-weight: 500;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.2);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M8 12l-6-6h12l-6 6z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.8rem center;
+            background-size: 12px;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.2);
+        }
+
+        .text-danger {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--text-light);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f1f1f1;
+            color: var(--text-dark);
+        }
+
+        .btn-secondary:hover {
+            background: #e4e4e4;
+            transform: translateY(-2px);
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: -0.5rem;
+        }
+
+        .col-md-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+            padding: 0.5rem;
+        }
+
+        .alert {
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+        }
+
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(40, 167, 69, 0.2);
+        }
+
+        /* STAFF PROFILE */
+        .staff-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .profile-picture {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-light);
+            color: white;
+            font-weight: 600;
+        }
+
+        .staff-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .staff-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .staff-email {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* RESPONSIVE */
+        @@media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .col-md-6 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+        }
+
+        /* STAFF STATISTICS CARDS */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .stat-icon.total {
+            background-color: rgba(41, 9, 9, 0.1);
+            color: var(--primary);
+        }
+
+        .stat-icon.reception {
+            background-color: rgba(212, 163, 115, 0.1);
+            color: var(--accent);
+        }
+
+        .stat-icon.room {
+            background-color: rgba(23, 162, 184, 0.1);
+            color: var(--info);
+        }
+
+        .stat-icon.maintenance {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+        }
+
+        .stat-info h3 {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* FILTER CONTAINER */
+        .filter-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.2);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.6rem 1rem;
+            background-color: #f1f1f1;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-dark);
+        }
+
+        .filter-btn:hover {
+            background-color: #e4e4e4;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary);
+            color: var(--text-light);
+        }
+
+        /* Hide rows when filtered */
+        tr.hidden {
+            display: none;
+        }
+
+        /* No results message */
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* PAGINATION STYLES */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .pagination-info {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            background-color: #f1f1f1;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pagination-btn:not(:disabled):hover {
+            background-color: #e4e4e4;
+            transform: translateY(-2px);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-numbers {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .page-number {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            background-color: #f1f1f1;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .page-number:hover {
+            background-color: #e4e4e4;
+            transform: translateY(-2px);
+        }
+
+        .page-number.active {
+            background-color: var(--primary);
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand">
+            <i class="fas fa-shield-alt"></i>
+            <h1>Admin Portal</h1>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item">
+                <a href="/Admin/AdminDashboard" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>&nbsp;Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/UserManagement" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>&nbsp;Guests</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/StaffManagement" class="nav-link active">
+                    <i class="fas fa-user-tie"></i>
+                    <span>&nbsp;Staffs</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/FeedbackManagement" class="nav-link">
+                    <i class="fas fa-comments"></i>
+                    <span>&nbsp;Feedbacks</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/EventManagement" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>&nbsp;Events</span>
+                </a>
+            </div>
+            <div class="nav-item active">
+                <a href="/Admin/AnnualReport" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>&nbsp;Annual Report</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="header">
+            <h1 class="page-title">Staff Management</h1>
+            <button type="button" class="add-staff-btn" id="openAddStaffModal">
+                <i class="fas fa-plus-circle"></i> Add New Staff
+            </button>
+        </div>
+
+        @Html.AntiForgeryToken()
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <!-- STAFF STATISTICS CARDS -->
+        @{
+            int totalStaff = ViewBag.StaffMembers?.Count ?? 0;
+            int receptionists = 0;
+            int roomAttendants = 0;
+            int maintenance = 0;
+
+            if (ViewBag.StaffMembers != null)
+            {
+                foreach (var staff in ViewBag.StaffMembers)
+                {
+                    try
+                    {
+                        var dbContext = Context.RequestServices.GetService<HRSM.Data.HRSMDbContext>();
+                        if (dbContext != null)
+                        {
+                            string department = dbContext.Entry(staff).Property<string>("Department").CurrentValue ?? "";
+                            if (department == "Receptionist") receptionists++;
+                            else if (department == "Housekeeping") roomAttendants++;
+                            else if (department == "Maintenance") maintenance++;
+                        }
+                    }
+                    catch { /* Skip if there's an issue */ }
+                }
+            }
+        }
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Total Staff</h3>
+                    <span class="stat-value">@totalStaff</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon reception">
+                    <i class="fas fa-concierge-bell"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Receptionists</h3>
+                    <span class="stat-value">@receptionists</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon room">
+                    <i class="fas fa-bed"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Housekeeping</h3>
+                    <span class="stat-value">@roomAttendants</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon maintenance">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Maintenance</h3>
+                    <span class="stat-value">@maintenance</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEARCH AND FILTER TOOLS -->
+        <div class="filter-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="staffSearch" placeholder="Search by name or email..." class="search-input">
+            </div>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="Receptionist">Receptionists</button>
+                <button class="filter-btn" data-filter="Housekeeping">Housekeeping</button>
+                <button class="filter-btn" data-filter="Maintenance">Maintenance</button>
+            </div>
+        </div>
+
+        <!-- STAFF TABLE -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Staff</th>
+                        <th>Department</th>
+                        <th>Contact</th>
+                        <th>Hire Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="staffTableBody">
+                    @if (ViewBag.StaffMembers != null && ViewBag.StaffMembers.Count > 0)
+                    {
+                        foreach (var staff in ViewBag.StaffMembers)
+                        {
+                            <tr class="staff-row">
+                                <td>
+                                    <div class="staff-profile">
+                                        <div class="profile-picture">
+                                            @{
+                                                // Check if profile picture exists
+                                                var hasProfilePicture = !string.IsNullOrEmpty(staff.ProfilePicturePath);
+                                                if (hasProfilePicture)
+                                                {
+                                                    <img src="@staff.ProfilePicturePath" alt="@staff.FirstName @staff.LastName" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+                                                }
+                                                else
+                                                {
+                                                    @(staff.FirstName != null && staff.FirstName.Length > 0 ? staff.FirstName[0] : "")@(staff.LastName != null && staff.LastName.Length > 0 ? staff.LastName[0] : "")
+                                                }
+                                            }
+                                        </div>
+                                        <div class="staff-info">
+                                            <span class="staff-name">@staff.FirstName @staff.LastName</span>
+                                            <span class="staff-email">@staff.Email</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @{
+                                        var department = "Not Assigned";
+                                        try
+                                        {
+                                            var dbContext = Context.RequestServices.GetService<HRSM.Data.HRSMDbContext>();
+                                            if (dbContext != null)
+                                            {
+                                                department = dbContext.Entry(staff).Property<string>("Department").CurrentValue ?? "Not Assigned";
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            // Keep default value
+                                        }
+                                    }
+                                    @department
+                                </td>
+                                <td>@staff.Contact</td>
+                                <td>
+                                    @{
+                                        var hireDate = DateTime.Now;
+                                        try
+                                        {
+                                            var dbContext = Context.RequestServices.GetService<HRSM.Data.HRSMDbContext>();
+                                            if (dbContext != null)
+                                            {
+                                                var hireDateValue = dbContext.Entry(staff).Property<DateTime?>("HireDate").CurrentValue;
+                                                if (hireDateValue.HasValue)
+                                                {
+                                                    hireDate = hireDateValue.Value;
+                                                }
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            // Use default date
+                                        }
+                                    }
+                                    @hireDate.ToString("MMM dd, yyyy")
+                                </td>
+                                <td>
+                                    <button class="action-btn view" title="View Details" onclick="viewStaffDetails(@staff.User_Id)"><i class="fas fa-eye"></i></button>
+                                    <button class="action-btn edit" title="Edit" onclick="editStaff(@staff.User_Id)"><i class="fas fa-pencil-alt"></i></button>
+                                    <button class="action-btn delete" title="Delete" onclick="confirmDelete(@staff.User_Id, '@staff.FirstName @staff.LastName')"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem;">
+                                <p>No staff members found. Click "Add New Staff" to create one.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="pagination-container">
+            <div class="pagination-info">
+                <span id="paginationInfo">Showing 1-5 of 0 entries</span>
+            </div>
+            <div class="pagination-controls">
+                <button id="prevPage" class="pagination-btn" disabled>
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <div id="paginationNumbers" class="pagination-numbers">
+                    <!-- Page numbers will be added dynamically -->
+                </div>
+                <button id="nextPage" class="pagination-btn" disabled>
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ADD STAFF MODAL -->
+        <div class="modal @(ViewContext.ModelState.IsValid == false ? "open" : "")" id="addStaffModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Add New Staff Member</h2>
+                    <button type="button" class="modal-close" id="closeAddStaffModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form asp-controller="Admin" asp-action="StaffManagement" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="FirstName" class="form-label">First Name</label>
+                                    <input asp-for="FirstName" class="form-control" />
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="LastName" class="form-label">Last Name</label>
+                                    <input asp-for="LastName" class="form-control" />
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Email" class="form-label">Email</label>
+                                    <input asp-for="Email" class="form-control" />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Contact" class="form-label">Contact Number</label>
+                                    <input asp-for="Contact" class="form-control" placeholder="+639123456789 or 09123456789" />
+                                    <span asp-validation-for="Contact" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Password" class="form-label">Password</label>
+                                    <input asp-for="Password" type="password" class="form-control" />
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                                    <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Department" class="form-label">Department</label>
+                                    <select asp-for="Department" class="form-select">
+                                        <option value="">-- Select Department --</option>
+                                        <option value="Receptionist">Receptionist</option>
+                                        <option value="Housekeeping">Housekeeping</option>
+                                        <option value="Maintenance">Maintenance</option>
+                                    </select>
+                                    <span asp-validation-for="Department" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="HireDate" class="form-label">Hire Date</label>
+                                    <input asp-for="HireDate" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                    <span asp-validation-for="HireDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="cancelAddStaff">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus-circle"></i> Add Staff Member
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW STAFF DETAILS MODAL -->
+        <div class="modal" id="viewStaffModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Staff Details</h2>
+                    <button type="button" class="modal-close" onclick="closeModal('viewStaffModal')">&times;</button>
+                </div>
+                <div class="modal-body" id="staffDetailsContent">
+                    <!-- Content will be loaded via AJAX -->
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                        <p>Loading staff details...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EDIT STAFF MODAL -->
+        <div class="modal" id="editStaffModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Edit Staff Member</h2>
+                    <button type="button" class="modal-close" onclick="closeModal('editStaffModal')">&times;</button>
+                </div>
+                <div class="modal-body" id="editStaffContent">
+                    <!-- Content will be loaded via AJAX -->
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                        <p>Loading edit form...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal functionality
+            const addStaffModal = document.getElementById('addStaffModal');
+            const openAddStaffModal = document.getElementById('openAddStaffModal');
+            const closeAddStaffModal = document.getElementById('closeAddStaffModal');
+            const cancelAddStaff = document.getElementById('cancelAddStaff');
+
+            // Auto-hide alert messages after 2 seconds
+            const alerts = document.querySelectorAll('.alert');
+            if (alerts.length > 0) {
+                setTimeout(function() {
+                    alerts.forEach(alert => {
+                        alert.style.transition = 'opacity 0.5s ease';
+                        alert.style.opacity = '0';
+                        setTimeout(() => {
+                            alert.remove();
+                        }, 500);
+                    });
+                }, 2000);
+            }
+
+            // Check if the form has validation errors
+            const hasValidationErrors = @(ViewContext.ModelState.IsValid ? "false" : "true");
+            
+            if (hasValidationErrors) {
+                // Modal is already open due to class="open" being added in the HTML
+                console.log('Form has validation errors, modal opened automatically');
+            }
+            
+            openAddStaffModal.addEventListener('click', function() {
+                addStaffModal.classList.add('open');
+            });
+
+            closeAddStaffModal.addEventListener('click', function() {
+                addStaffModal.classList.remove('open');
+            });
+
+            cancelAddStaff.addEventListener('click', function() {
+                addStaffModal.classList.remove('open');
+            });
+        });
+
+        // Close any modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('open');
+        }
+
+        // View staff details
+        function viewStaffDetails(staffId) {
+            const viewModal = document.getElementById('viewStaffModal');
+            const contentDiv = document.getElementById('staffDetailsContent');
+            
+            // Show the modal
+            viewModal.classList.add('open');
+            
+            // Fetch staff details
+            fetch(`/Staff/GetDetails/${staffId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load staff details');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    contentDiv.innerHTML = data;
+                })
+                .catch(error => {
+                    contentDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <p>${error.message}</p>
+                            <p>Please try again later.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        // Edit staff 
+        function editStaff(staffId) {
+            const editModal = document.getElementById('editStaffModal');
+            const contentDiv = document.getElementById('editStaffContent');
+            
+            // Show the modal
+            editModal.classList.add('open');
+            
+            // Fetch edit form
+            fetch(`/Staff/GetEditForm/${staffId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load edit form');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    contentDiv.innerHTML = data;
+                    
+                    // Initialize validation for the dynamically loaded form but don't trigger validation immediately
+                    let form = $(contentDiv).find('form');
+                    $.validator.unobtrusive.parse(form);
+                    
+                    // Reset validation state to prevent immediate validation errors
+                    $('.input-validation-error', form).removeClass('input-validation-error');
+                    $('.field-validation-error', form).empty();
+                    
+                    // Set up the form to submit via AJAX
+                    form = contentDiv.querySelector('form');
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        // Get form data
+                        const formData = new FormData(form);
+                        
+                        // Get the staff ID from the form
+                        const staffId = formData.get('User_Id');
+                        
+                        // Log form data for debugging
+                        console.log('Form data:');
+                        for (let pair of formData.entries()) {
+                            console.log(pair[0] + ': ' + pair[1]);
+                        }
+                        
+                        // Submit the form via AJAX with the ID in the URL
+                        fetch(`/Admin/EditStaff/${staffId}`, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                            }
+                        })
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            console.log('Response headers:', response.headers);
+                            
+                            if (!response.ok) {
+                                if (response.status === 500) {
+                                    throw new Error('Server error: ' + response.statusText);
+                                }
+                                return response.json().then(data => {
+                                    console.log('Error response data:', data);
+                                    throw new Error(data.message || 'Unknown error occurred');
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(result => {
+                            console.log('Response result:', result);
+                            
+                            if (result.success) {
+                                // Show success message and refresh the page
+                                alert(result.message);
+                                location.reload();
+                            } else {
+                                // Show validation errors
+                                const validationSummary = contentDiv.querySelector('[data-valmsg-summary="true"]');
+                                if (validationSummary) {
+                                    validationSummary.innerHTML = '';
+                                    if (result.errors) {
+                                        const ul = document.createElement('ul');
+                                        for (let field in result.errors) {
+                                            const li = document.createElement('li');
+                                            // Handle different error formats
+                                            let errorMessage = field + ': ';
+                                            if (Array.isArray(result.errors[field])) {
+                                                errorMessage += result.errors[field].join(', ');
+                                            } else if (typeof result.errors[field] === 'string') {
+                                                errorMessage += result.errors[field];
+                                            } else if (result.errors[field].errors && Array.isArray(result.errors[field].errors)) {
+                                                errorMessage += result.errors[field].errors.join(', ');
+                                            } else {
+                                                errorMessage += JSON.stringify(result.errors[field]);
+                                            }
+                                            li.textContent = errorMessage;
+                                            ul.appendChild(li);
+                                        }
+                                        validationSummary.appendChild(ul);
+                                    } else {
+                                        validationSummary.innerHTML = result.message;
+                                    }
+                                    validationSummary.classList.add('alert', 'alert-danger');
+                                } else {
+                                    alert(result.message || 'Please correct the validation errors');
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while saving the changes: ' + error.message);
+                        });
+                    });
+                })
+                .catch(error => {
+                    contentDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <p>${error.message}</p>
+                            <p>Please try again later.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        // Delete confirmation function
+        function confirmDelete(staffId, staffName) {
+            if (confirm(`Are you sure you want to delete ${staffName}?`)) {
+                // Send delete request via fetch API
+                fetch(`/Staff/Delete/${staffId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        if (response.status === 500) {
+                            throw new Error('Server error: ' + response.statusText);
+                        }
+                        return response.json().then(data => {
+                            throw new Error(data.message || 'Unknown error occurred');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.success) {
+                        alert(result.message);
+                        // Remove the row from the table
+                        const row = document.querySelector(`button[onclick*="confirmDelete(${staffId}"]`).closest('tr');
+                        row.remove();
+                        
+                        // If no staff members left, show the empty message
+                        const tbody = document.querySelector('tbody');
+                        if (tbody.querySelectorAll('tr').length === 0) {
+                            tbody.innerHTML = `
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 2rem;">
+                                        <p>No staff members found. Click "Add New Staff" to create one.</p>
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                    } else {
+                        alert(result.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the staff member: ' + error.message);
+                });
+            }
+        }
+
+        // Search and filter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('staffSearch');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const staffRows = document.querySelectorAll('.staff-row');
+            
+            const rowsPerPage = 5;
+            let currentPage = 1;
+            let currentFilter = 'all';
+            let filteredRows = [...staffRows]; // Copy of all rows
+            
+            // Pagination elements
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
+            const paginationNumbers = document.getElementById('paginationNumbers');
+            const paginationInfo = document.getElementById('paginationInfo');
+            
+            // Function to check if a row matches the search query
+            function matchesSearch(row, query) {
+                if (!query) return true;
+                
+                query = query.toLowerCase();
+                const nameElement = row.querySelector('.staff-name');
+                const emailElement = row.querySelector('.staff-email');
+                
+                if (!nameElement || !emailElement) return false;
+                
+                const name = nameElement.textContent.toLowerCase();
+                const email = emailElement.textContent.toLowerCase();
+                
+                return name.includes(query) || email.includes(query);
+            }
+            
+            // Function to check if a row matches the department filter
+            function matchesFilter(row, filter) {
+                if (filter === 'all') return true;
+                
+                const departmentCell = row.querySelector('td:nth-child(2)');
+                if (!departmentCell) return false;
+                
+                const department = departmentCell.textContent.trim();
+                return department === filter;
+            }
+            
+            // Function to filter rows based on search and filter criteria
+            function filterRows() {
+                // Filter rows based on search and filter criteria
+                filteredRows = [...staffRows].filter(row => {
+                    const matchesSearchQuery = matchesSearch(row, searchInput.value);
+                    const matchesFilterQuery = matchesFilter(row, currentFilter);
+                    
+                    return matchesSearchQuery && matchesFilterQuery;
+                });
+                
+                // Reset to first page when filtering
+                currentPage = 1;
+                
+                // Update display
+                updateDisplay();
+            }
+            
+            // Function to update the pagination controls
+            function updatePagination() {
+                const totalRows = filteredRows.length;
+                const totalPages = Math.ceil(totalRows / rowsPerPage);
+                
+                // Update pagination info text
+                const startItem = totalRows === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
+                const endItem = Math.min(currentPage * rowsPerPage, totalRows);
+                paginationInfo.textContent = `Showing ${startItem}-${endItem} of ${totalRows} entries`;
+                
+                // Enable/disable previous/next buttons
+                prevPageBtn.disabled = currentPage === 1 || totalRows === 0;
+                nextPageBtn.disabled = currentPage >= totalPages || totalRows === 0;
+                
+                // Generate page numbers
+                paginationNumbers.innerHTML = '';
+                
+                if (totalPages <= 5) {
+                    // Less than 5 pages, show all
+                    for (let i = 1; i <= totalPages; i++) {
+                        addPageNumber(i);
+                    }
+                } else {
+                    // More than 5 pages, show current page with neighbors
+                    if (currentPage <= 3) {
+                        // Near the start
+                        for (let i = 1; i <= 4; i++) {
+                            addPageNumber(i);
+                        }
+                        addEllipsis();
+                        addPageNumber(totalPages);
+                    } else if (currentPage >= totalPages - 2) {
+                        // Near the end
+                        addPageNumber(1);
+                        addEllipsis();
+                        for (let i = totalPages - 3; i <= totalPages; i++) {
+                            addPageNumber(i);
+                        }
+                    } else {
+                        // In the middle
+                        addPageNumber(1);
+                        addEllipsis();
+                        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                            addPageNumber(i);
+                        }
+                        addEllipsis();
+                        addPageNumber(totalPages);
+                    }
+                }
+            }
+            
+            // Helper function to add a page number button
+            function addPageNumber(pageNum) {
+                const pageButton = document.createElement('div');
+                pageButton.classList.add('page-number');
+                if (pageNum === currentPage) {
+                    pageButton.classList.add('active');
+                }
+                pageButton.textContent = pageNum;
+                pageButton.addEventListener('click', () => {
+                    if (pageNum !== currentPage) {
+                        currentPage = pageNum;
+                        updateDisplay();
+                    }
+                });
+                paginationNumbers.appendChild(pageButton);
+            }
+            
+            // Helper function to add ellipsis
+            function addEllipsis() {
+                const ellipsis = document.createElement('div');
+                ellipsis.classList.add('page-number');
+                ellipsis.textContent = '...';
+                ellipsis.style.cursor = 'default';
+                ellipsis.style.backgroundColor = 'transparent';
+                paginationNumbers.appendChild(ellipsis);
+            }
+            
+            // Function to display rows for the current page
+            function displayCurrentPageRows() {
+                // Hide all rows first
+                staffRows.forEach(row => {
+                    row.classList.add('hidden');
+                });
+                
+                // Show rows for current page
+                const startIndex = (currentPage - 1) * rowsPerPage;
+                const endIndex = startIndex + rowsPerPage;
+                
+                for (let i = startIndex; i < endIndex && i < filteredRows.length; i++) {
+                    filteredRows[i].classList.remove('hidden');
+                }
+                
+                // Show/hide "no results" message
+                let noResultsRow = document.querySelector('.no-results-row');
+                
+                if (filteredRows.length === 0) {
+                    if (!noResultsRow) {
+                        const tbody = document.getElementById('staffTableBody');
+                        noResultsRow = document.createElement('tr');
+                        noResultsRow.className = 'no-results-row';
+                        noResultsRow.innerHTML = `
+                            <td colspan="5" class="no-results">
+                                <i class="fas fa-search"></i>
+                                <p>No staff members match your search criteria.</p>
+                            </td>
+                        `;
+                        tbody.appendChild(noResultsRow);
+                    } else {
+                        noResultsRow.classList.remove('hidden');
+                    }
+                } else if (noResultsRow) {
+                    noResultsRow.classList.add('hidden');
+                }
+            }
+            
+            // Function to update the display (pagination + visible rows)
+            function updateDisplay() {
+                updatePagination();
+                displayCurrentPageRows();
+            }
+            
+            // Add event listener to search input
+            searchInput.addEventListener('input', filterRows);
+            
+            // Add event listeners to filter buttons
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Update active filter
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    currentFilter = this.getAttribute('data-filter');
+                    filterRows();
+                });
+            });
+            
+            // Add event listeners to pagination controls
+            prevPageBtn.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateDisplay();
+                }
+            });
+            
+            nextPageBtn.addEventListener('click', function() {
+                const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updateDisplay();
+                }
+            });
+            
+            // Initialize table and pagination
+            filterRows();
+        });
+    </script>
+</body>
+</html> 

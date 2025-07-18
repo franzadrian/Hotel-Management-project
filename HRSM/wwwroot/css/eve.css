@@ -1,0 +1,55 @@
+.march-events-v2 {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.event-title-separator-v2 {
+    width: 80px;
+    height: 12px;
+}
+
+/* Adjusted event container to keep elements closer */
+.event-container-v2 {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center everything */
+    gap: 70px; /* Reduced spacing */
+    margin: 10px 0; /* Reduced margin */
+}
+
+.event-image-v2 img {
+    width: 320px; /* Slightly larger for better proportions */
+    height: auto;
+    border-radius: 10px;
+}
+
+.event-details-v2 {
+    max-width: 350px; /* Balanced width to prevent excessive spacing */
+}
+
+.event-title-v2 {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Keep title and separators together */
+    gap: 10px;
+}
+
+.event-title-v2 h3 {
+    margin: 0;
+}
+
+.small-separator-v2 {
+    width: 50px;
+    height: 6px;
+}
+
+.note-v2 {
+    font-style: italic;
+    color: gray;
+    text-align: center; /* Make sure the note is aligned properly */
+}

@@ -1,0 +1,30 @@
+@{
+    Layout = "_base";
+    
+    // Get events from ViewBag and cast to proper type to avoid dynamic dispatch error
+    var events = ViewBag.Events as List<HRSM.Models.Event>;
+}
+
+@await Html.PartialAsync("_header")
+@await Html.PartialAsync("_sidebar")
+    <div class="header-right">
+        <div class="user-profile-container">
+        <button class="user-profile-btn" id="userProfileToggle">
+            <i class="fas fa-user-circle"></i> <!-- User logo/icon -->
+        </button>
+        <div class="user-profile-dropdown" id="userProfileDropdown">
+            <ul>
+                <li><a href="/Account/UserInfo" id="viewAccount">View Account</a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- Include notification component -->
+    <partial name="_notification" />
+        <button class="sidebar-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+@await Html.PartialAsync("_hero")
+@await Html.PartialAsync("_booking-container")
+@await Html.PartialAsync("_event", events)
+@await Html.PartialAsync("_footer")

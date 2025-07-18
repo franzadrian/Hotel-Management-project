@@ -1,0 +1,609 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\Feedback.css",
+      "PackagePath": "staticwebassets\\css\\Feedback.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\Reservation.css",
+      "PackagePath": "staticwebassets\\css\\Reservation.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\RoomBooking.css",
+      "PackagePath": "staticwebassets\\css\\RoomBooking.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\ServiceRequest.css",
+      "PackagePath": "staticwebassets\\css\\ServiceRequest.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\booking-container.css",
+      "PackagePath": "staticwebassets\\css\\booking-container.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\content.css",
+      "PackagePath": "staticwebassets\\css\\content.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\custom-header.css",
+      "PackagePath": "staticwebassets\\css\\custom-header.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\eve.css",
+      "PackagePath": "staticwebassets\\css\\eve.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\event.css",
+      "PackagePath": "staticwebassets\\css\\event.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\footer.css",
+      "PackagePath": "staticwebassets\\css\\footer.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\header.css",
+      "PackagePath": "staticwebassets\\css\\header.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\hero.css",
+      "PackagePath": "staticwebassets\\css\\hero.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\login.css",
+      "PackagePath": "staticwebassets\\css\\login.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\loginbtn1.css",
+      "PackagePath": "staticwebassets\\css\\loginbtn1.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\notification.css",
+      "PackagePath": "staticwebassets\\css\\notification.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\payment-invoice.css",
+      "PackagePath": "staticwebassets\\css\\payment-invoice.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\register.css",
+      "PackagePath": "staticwebassets\\css\\register.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\sidebar.css",
+      "PackagePath": "staticwebassets\\css\\sidebar.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\css\\userinfo.css",
+      "PackagePath": "staticwebassets\\css\\userinfo.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\favicon.ico",
+      "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\bookingpic-arrow-left.png",
+      "PackagePath": "staticwebassets\\images\\bookingpic-arrow-left.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\bookingpic-arrow-right.png",
+      "PackagePath": "staticwebassets\\images\\bookingpic-arrow-right.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\bookingpic-celestialogo.png",
+      "PackagePath": "staticwebassets\\images\\bookingpic-celestialogo.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\bookingpic-deluxe.png",
+      "PackagePath": "staticwebassets\\images\\bookingpic-deluxe.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\bookingpic-gcash.png",
+      "PackagePath": "staticwebassets\\images\\bookingpic-gcash.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\bookingpic-lecelestialogo.png",
+      "PackagePath": "staticwebassets\\images\\bookingpic-lecelestialogo.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\bookingpic-mastercard.png",
+      "PackagePath": "staticwebassets\\images\\bookingpic-mastercard.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\bookingpic-maya.png",
+      "PackagePath": "staticwebassets\\images\\bookingpic-maya.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\bookingpic-standard.png",
+      "PackagePath": "staticwebassets\\images\\bookingpic-standard.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\bookingpic-suite.png",
+      "PackagePath": "staticwebassets\\images\\bookingpic-suite.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\bookingpic-visa.png",
+      "PackagePath": "staticwebassets\\images\\bookingpic-visa.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\brownline.png",
+      "PackagePath": "staticwebassets\\images\\brownline.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\celestialogo.png",
+      "PackagePath": "staticwebassets\\images\\celestialogo.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\default-profile.png",
+      "PackagePath": "staticwebassets\\images\\default-profile.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\deluxe-room1.png",
+      "PackagePath": "staticwebassets\\images\\deluxe-room1.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\deluxe-room2.png",
+      "PackagePath": "staticwebassets\\images\\deluxe-room2.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\deluxe-room3.png",
+      "PackagePath": "staticwebassets\\images\\deluxe-room3.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\deluxepic.png",
+      "PackagePath": "staticwebassets\\images\\deluxepic.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\design1.png",
+      "PackagePath": "staticwebassets\\images\\design1.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\evebigleft.png",
+      "PackagePath": "staticwebassets\\images\\evebigleft.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\evebigright.png",
+      "PackagePath": "staticwebassets\\images\\evebigright.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\eventpic1.png",
+      "PackagePath": "staticwebassets\\images\\eventpic1.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\eventpic2.png",
+      "PackagePath": "staticwebassets\\images\\eventpic2.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\eventpic3.png",
+      "PackagePath": "staticwebassets\\images\\eventpic3.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\evepic1.png",
+      "PackagePath": "staticwebassets\\images\\evepic1.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\evepic2.png",
+      "PackagePath": "staticwebassets\\images\\evepic2.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\evepic3.png",
+      "PackagePath": "staticwebassets\\images\\evepic3.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\evesmalll.png",
+      "PackagePath": "staticwebassets\\images\\evesmalll.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\evesmallr.png",
+      "PackagePath": "staticwebassets\\images\\evesmallr.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\footer-bgcolor.png",
+      "PackagePath": "staticwebassets\\images\\footer-bgcolor.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\header-bgcolor.png",
+      "PackagePath": "staticwebassets\\images\\header-bgcolor.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\headerpic.png",
+      "PackagePath": "staticwebassets\\images\\headerpic.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\headerrrv2.png",
+      "PackagePath": "staticwebassets\\images\\headerrrv2.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\left-diamond-line.png",
+      "PackagePath": "staticwebassets\\images\\left-diamond-line.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\login-bg.png",
+      "PackagePath": "staticwebassets\\images\\login-bg.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\logo.png",
+      "PackagePath": "staticwebassets\\images\\logo.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\pic1.png",
+      "PackagePath": "staticwebassets\\images\\pic1.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\profiles\\0adb8ced-3302-4fe8-8cad-83c04164670f.png",
+      "PackagePath": "staticwebassets\\images\\profiles\\0adb8ced-3302-4fe8-8cad-83c04164670f.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\profiles\\1937f4e3-75f6-4311-a730-25515d967f27.png",
+      "PackagePath": "staticwebassets\\images\\profiles\\1937f4e3-75f6-4311-a730-25515d967f27.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\profiles\\661a0650-6223-44b9-94fa-d7efcf8534d4_11.png",
+      "PackagePath": "staticwebassets\\images\\profiles\\661a0650-6223-44b9-94fa-d7efcf8534d4_11.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\profiles\\a38f6919-3d8b-4320-9e61-2be5beb726b2.png",
+      "PackagePath": "staticwebassets\\images\\profiles\\a38f6919-3d8b-4320-9e61-2be5beb726b2.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\profiles\\bcc20e11-fafc-431c-9de2-679a65d32932.png",
+      "PackagePath": "staticwebassets\\images\\profiles\\bcc20e11-fafc-431c-9de2-679a65d32932.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\profiles\\f1be2d5f-6f74-4e01-91ae-1d723c20e8db.png",
+      "PackagePath": "staticwebassets\\images\\profiles\\f1be2d5f-6f74-4e01-91ae-1d723c20e8db.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\profiles\\f50ede18-725a-43dc-adee-274506673367.png",
+      "PackagePath": "staticwebassets\\images\\profiles\\f50ede18-725a-43dc-adee-274506673367.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\right-diamond-line.png",
+      "PackagePath": "staticwebassets\\images\\right-diamond-line.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\right-line1.png",
+      "PackagePath": "staticwebassets\\images\\right-line1.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\standard-room1.png",
+      "PackagePath": "staticwebassets\\images\\standard-room1.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\standard-room2.png",
+      "PackagePath": "staticwebassets\\images\\standard-room2.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\standard-room3.png",
+      "PackagePath": "staticwebassets\\images\\standard-room3.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\standardpic.png",
+      "PackagePath": "staticwebassets\\images\\standardpic.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\suite-room1.png",
+      "PackagePath": "staticwebassets\\images\\suite-room1.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\suite-room2.png",
+      "PackagePath": "staticwebassets\\images\\suite-room2.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\suite-room3.png",
+      "PackagePath": "staticwebassets\\images\\suite-room3.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\suitepic.png",
+      "PackagePath": "staticwebassets\\images\\suitepic.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\text1.png",
+      "PackagePath": "staticwebassets\\images\\text1.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\two-pointed-line1.png",
+      "PackagePath": "staticwebassets\\images\\two-pointed-line1.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\welcomepic1.png",
+      "PackagePath": "staticwebassets\\images\\welcomepic1.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\welcomepic2.png",
+      "PackagePath": "staticwebassets\\images\\welcomepic2.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\images\\welcomepic3.png",
+      "PackagePath": "staticwebassets\\images\\welcomepic3.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\js\\booking-script.js",
+      "PackagePath": "staticwebassets\\js\\booking-script.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\js\\feedback-script.js",
+      "PackagePath": "staticwebassets\\js\\feedback-script.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\js\\reservation-script.js",
+      "PackagePath": "staticwebassets\\js\\reservation-script.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\js\\room-data.js",
+      "PackagePath": "staticwebassets\\js\\room-data.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\js\\room-status.js",
+      "PackagePath": "staticwebassets\\js\\room-status.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\js\\script.js",
+      "PackagePath": "staticwebassets\\js\\script.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\js\\services-script.js",
+      "PackagePath": "staticwebassets\\js\\services-script.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\LICENSE",
+      "PackagePath": "staticwebassets\\lib\\bootstrap"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.js.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.min.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.min.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.min.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.min.js.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\LICENSE.txt"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\jquery-validation\\LICENSE.md",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\LICENSE.md"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\jquery-validation\\dist\\additional-methods.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\additional-methods.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\jquery-validation\\dist\\additional-methods.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\additional-methods.min.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\jquery-validation\\dist\\jquery.validate.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\jquery.validate.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\jquery-validation\\dist\\jquery.validate.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\jquery.validate.min.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\jquery\\LICENSE.txt",
+      "PackagePath": "staticwebassets\\lib\\jquery\\LICENSE.txt"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\jquery\\dist\\jquery.js",
+      "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\jquery\\dist\\jquery.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.min.js"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\lib\\jquery\\dist\\jquery.min.map",
+      "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.min.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\uploads\\events\\84f87de2-b951-4dd3-8aa9-30b61c7f59d8.png",
+      "PackagePath": "staticwebassets\\uploads\\events\\84f87de2-b951-4dd3-8aa9-30b61c7f59d8.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\source\\repos\\HRSM\\hrsm\\wwwroot\\uploads\\events\\91c48a12-1d33-4e43-b558-f43e281268d3.png",
+      "PackagePath": "staticwebassets\\uploads\\events\\91c48a12-1d33-4e43-b558-f43e281268d3.png"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.HRSM.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.HRSM.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.HRSM.props",
+      "PackagePath": "build\\HRSM.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.HRSM.props",
+      "PackagePath": "buildMultiTargeting\\HRSM.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.HRSM.props",
+      "PackagePath": "buildTransitive\\HRSM.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

@@ -1,0 +1,114 @@
+@model HRSM.Models.User
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="~/css/register.css">
+    <!-- Include jQuery and Validation Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"></script>
+</head>
+<body class="register">
+    <div class="register-box">
+        <!-- Logo -->
+        <img src="~/images/logo.png" alt="Logo" class="logo">
+
+        <!-- Register Form -->
+        <form asp-controller="Account" asp-action="Register" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="text-danger"></div>
+            
+            <div class="name-fields">
+                <div class="form-group half-width">
+                    <input type="text" asp-for="FirstName" placeholder="Firstname" class="input-field" required>
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+                <div class="form-group half-width">
+                    <input type="text" asp-for="LastName" placeholder="Lastname" class="input-field" required>
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <input type="text" asp-for="Contact" placeholder="Contact Number" class="input-field" required>
+                <span asp-validation-for="Contact" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <input type="email" asp-for="Email" placeholder="Email" class="input-field" required>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <input type="password" asp-for="Password" placeholder="Password" class="input-field" required>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <input type="password" asp-for="ConfirmPassword" placeholder="Confirm Password" class="input-field" required>
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="register-btn">Sign Up</button>
+
+            <p class="login-link">Already have an account? <a asp-controller="Account" asp-action="Login">Login Here!</a></p>
+        </form>
+    </div>
+
+    <!-- Add client-side validation script -->
+    <script>
+        $(document).ready(function () {
+            // Enable jQuery validation
+            $("form").validate({
+                rules: {
+                    FirstName: {
+                        required: true,
+                        minlength: 2,
+                        pattern: /^[a-zA-Z]+$/
+                    },
+                    LastName: {
+                        required: true,
+                        minlength: 2,
+                        pattern: /^[a-zA-Z]+$/
+                    },
+                    Contact: {
+                        required: true,
+                        pattern: /^(\+63|0)[0-9]{10}$/
+                    },
+                    Email: {
+                        required: true,
+                        email: true
+                    },
+                    Password: {
+                        required: true,
+                        minlength: 6
+                    },
+                    ConfirmPassword: {
+                        required: true,
+                        equalTo: "#Password"
+                    }
+                },
+                messages: {
+                    FirstName: {
+                        pattern: "First name can only contain letters"
+                    },
+                    LastName: {
+                        pattern: "Last name can only contain letters"
+                    },
+                    Contact: {
+                        pattern: "Please enter a valid Philippine phone number (e.g., 09123456789 or +639123456789)"
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

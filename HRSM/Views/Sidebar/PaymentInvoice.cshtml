@@ -1,0 +1,64 @@
+@await Html.PartialAsync("_custom-header")
+@await Html.PartialAsync("_sidebar")
+<div class="header-right">
+    <div class="notification-container">
+        <button class="notification-btn" id="notificationToggle">
+            <i class="fas fa-bell"></i>
+        </button>
+        <div class="notification-box" id="notificationBox">
+            <h4>Notifications</h4>
+            <ul>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+        </div>
+    </div>
+        <button class="sidebar-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+
+<div class="v2-payments">
+    <div class="v2-header">
+        <h2>Payments & Invoice</h2>
+        <img src="/images/brownline.png" class="v2-separator" alt="Separator">
+        <button class="v2-filter-btn">
+            <i class="fas fa-sliders-h"></i> Filter
+        </button>
+    </div>
+
+    <div class="v2-room">
+        <img src="/images/standardpic.png" class="v2-room-img" alt="Standard Room">
+        <div class="v2-room-details">
+            <h3>Standard Room</h3>
+            <p class="v2-dates">03/02/2025 - 05/02/2025</p>
+            <p class="v2-stars">★★★★★</p>
+            <p class="v2-desc">A cozy and well-equipped space with essential amenities for a comfortable stay. Perfect for budget-conscious travelers.</p>
+        </div>
+        <button class="v2-view-btn">View</button>
+    </div>
+
+    <div class="v2-room">
+        <img src="/images/deluxepic.png" class="v2-room-img" alt="Deluxe Room">
+        <div class="v2-room-details">
+            <h3>Deluxe Room</h3>
+            <p class="v2-dates">05/02/2025 - 08/02/2025</p>
+            <p class="v2-stars">★★★★★</p>
+            <p class="v2-desc">A spacious and stylishly furnished room with upgraded amenities, offering extra comfort and a touch of luxury.</p>
+        </div>
+        <button class="v2-view-btn">View</button>
+    </div>
+
+    <div class="v2-room">
+        <img src="/images/suitepic.png" class="v2-room-img" alt="Suite Room">
+        <div class="v2-room-details">
+            <h3>Suite Room</h3>
+            <p class="v2-dates">08/02/2025 - 10/02/2025</p>
+            <p class="v2-stars">★★★★★</p>
+            <p class="v2-desc">A premium accommodation featuring a separate living area, elegant interiors, and top-tier amenities for a truly luxurious experience.</p>
+        </div>
+        <button class="v2-view-btn">View</button>
+    </div>
+</div>

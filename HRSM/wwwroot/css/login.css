@@ -1,0 +1,180 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(rgba(28, 7, 7, 0.35), rgba(28, 7, 7, 0.35)), 
+                url('../images/login-bg.png') no-repeat center center;
+    background-size: cover;
+}
+
+/* Login container */
+.login-box {
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 35px;
+    width: 400px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Center the logo properly */
+.logo {
+    width: 100px;
+    height: 100px;
+    display: block;
+    margin: 0 auto 20px auto; /* Center and add spacing below */
+}
+
+/* Form styles */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Aligns inputs to the left */
+    width: 100%;
+}
+
+/* Labels - Left-aligned */
+label {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    color: #4b0909;
+    margin-bottom: 5px;
+    text-align: left; /* Align text to the left */
+}
+
+/* Input fields */
+.input-field {
+    width: 100%; /* Expands input fields fully */
+    max-width: 380px; /* Keeps them structured */
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 2px solid #290909;
+    border-radius: 25px;
+    font-size: 18px;
+    font-style: italic;
+    font-weight: bold;
+    color: #4b0909;
+    text-indent: 15px; /* Moves placeholder text inside */
+}
+
+/* Placeholder text styling */
+.input-field::placeholder {
+    color: #4b0909;
+    font-weight: bold;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* Placeholder text */
+.input-field::placeholder {
+    color: #4b0909;
+    font-weight: bold;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+
+/* Button */
+.login-btn {
+    width: 60%;
+    padding: 12px;
+    background: #290909;
+    color: white;
+    font-size: 18px;
+    font-style: italic;
+    font-weight: bold;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 20px auto 10px;
+    display: block;
+    margin-top: 10px;
+    transition: background 0.3s ease;
+}
+
+.login-btn:hover {
+    background: #4b0909;
+}
+
+/* Forgot password */
+.forgot-password {
+    display: block;
+    margin-top: 10px;
+    color: #4b0909;
+    font-size: 16px;
+    font-style: italic;
+}
+
+/* Register link */
+.register {
+    margin-top: 70px; /* Adds space from other elements */
+    width: 100%;
+    text-align: center;
+}
+
+.forgot-password,
+.register {
+    text-align: center;
+    width: 100%; /* Ensures proper centering */
+    display: block;
+}
+
+.register a {
+    color: #4b0909;
+    font-weight: bold;
+    font-style: italic;
+    text-decoration: none;
+}
+
+.register a:hover {
+    text-decoration: underline;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+    color: #290909; /* Darker shade for better visibility */
+    font-weight: bold;
+}
+
+.forgot-password-title {
+    text-align: center;
+    color: #290909;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    width: 100%; /* Ensures full width for centering */
+}
+
+.forgot-text {
+    text-align: left;
+    font-size: 14px;
+    margin-top: 50px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* Ensures the form contents are centered */
+.login-box form {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers everything inside */
+    text-align: center;
+}
+
+
+
+

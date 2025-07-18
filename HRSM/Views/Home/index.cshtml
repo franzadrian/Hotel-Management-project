@@ -1,0 +1,14 @@
+@{
+    Layout = "_base";
+}
+
+@await Html.PartialAsync("_header")
+
+<a asp-controller="Account" asp-action="Login" class="login-btn1">
+    <i class="bi bi-person-circle"></i> LOG IN / SIGN UP
+</a>
+
+@await Html.PartialAsync("_hero")
+@await Html.PartialAsync("_content")
+@await Html.PartialAsync("_event")
+@await Html.PartialAsync("_footer")

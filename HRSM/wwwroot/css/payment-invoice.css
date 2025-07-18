@@ -1,0 +1,119 @@
+.v2-payments {
+    width: 100%;
+    padding: 20px;
+    font-family: 'Ysabeau Office', sans-serif;
+    color: #3e1d0e;
+}
+
+/* Title Section */
+.v2-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.v2-header h2 {
+    font-size: 24px;
+    margin-right: -20px;
+}
+
+/* Bigger Brownline Separator */
+.v2-separator {
+    width: 950px; /* Increased width */
+    height: auto;
+}
+
+/* Filter Button */
+.v2-filter-btn {
+    background-color: white;
+    border: 2px solid #3e1d0e;
+    padding: 7px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.v2-filter-btn i {
+    font-size: 16px;
+    color: #3e1d0e;
+}
+
+.v2-filter-btn:hover {
+    background-color: #3e1d0e;
+    color: white;
+}
+
+.v2-filter-btn:hover i {
+    color: white;
+}
+
+/* Room Container */
+.v2-room {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fdf7f2;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Increased Room Image Size */
+.v2-room-img {
+    width: 140px;
+    height: 140px;
+    border-radius: 30px;
+    object-fit: cover;
+}
+
+/* Room Details */
+.v2-room-details {
+    flex-grow: 1;
+    padding: 0 15px;
+}
+
+.v2-room h3 {
+    font-size: 18px;
+    margin: 0;
+}
+
+.v2-dates {
+    font-size: 14px;
+    color: #7a5230;
+    margin: 5px 0;
+}
+
+.v2-stars {
+    color: #ffcc00;
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.v2-desc {
+    font-size: 14px;
+    color: #5a3921;
+    max-width: 60%;
+}
+
+/* View Button */
+.v2-view-btn {
+    background-color: #3e1d0e;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease-in-out;
+}
+
+.v2-view-btn:hover {
+    background-color: #5a3921;
+}

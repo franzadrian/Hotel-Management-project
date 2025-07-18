@@ -1,0 +1,997 @@
+@model List<HRSM.Models.User>
+@using HRSM.Models
+
+@{
+    ViewData["Title"] = "Guest List";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #290909;
+            --primary-light: #3a0d0d;
+            --primary-dark: #1a0505;
+            --accent: #d4a373;
+            --accent-light: #e8c9a8;
+            --text-light: #f8f8f8;
+            --text-muted: #aaaaaa;
+            --text-dark: #222222;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            color: var(--text-light);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            border-right: 1px solid var(--primary-dark);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand i {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--accent);
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            margin-top: 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: var(--accent);
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 280px;
+            padding: 2.5rem;
+            width: calc(100% - 280px);
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        /* TABLE */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 0;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 1.25rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--primary);
+            color: var(--text-light);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover {
+            background-color: rgba(212, 163, 115, 0.05);
+        }
+
+        /* Guest Profile */
+        .guest-profile {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .profile-picture {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: var(--accent-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .guest-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .guest-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .guest-email {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Status Badge */
+        .guest-status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: capitalize;
+            display: inline-block;
+            border: 0.5px solid transparent;
+        }
+
+        .guest-status-checked-in {
+            background-color: #BEF6D0 !important;
+            color: #28a745 !important;
+            border-color: #28a745 !important;
+        }
+
+        .guest-status-checked-out {
+            background-color: #E7A5A6 !important;
+            color: #dc3545 !important;
+            border-color: #dc3545 !important;
+        }
+
+        .guest-status-pending {
+            background-color: rgba(255, 193, 7, 0.1) !important;
+            color: var(--warning) !important;
+            border-color: var(--warning) !important;
+        }
+
+        /* Booking History */
+        .booking-history {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .booking-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: var(--radius-sm);
+        }
+
+        .booking-dates {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* RESPONSIVE */
+        @@media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+
+        /* STATISTICS CARDS */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .stat-icon.total {
+            background-color: rgba(41, 9, 9, 0.1);
+            color: var(--primary);
+        }
+
+        .stat-icon.checked-in {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+
+        .stat-icon.checked-out {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+        }
+
+        .stat-icon.pending {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+        }
+
+        .stat-info h3 {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* FILTER CONTAINER */
+        .filter-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.2);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.6rem 1rem;
+            background-color: #f1f1f1;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-dark);
+        }
+
+        .filter-btn:hover {
+            background-color: #e4e4e4;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary);
+            color: var(--text-light);
+        }
+
+        /* Hide rows when filtered */
+        tr.hidden {
+            display: none;
+        }
+
+        /* No results message */
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* PAGINATION STYLES */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .pagination-info {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            background-color: #f1f1f1;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pagination-btn:not(:disabled):hover {
+            background-color: #e4e4e4;
+            transform: translateY(-2px);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-numbers {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .page-number {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            background-color: #f1f1f1;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .page-number:hover {
+            background-color: #e4e4e4;
+            transform: translateY(-2px);
+        }
+
+        .page-number.active {
+            background-color: var(--primary);
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand">
+            <i class="fas fa-shield-alt"></i>
+            <h1>Admin Portal</h1>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item">
+                <a href="/Admin/AdminDashboard" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>&nbsp;Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/UserManagement" class="nav-link active">
+                    <i class="fas fa-users"></i>
+                    <span>&nbsp;Guests</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/StaffManagement" class="nav-link">
+                    <i class="fas fa-user-tie"></i>
+                    <span>&nbsp;Staffs</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/FeedbackManagement" class="nav-link">
+                    <i class="fas fa-comments"></i>
+                    <span>&nbsp;Feedbacks</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="/Admin/EventManagement" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>&nbsp;Events</span>
+                </a>
+            </div>
+            <div class="nav-item active">
+                <a href="/Admin/AnnualReport" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>&nbsp;Annual Report</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="header">
+            <h1 class="page-title">Guest List</h1>
+        </div>
+
+        @Html.AntiForgeryToken()
+
+        <!-- GUEST STATISTICS CARDS -->
+        @{
+            int totalGuests = Model.Count(u => u.Role == "Guest");
+            int checkedIn = 0;
+            int checkedOut = 0;
+            int pending = 0;
+
+            foreach (var user in Model.Where(u => u.Role == "Guest"))
+            {
+                var latestBooking = user.Bookings?.OrderByDescending(b => b.BookingDate).FirstOrDefault();
+                if (latestBooking != null)
+                {
+                    if (latestBooking.Status == "CheckedIn") checkedIn++;
+                    else if (latestBooking.Status == "CheckedOut") checkedOut++;
+                    else pending++;
+                }
+            }
+        }
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Total Guests</h3>
+                    <span class="stat-value">@totalGuests</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon checked-in">
+                    <i class="fas fa-door-open"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Checked In</h3>
+                    <span class="stat-value">@checkedIn</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon checked-out">
+                    <i class="fas fa-door-closed"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Checked Out</h3>
+                    <span class="stat-value">@checkedOut</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon pending">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Pending</h3>
+                    <span class="stat-value">@pending</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEARCH AND FILTER TOOLS -->
+        <div class="filter-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="guestSearch" placeholder="Search by name..." class="search-input">
+            </div>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="CheckedIn">Checked In</button>
+                <button class="filter-btn" data-filter="CheckedOut">Checked Out</button>
+                <button class="filter-btn" data-filter="Pending">Pending</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Guest</th>
+                        <th>Contact No</th>
+                        <th>Room</th>
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="guestTableBody">
+                    @foreach (var user in Model.Where(u => u.Role == "Guest"))
+                    {
+                        var bookings = user.Bookings?.OrderByDescending(b => b.BookingDate).ToList();
+                        var latestBooking = bookings?.FirstOrDefault();
+                        var status = latestBooking?.Status ?? "Pending";
+                        
+                        <tr class="guest-row" data-status="@status">
+                            <td>
+                                <div class="guest-profile">
+                                    <div class="profile-picture">
+                                        @if (!string.IsNullOrEmpty(user.ProfilePicturePath))
+                                        {
+                                            <img src="@user.ProfilePicturePath" alt="@user.FirstName" style="width: 100%; height: 100%; border-radius: 50%;">
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-user"></i>
+                                        }
+                                    </div>
+                                    <div class="guest-info">
+                                        <span class="guest-name">@(user.FirstName ?? "N/A") @(user.LastName ?? "")</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@(user.Contact ?? "N/A")</td>
+                            <td>
+                                @if (bookings != null && bookings.Any())
+                                {
+                                    <div class="booking-history">
+                                        <div class="booking-item">
+                                            <span>Room @bookings[0].RoomNumber (@bookings[0].RoomType)</span>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                            </td>
+                            <td>
+                                @if (latestBooking != null)
+                                {
+                                    <span>@latestBooking.CheckInDate.ToString("MMM dd, yyyy")</span>
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                            </td>
+                            <td>
+                                @if (latestBooking != null)
+                                {
+                                    <span>@latestBooking.CheckOutDate.ToString("MMM dd, yyyy")</span>
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                            </td>
+                            <td>
+                                @{
+                                    var statusClass = "guest-status-pending";
+                                    var statusText = "No Booking";
+                                    var statusStyle = "";
+                                    
+                                    if (latestBooking != null)
+                                    {
+                                        statusClass = latestBooking.Status switch
+                                        {
+                                            "Pending" => "guest-status-pending",
+                                            "CheckedIn" => "guest-status-checked-in",
+                                            "CheckedOut" => "guest-status-checked-out",
+                                            _ => "guest-status-pending"
+                                        };
+                                        statusText = latestBooking.Status switch
+                                        {
+                                            "CheckedIn" => "Checked In",
+                                            "CheckedOut" => "Checked Out",
+                                            _ => latestBooking.Status
+                                        };
+                                        
+                                        statusStyle = statusClass switch
+                                        {
+                                            "guest-status-checked-in" => "background-color: #BEF6D0 !important; color: #28a745 !important; border-color: #28a745 !important;",
+                                            "guest-status-checked-out" => "background-color: #E7A5A6 !important; color: #dc3545 !important; border-color: #dc3545 !important;",
+                                            _ => ""
+                                        };
+                                    }
+                                }
+                                <span class="guest-status-badge @statusClass" style="@statusStyle">@statusText</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="pagination-container">
+            <div class="pagination-info">
+                <span id="paginationInfo">Showing 1-5 of 0 entries</span>
+            </div>
+            <div class="pagination-controls">
+                <button id="prevPage" class="pagination-btn" disabled>
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <div id="paginationNumbers" class="pagination-numbers">
+                    <!-- Page numbers will be added dynamically -->
+                </div>
+                <button id="nextPage" class="pagination-btn" disabled>
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('guestSearch');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const guestRows = document.querySelectorAll('.guest-row');
+            
+            const rowsPerPage = 5;
+            let currentPage = 1;
+            let currentFilter = 'all';
+            let filteredRows = [...guestRows]; // Copy of all rows
+            
+            // Pagination elements
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
+            const paginationNumbers = document.getElementById('paginationNumbers');
+            const paginationInfo = document.getElementById('paginationInfo');
+            
+            // Function to check if a row matches the search query
+            function matchesSearch(row, query) {
+                if (!query) return true;
+                
+                query = query.toLowerCase();
+                const nameElement = row.querySelector('.guest-name');
+                
+                if (!nameElement) return false;
+                
+                const name = nameElement.textContent.toLowerCase();
+                
+                return name.includes(query);
+            }
+            
+            // Function to check if a row matches the status filter
+            function matchesFilter(row, filter) {
+                if (filter === 'all') return true;
+                
+                const status = row.getAttribute('data-status');
+                return status === filter;
+            }
+            
+            // Function to filter rows based on search and filter criteria
+            function filterRows() {
+                // Filter rows based on search and filter criteria
+                filteredRows = [...guestRows].filter(row => {
+                    const matchesSearchQuery = matchesSearch(row, searchInput.value);
+                    const matchesFilterQuery = matchesFilter(row, currentFilter);
+                    
+                    return matchesSearchQuery && matchesFilterQuery;
+                });
+                
+                // Reset to first page when filtering
+                currentPage = 1;
+                
+                // Update display
+                updateDisplay();
+            }
+            
+            // Function to update the pagination controls
+            function updatePagination() {
+                const totalRows = filteredRows.length;
+                const totalPages = Math.ceil(totalRows / rowsPerPage);
+                
+                // Update pagination info text
+                const startItem = totalRows === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
+                const endItem = Math.min(currentPage * rowsPerPage, totalRows);
+                paginationInfo.textContent = `Showing ${startItem}-${endItem} of ${totalRows} entries`;
+                
+                // Enable/disable previous/next buttons
+                prevPageBtn.disabled = currentPage === 1 || totalRows === 0;
+                nextPageBtn.disabled = currentPage >= totalPages || totalRows === 0;
+                
+                // Generate page numbers
+                paginationNumbers.innerHTML = '';
+                
+                if (totalPages <= 5) {
+                    // Less than 5 pages, show all
+                    for (let i = 1; i <= totalPages; i++) {
+                        addPageNumber(i);
+                    }
+                } else {
+                    // More than 5 pages, show current page with neighbors
+                    if (currentPage <= 3) {
+                        // Near the start
+                        for (let i = 1; i <= 4; i++) {
+                            addPageNumber(i);
+                        }
+                        addEllipsis();
+                        addPageNumber(totalPages);
+                    } else if (currentPage >= totalPages - 2) {
+                        // Near the end
+                        addPageNumber(1);
+                        addEllipsis();
+                        for (let i = totalPages - 3; i <= totalPages; i++) {
+                            addPageNumber(i);
+                        }
+                    } else {
+                        // In the middle
+                        addPageNumber(1);
+                        addEllipsis();
+                        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                            addPageNumber(i);
+                        }
+                        addEllipsis();
+                        addPageNumber(totalPages);
+                    }
+                }
+            }
+            
+            // Helper function to add a page number button
+            function addPageNumber(pageNum) {
+                const pageButton = document.createElement('div');
+                pageButton.classList.add('page-number');
+                if (pageNum === currentPage) {
+                    pageButton.classList.add('active');
+                }
+                pageButton.textContent = pageNum;
+                pageButton.addEventListener('click', () => {
+                    if (pageNum !== currentPage) {
+                        currentPage = pageNum;
+                        updateDisplay();
+                    }
+                });
+                paginationNumbers.appendChild(pageButton);
+            }
+            
+            // Helper function to add ellipsis
+            function addEllipsis() {
+                const ellipsis = document.createElement('div');
+                ellipsis.classList.add('page-number');
+                ellipsis.textContent = '...';
+                ellipsis.style.cursor = 'default';
+                ellipsis.style.backgroundColor = 'transparent';
+                paginationNumbers.appendChild(ellipsis);
+            }
+            
+            // Function to display rows for the current page
+            function displayCurrentPageRows() {
+                // Hide all rows first
+                guestRows.forEach(row => {
+                    row.classList.add('hidden');
+                });
+                
+                // Show rows for current page
+                const startIndex = (currentPage - 1) * rowsPerPage;
+                const endIndex = startIndex + rowsPerPage;
+                
+                for (let i = startIndex; i < endIndex && i < filteredRows.length; i++) {
+                    filteredRows[i].classList.remove('hidden');
+                }
+                
+                // Show/hide "no results" message
+                let noResultsRow = document.querySelector('.no-results-row');
+                
+                if (filteredRows.length === 0) {
+                    if (!noResultsRow) {
+                        const tbody = document.getElementById('guestTableBody');
+                        noResultsRow = document.createElement('tr');
+                        noResultsRow.className = 'no-results-row';
+                        noResultsRow.innerHTML = `
+                            <td colspan="6" class="no-results">
+                                <i class="fas fa-search"></i>
+                                <p>No guests match your search criteria.</p>
+                            </td>
+                        `;
+                        tbody.appendChild(noResultsRow);
+                    } else {
+                        noResultsRow.classList.remove('hidden');
+                    }
+                } else if (noResultsRow) {
+                    noResultsRow.classList.add('hidden');
+                }
+            }
+            
+            // Function to update the display (pagination + visible rows)
+            function updateDisplay() {
+                updatePagination();
+                displayCurrentPageRows();
+            }
+            
+            // Add event listener to search input
+            searchInput.addEventListener('input', filterRows);
+            
+            // Add event listeners to filter buttons
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Update active filter
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    currentFilter = this.getAttribute('data-filter');
+                    filterRows();
+                });
+            });
+            
+            // Add event listeners to pagination controls
+            prevPageBtn.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateDisplay();
+                }
+            });
+            
+            nextPageBtn.addEventListener('click', function() {
+                const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updateDisplay();
+                }
+            });
+            
+            // Initialize table and pagination
+            filterRows();
+        });
+    </script>
+</body>
+</html>

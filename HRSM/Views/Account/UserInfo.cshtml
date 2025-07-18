@@ -1,0 +1,1055 @@
+@model HRSM.Models.User
+@{
+    ViewData["Title"] = "Account Details";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #290909;
+            --primary-light: #3a0d0d;
+            --primary-dark: #1a0505;
+            --accent: #d4a373;
+            --accent-light: #e8c9a8;
+            --text-light: #f8f8f8;
+            --text-muted: #aaaaaa;
+            --text-dark: #222222;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .account-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .account-header {
+            background: var(--primary);
+            color: var(--text-light);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .account-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .account-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--accent);
+        }
+
+        .account-body {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            overflow: hidden;
+            position: relative;
+            border: 4px solid var(--accent);
+            box-shadow: 0 0 0 4px var(--primary);
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-role {
+            display: inline-block;
+            background: rgba(212, 163, 115, 0.2);
+            color: var(--primary);
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-details {
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .detail-item {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        .action-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .action-btn.secondary {
+            background: var(--accent);
+            color: var(--primary);
+        }
+
+        .account-content {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .content-section {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--accent);
+        }
+
+        .reservations-section {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .reservations-section h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .active-reservations,
+        .past-reservations {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .booking-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 200px 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .booking-item:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .booking-room {
+            text-align: center;
+        }
+
+        .booking-room img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.5rem;
+        }
+
+        .booking-room h3 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .booking-dates p {
+            margin: 0.25rem 0;
+            color: var(--text-dark);
+        }
+
+        .booking-details p {
+            margin: 0.25rem 0;
+            color: var(--text-dark);
+        }
+
+        .booking-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .booking-status.confirmed {
+            background-color: #BEF6D0;
+            color: #28a745;
+            border: 1px solid #28a745;
+        }
+
+        .booking-status.pending {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+
+        .booking-status.cancelled {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #c62828;
+        }
+
+        .booking-status.checkin {
+            background-color: #BEF6D0;
+            color: #28a745;
+            border: 1px solid #28a745;
+        }
+
+        .booking-status.checkout {
+            background-color: #E7A5A6;
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+
+        .booking-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-secondary {
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            padding: 0.7rem 1.2rem;
+            transition: all 0.3s ease;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-info {
+            background-color: var(--accent);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            padding: 0.7rem 1.2rem;
+            transition: all 0.3s ease;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            opacity: 0.95;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .modal-title {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .current-image-preview {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+        
+        .current-image-preview p {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .current-image-preview img {
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        @@media (max-width: 992px) {
+            .account-body {
+                grid-template-columns: 1fr;
+            }
+
+            .booking-item {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .booking-room img {
+                width: 200px;
+                margin: 0 auto 1rem;
+            }
+
+            .booking-actions {
+                justify-content: center;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .booking-item {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Payment Method Styles */
+        .payment-method {
+            display: flex;
+            align-items: center;
+            padding: 1.2rem;
+            background: #f9f9f9;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+        }
+
+        .payment-method:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+            background: #fcfcfc;
+        }
+
+        .payment-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(41, 9, 9, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .payment-icon i {
+            color: var(--accent);
+            font-size: 1.8rem;
+        }
+
+        .payment-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .payment-type {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .payment-info {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Pagination Styles */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 2rem;
+            gap: 0.5rem;
+        }
+
+        .pagination-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f5f5f5;
+            color: var(--primary);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-button:hover {
+            background-color: var(--accent-light);
+            transform: translateY(-2px);
+        }
+
+        .pagination-button.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .pagination-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .pagination-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="account-container">
+        <div class="account-header">
+            <h1>My Account</h1>
+        </div>
+        
+        <div class="account-body">
+            <div class="profile-card">
+                <div class="profile-picture">
+                    <img src="@(!string.IsNullOrEmpty(Model.ProfilePicturePath) ? Model.ProfilePicturePath : $"https://ui-avatars.com/api/?name={Model.FirstName}+{Model.LastName}&background=290909&color=fff&size=150")" alt="Profile Picture">
+                </div>
+                
+                <h2 class="profile-name">@Model.FirstName @Model.LastName</h2>
+                <div class="profile-role">@Model.Role</div>
+                
+                <div class="profile-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value">@Model.Email</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Contact</div>
+                        <div class="detail-value">@(Model.Contact ?? "Not provided")</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Member Since</div>
+                        <div class="detail-value">@Model.MemberSince.ToString("MMMM yyyy")</div>
+                    </div>
+                </div>
+                
+                <button class="action-btn" onclick="openModal()">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </button>
+                <a href="/Home/Home" class="action-btn secondary">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+            </div>
+            
+            <div class="account-content">
+                <div class="reservations-section">
+                    <h2>Active Reservations</h2>
+                    <div class="active-reservations">
+                        @if (ViewBag.ActiveReservations != null && ViewBag.ActiveReservations.Count > 0)
+                        {
+                            @foreach (var booking in ViewBag.ActiveReservations)
+                            {
+                                <div class="booking-item">
+                                    <div class="booking-room">
+                                        <img src="/images/bookingpic-@(booking.RoomType.ToLower()).png" alt="@booking.RoomType Room" />
+                                        <h3>@booking.RoomType Room</h3>
+                                    </div>
+                                    <div class="booking-dates">
+                                        <p>Check-in: @booking.CheckInDate.ToString("MMM dd, yyyy")</p>
+                                        <p>Check-out: @booking.CheckOutDate.ToString("MMM dd, yyyy")</p>
+                                    </div>
+                                    <div class="booking-details">
+                                        <p>Total: ₱@booking.TotalAmount.ToString("N2")</p>
+                                        <p>Payment: @booking.PaymentMethod</p>
+                                    </div>
+                                    <div class="booking-status @booking.Status.ToLower()">
+                                        <span>@booking.Status</span>
+                                    </div>
+                                    <div class="booking-actions">
+                                        <button class="btn btn-secondary" onclick="viewDetails('@booking.ReservationNumber')">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>No active reservations found.</p>
+                        }
+                    </div>
+
+                        @if (ViewBag.PastReservations != null && ViewBag.PastReservations.Count > 0)
+                        {
+                        <h2>Past Reservations</h2>
+                            <div id="pastReservationsContainer">
+                                @foreach (var booking in ViewBag.PastReservations)
+                                {
+                                    <div class="booking-item past-reservation-item">
+                                        <div class="booking-room">
+                                            <img src="/images/bookingpic-@(booking.RoomType.ToLower()).png" alt="@booking.RoomType Room" />
+                                            <h3>@booking.RoomType Room</h3>
+                                        </div>
+                                        <div class="booking-dates">
+                                            <p>Check-in: @booking.CheckInDate.ToString("MMM dd, yyyy")</p>
+                                            <p>Check-out: @booking.CheckOutDate.ToString("MMM dd, yyyy")</p>
+                                        </div>
+                                        <div class="booking-details">
+                                            <p>Total: ₱@booking.TotalAmount.ToString("N2")</p>
+                                            <p>Payment: @booking.PaymentMethod</p>
+                                        </div>
+                                        <div class="booking-status @booking.Status.ToLower()">
+                                            <span>@booking.Status</span>
+                                        </div>
+                                        <div class="booking-actions">
+                                            <button class="btn btn-secondary" onclick="viewDetails('@booking.ReservationNumber')">
+                                                <i class="fas fa-eye"></i> View Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            
+                            <!-- Pagination Controls -->
+                            <div class="pagination-container">
+                                <button id="prevPage" class="pagination-button" disabled>
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <div id="paginationNumbers"></div>
+                                <button id="nextPage" class="pagination-button">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                            <div class="pagination-text" id="paginationInfo">
+                                Showing 1-2 of @ViewBag.PastReservations.Count reservations
+                            </div>
+                        }
+                        else
+                        {
+                            <p>No past reservations found.</p>
+                        }
+                </div>
+            </div>
+        </div>
+    </div>
+    
+<div class="modal" id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(41,9,9,0.8); z-index: 1000; align-items: center; justify-content: center; overflow-y: auto;">
+    <div class="modal-container" style="background: white; border-radius: 12px; width: 90%; max-width: 700px; margin: 2rem auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden;">
+        <!-- Modal Header -->
+        <div class="modal-header" style="background: #290909; padding: 1.5rem; color: white; text-align: center; position: relative;">
+            <h3 style="margin: 0; font-size: 1.4rem; font-weight: 600; letter-spacing: 0.5px;">
+                <i class="fas fa-user-edit" style="margin-right: 10px;"></i>Edit Profile
+            </h3>
+            <button id="modalCloseBtn" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: #d4a373; font-size: 1.5rem; cursor: pointer; transition: all 0.3s;">&times;</button>
+        </div>
+        
+        <!-- Modal Body -->
+        <form asp-action="UpdateProfile" method="post" enctype="multipart/form-data" style="padding: 2rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <!-- Left Column -->
+                <div>
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #290909; font-weight: 500;">First Name</label>
+                        <input type="text" asp-for="FirstName" required 
+                               style="width: 100%; padding: 0.8rem; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.95rem; background: #f9f9f9;">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #290909; font-weight: 500;">Last Name</label>
+                        <input type="text" asp-for="LastName" required 
+                               style="width: 100%; padding: 0.8rem; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.95rem; background: #f9f9f9;">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #290909; font-weight: 500;">Email</label>
+                        <input type="email" asp-for="Email" required 
+                               style="width: 100%; padding: 0.8rem; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.95rem; background: #f9f9f9;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #290909; font-weight: 500;">Contact Number</label>
+                        <input type="tel" asp-for="Contact" 
+                               style="width: 100%; padding: 0.8rem; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.95rem; background: #f9f9f9;">
+                    </div>
+                </div>
+                
+                <!-- Right Column - Profile Picture Section -->
+                <div style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #290909; font-weight: 500;">Profile Picture</label>
+                        <div id="fileUploadArea" style="border: 2px dashed #d4a373; border-radius: 8px; padding: 1.5rem; text-align: center; background: rgba(212,163,115,0.1); cursor: pointer; transition: all 0.3s; min-height: 180px;">
+                            <i class="fas fa-camera" style="font-size: 1.8rem; color: #290909; margin-bottom: 0.8rem;"></i>
+                            <div style="font-size: 0.85rem; color: #290909;">Click to upload image</div>
+                            <div style="font-size: 0.75rem; color: #777; margin-top: 0.3rem;">(JPG, PNG, max 5MB)</div>
+                            <input type="file" id="profilePictureInput" name="profilePicture" accept="image/*" style="display: none;">
+                            <div id="imagePreviewContainer"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Current Picture Preview -->
+                    @if (!string.IsNullOrEmpty(Model.ProfilePicturePath))
+                    {
+                        <div style="text-align: center; margin-top: 1.5rem;">
+                            <div style="font-size: 0.8rem; color: #290909; margin-bottom: 0.5rem; font-weight: 500;">Current Picture</div>
+                            <img src="@Model.ProfilePicturePath" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #d4a373; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <!-- Centered Form Actions -->
+            <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 2.5rem; border-top: 1px solid #eee; padding-top: 1.5rem;">
+                <button type="button" id="cancelBtn" style="padding: 0.8rem 1.8rem; background: #f0f0f0; border: none; border-radius: 6px; font-size: 0.95rem; color: #290909; cursor: pointer; transition: all 0.3s; font-weight: 500;">
+                    <i class="fas fa-times" style="margin-right: 8px;"></i>Cancel
+                </button>
+                <button type="submit" style="padding: 0.8rem 1.8rem; background: #290909; color: white; border: none; border-radius: 6px; font-size: 0.95rem; cursor: pointer; transition: all 0.3s; font-weight: 500;">
+                    <i class="fas fa-save" style="margin-right: 8px;"></i>Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+    
+    <script>
+    // Initialize functionality when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fix status badge styling
+        const statusBadges = document.querySelectorAll('.booking-status');
+        
+        statusBadges.forEach(badge => {
+            const statusText = badge.textContent.trim().toLowerCase();
+            
+            // Remove all existing status classes
+            badge.classList.remove('confirmed', 'pending', 'cancelled', 'checkin', 'checkout');
+            
+            // Add the correct class based on status text
+            if (statusText.includes('confirm')) {
+                badge.style.backgroundColor = '#BEF6D0';
+                badge.style.color = '#28a745';
+                badge.style.border = '1px solid #28a745';
+            } 
+            else if (statusText.includes('pend')) {
+                badge.style.backgroundColor = 'rgba(255, 193, 7, 0.1)';
+                badge.style.color = '#ffc107';
+                badge.style.border = '1px solid #ffc107';
+            }
+            else if (statusText.includes('cancel')) {
+                badge.style.backgroundColor = '#ffebee';
+                badge.style.color = '#c62828';
+                badge.style.border = '1px solid #c62828';
+            }
+            else if (statusText.includes('check') && statusText.includes('in')) {
+                badge.style.backgroundColor = '#BEF6D0';
+                badge.style.color = '#28a745';
+                badge.style.border = '1px solid #28a745';
+            }
+            else if (statusText.includes('check') && statusText.includes('out')) {
+                badge.style.backgroundColor = '#E7A5A6';
+                badge.style.color = '#dc3545';
+                badge.style.border = '1px solid #dc3545';
+            }
+        });
+        
+        // Setup past reservations pagination
+        setupPastReservationsPagination();
+    });
+   
+   // Proper modal management
+    const modal = document.getElementById('editModal');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const profilePictureInput = document.getElementById('profilePictureInput');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+
+    // Open modal function
+    function openModal() {
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            modal.style.opacity = '1';
+        }, 10);
+        // Clear any previous previews
+        imagePreviewContainer.innerHTML = '';
+    }
+
+    // Close modal function
+    function closeModal() {
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            modal.style.display = 'none';
+            // Reset form and preview when closing
+            imagePreviewContainer.innerHTML = '';
+        }, 300);
+    }
+
+    // Event listeners
+    modalCloseBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+
+    // Close modal when clicking outside content
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // File upload interactions
+    fileUploadArea.addEventListener('click', function() {
+        profilePictureInput.click();
+    });
+
+    fileUploadArea.addEventListener('mouseover', function() {
+        this.style.background = 'rgba(212,163,115,0.2)';
+        this.style.borderColor = '#290909';
+    });
+    
+    fileUploadArea.addEventListener('mouseout', function() {
+        this.style.background = 'rgba(212,163,115,0.1)';
+        this.style.borderColor = '#d4a373';
+    });
+
+    // Preview image when file selected
+    profilePictureInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            if (!validTypes.includes(file.type)) {
+                alert('Please select a valid image file (JPEG, PNG, GIF)');
+                return;
+            }
+            
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                imagePreviewContainer.innerHTML = `
+                    <div style="margin-top: 15px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: #290909; margin-bottom: 5px;">New Picture Preview:</div>
+                        <img src="${event.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 6px; border: 2px solid #d4a373;">
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Prevent form freezing by stopping event propagation
+    document.querySelector('.modal-container').addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.content-section, .profile-card');
+            sections.forEach((section, index) => {
+                setTimeout(() => {
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+            
+            sections.forEach(section => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                section.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            });
+        });
+
+    function viewDetails(reservationNumber) {
+        window.location.href = `/Reservation/Index?reservationNumber=${reservationNumber}`;
+    }
+
+    function modifyBooking(reservationNumber) {
+        window.location.href = `/Booking/Modify?reservationNumber=${reservationNumber}`;
+    }
+
+    // Pagination for past reservations
+    function setupPastReservationsPagination() {
+        const itemsPerPage = 2; // Show 2 reservations per page
+        const pastReservationItems = document.querySelectorAll('.past-reservation-item');
+        
+        if (pastReservationItems.length === 0) return;
+        
+        const pageCount = Math.ceil(pastReservationItems.length / itemsPerPage);
+        let currentPage = 1;
+        
+        // Pagination DOM elements
+        const prevPageBtn = document.getElementById('prevPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const paginationNumbers = document.getElementById('paginationNumbers');
+        const paginationInfo = document.getElementById('paginationInfo');
+        
+        // Initialize pagination
+        createPaginationNumbers();
+        setPage(1);
+        
+        // Event listeners for navigation
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                setPage(currentPage - 1);
+            }
+        });
+        
+        nextPageBtn.addEventListener('click', () => {
+            if (currentPage < pageCount) {
+                setPage(currentPage + 1);
+            }
+        });
+        
+        // Create pagination number buttons
+        function createPaginationNumbers() {
+            paginationNumbers.innerHTML = '';
+            
+            for (let i = 1; i <= pageCount; i++) {
+                const pageNumBtn = document.createElement('button');
+                pageNumBtn.className = 'pagination-button';
+                pageNumBtn.textContent = i;
+                pageNumBtn.dataset.page = i;
+                
+                pageNumBtn.addEventListener('click', () => {
+                    setPage(i);
+                });
+                
+                // Initially hide all except current page
+                if (i !== 1) {
+                    pageNumBtn.style.display = 'none';
+                }
+                
+                paginationNumbers.appendChild(pageNumBtn);
+            }
+        }
+        
+        // Set current page and update UI
+        function setPage(page) {
+            currentPage = page;
+            
+            // Hide all items
+            pastReservationItems.forEach(item => {
+                item.style.display = 'none';
+            });
+            
+            // Show items for current page
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, pastReservationItems.length);
+            
+            for (let i = startIndex; i < endIndex; i++) {
+                pastReservationItems[i].style.display = 'grid';
+            }
+            
+            // Update pagination info text
+            paginationInfo.textContent = `Showing ${startIndex + 1}-${endIndex} of ${pastReservationItems.length} reservations`;
+            
+            // Update button states
+            prevPageBtn.disabled = page === 1;
+            nextPageBtn.disabled = page === pageCount;
+            
+            // Hide all page buttons and show only the current one
+            const pageButtons = paginationNumbers.querySelectorAll('.pagination-button');
+            pageButtons.forEach((btn) => {
+                const btnPage = parseInt(btn.dataset.page);
+                // Only show the current page button
+                btn.style.display = btnPage === page ? 'flex' : 'none';
+                
+                if (btnPage === page) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+    }
+    </script>
+</body>
+</html>
